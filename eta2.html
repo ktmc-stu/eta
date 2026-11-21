@@ -361,12 +361,12 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <button class="opt" id="dbgBtn">診斷 Diagnostics</button>
     <button class="opt" id="refBtn">立即更新 Refresh now</button>
     <button class="opt" id="fsBtn2">全螢幕 Fullscreen</button>
-    <div class="pHint">設定會自動儲存。亦可用網址參數預先鎖定：?mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WCH-S&amp;reload=6</div>
+    <div class="pHint">設定會自動儲存。亦可用網址參數預先鎖定：?mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WCH-S&amp;reload=6&amp;ctb=003039</div>
   </div>
 
   <div class="panel" id="resPanel">
     <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
-    <div class="resNote">各月台已內建經核實的九巴 stop ID（預設對應），開機即用。若個別月台仍顯示未連結，或日後站點改動，可在此貼上新 stop ID 覆寫，或按「重新解析」由系統以站名＋實際路線組合自動配對。「還原預設」會清除所有覆寫並回復內建對應。</div>
+    <div class="resNote">各月台（九巴）與城巴祥和苑站均已內建經核實的 stop ID（預設對應），開機即用。若個別仍顯示未連結，或日後站點改動，可在此貼上新 ID 覆寫，或按「重新解析」由系統以站名＋實際路線組合自動配對。「還原預設」會清除所有覆寫並回復內建對應。</div>
     <div id="resList"></div>
     <div class="resActs">
       <button class="opt" id="resRun">重新解析 Re-resolve</button>
@@ -397,7 +397,7 @@ var CFG={etaMs:30000,wxMs:300000,staleMs:120000,arriveMs:60000,graceMs:45000,
   wx:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
   warn:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
   wxIcon:'https://rss.weather.gov.hk/img/pic'};
-/* 內建預設月台對應（已按九巴開放數據核實，2026-11）Built-in verified platform map */
+/* 內建預設月台對應（已按開放數據核實，2026-11）Built-in verified map */
 var DEFAULT_MAP={
   'WCH-S-534':'6CF34EF02CDBE26B',   /* 祥和苑 南 站柱1 KT534 */
   'WCH-N-261':'DE925628D8747F6D',   /* 祥和苑 北 候車亭 KT261 */
@@ -410,6 +410,7 @@ var DEFAULT_MAP={
   'KTP-S-1100':'3558FA1D8DCF1F12',  /* 觀塘游泳池 南 */
   'KTP-N-1000':'49229D04FCA51B61'   /* 觀塘游泳池 北 */
 };
+var DEFAULT_CTB='003039';            /* 城巴 祥和苑（協和街）Cheung Wo Court, Hip Wo Street (601/601P) */
 var ROW_H=88,SW=1920,SH=1080;
 var W={wkAM:{d:[1,2,3,4,5],from:360,to:660},satAM:{d:[1,2,3,4,5,6],from:360,to:660},
   wkPM:{d:[1,2,3,4,5],from:960,to:1290},night:{d:[0,1,2,3,4,5,6],from:1380,to:400},
@@ -543,11 +544,12 @@ function loadSettings(){
   if(['eta','route','platform'].indexOf(CFG.sort)<0)CFG.sort='eta';
   CFG.lock=q.lock||g('ktmc2Lock','');if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
   CFG.reloadH=Math.min(24,Math.max(0,parseInt(q.reload||g('ktmc2Reload','0'),10)||0));
-  /* 內建預設 → 網址覆寫 → 本機覆寫 */
+  /* 內建預設 → 本機覆寫 → 網址覆寫 */
   Object.keys(DEFAULT_MAP).forEach(function(k){MAP[k]=DEFAULT_MAP[k];});
+  CTB=DEFAULT_CTB;
   try{var m=JSON.parse(localStorage.getItem('ktmc2Map')||'{}');
     Object.keys(m).forEach(function(k){if(PLATBY[k]&&m[k])MAP[k]=m[k];});
-    CTB=localStorage.getItem('ktmc2Ctb')||'';}catch(e){}
+    var sc=localStorage.getItem('ktmc2Ctb');if(sc)CTB=sc;}catch(e){}
   PLATS.forEach(function(p){var v=q['sid_'+p.key];if(v)MAP[p.key]=v.trim();});
   if(q.ctb)CTB=q.ctb.trim();
   var lk=$('lockSel');clear(lk);
@@ -593,7 +595,7 @@ function resolve(force){
     var used={};Object.keys(MAP).forEach(function(k){if(MAP[k])used[MAP[k]]=1;});
     PLATS.forEach(function(p){
       if(MAP[p.key]&&!force)return;
-      if(MAP[p.key]&&force&&DEFAULT_MAP[p.key]===MAP[p.key])return; /* 保留內建預設 */
+      if(MAP[p.key]&&force&&DEFAULT_MAP[p.key]===MAP[p.key])return;
       var want={},wn=p.routes.length;p.routes.forEach(function(r){want[r.route]=1;});
       var best=null,bs=0;
       CAND.forEach(function(c){
@@ -609,20 +611,6 @@ function resolve(force){
   }).catch(function(e){olog('站清單下載失敗：'+(e&&e.message||e));buildResList();})
    .then(function(){S.resolving=false;refreshEtas();});
 }
-function resolveCtb(){
-  if(CTB)return Promise.resolve(CTB);
-  var t=nname('祥和苑');
-  return retry(function(){return fJSON(CFG.ctbRS+'601/outbound',15000);}).then(function(j){
-    var list=((j&&j.data)||[]).slice(0,18),i=0;
-    function step(){if(i>=list.length)return null;var sid=list[i++].stop;
-      return retry(function(){return fJSON(CFG.ctbStop+sid,10000);}).then(function(s){
-        var nm=(s&&s.data&&s.data.name_tc)||'';
-        return nname(nm).indexOf(t)>=0?sid:step();}).catch(function(){return step();});}
-    return step();
-  }).then(function(sid){if(sid){CTB=sid;saveMap();olog('✓ 城巴祥和苑 → '+sid);}
-    else olog('✗ 城巴祥和苑未解析（601 只顯示九巴班次）');buildResList();return CTB;})
-   .catch(function(e){olog('✗ 城巴解析失敗：'+(e&&e.message||e));return '';});
-}
 function buildResList(){
   var box=$('resList');clear(box);
   PLATS.forEach(function(p){
@@ -636,7 +624,7 @@ function buildResList(){
     inp.placeholder='九巴 stop ID';inp.setAttribute('data-p',p.key);r.appendChild(inp);
     box.appendChild(r);});
   var cr=el('div','resRow'),cn=el('div','resName');
-  cn.appendChild(el('b','','城巴 祥和苑（南行）'));cn.appendChild(el('i','','601 / 601P'));
+  cn.appendChild(el('b','','城巴 祥和苑（南行）'));cn.appendChild(el('i','','601 / 601P · 內建預設'));
   cr.appendChild(cn);
   cr.appendChild(el('div','resId'+(CTB?' ok':' bad'),CTB||'未配對 Unresolved'));
   var ci=document.createElement('input');ci.className='resIn';ci.id='ctbIn';ci.value=CTB;ci.placeholder='城巴 stop ID';
@@ -658,12 +646,12 @@ function refreshEtas(){
   if(!jobs.length){etaBusy=false;return;}
   Promise.all(jobs).then(function(){
     H.kmb.ok=okK>0;if(okK)H.kmb.t=Date.now();H.kmb.err=okK?'':eK;
-    if(CTB){H.ctb.ok=okC>0;if(okC)H.ctb.t=Date.now();H.ctb.err=okC?'':eC;}
+    H.ctb.ok=okC>0;if(okC)H.ctb.t=Date.now();H.ctb.err=okC?'':eC;
     if(okK+okC>0){S.lastEta=Date.now();S.loaded=true;}
     etaBusy=false;buildPhases();renderAll();});
 }
 function entries(p){var out=(AGG[p.key]||[]).slice();
-  if(p.key==='WCH-S-533')['601','601P'].forEach(function(r){(AGG['CTB|'+r]||[]).forEach(function(e){out.push(e);});});
+  if(p.key==='WCH-S-533'&&CTB)['601','601P'].forEach(function(r){(AGG['CTB|'+r]||[]).forEach(function(e){out.push(e);});});
   return out;}
 function viewFor(p,c,now,hk){
   var es=entries(p).filter(function(e){return e.route===c.route;}),timed=[],nulls=[],i,e;
@@ -971,7 +959,7 @@ function dbg(now){
   L.push('防螢幕保護 '+S.guard+'　Wake Lock '+(S.wake?'有':'無')+'　音效保活 '+S.audio);
   L.push('當前段 '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type==='over'?'總覽':(ph.type==='stop'?STOPS[ph.si].name+' 第'+(ph.page+1)+'/'+ph.pages+'頁':'—'))+'　每頁 '+detailPer()+' 行');
   L.push('停留 '+Math.round(CFG.dwell/1000)+'s　總覽班次 '+CFG.rows+'　自動重載 '+(CFG.reloadH?CFG.reloadH+'h':'關'));
-  L.push('月台已連結 '+resCount()+'/'+PLATS.length+'（內建預設 '+Object.keys(DEFAULT_MAP).length+' 個）　城巴站 '+(CTB||'未解析')+'　候選站 '+CAND.length);
+  L.push('九巴月台已連結 '+resCount()+'/'+PLATS.length+'（內建預設 '+Object.keys(DEFAULT_MAP).length+' 個）　城巴站 '+(CTB||'未設定')+'（內建預設 '+DEFAULT_CTB+'）');
   ['kmb','ctb','hko'].forEach(function(k){var h=H[k];
     L.push(k.toUpperCase()+'：'+(h.ok?'正常':'失敗')+(h.t?(' @'+hhmm(h.t)):'')+(h.err?('　'+h.err):''));});
   if(S.errs.length){L.push('錯誤：');S.errs.slice(-6).forEach(function(e){L.push('  '+e);});}
@@ -1047,7 +1035,7 @@ function bindUI(){
   $('dbgBtn').addEventListener('click',function(){openPanel('dbg');});
   $('refBtn').addEventListener('click',function(){refreshEtas();refreshWx();});
   $('fsBtn2').addEventListener('click',tryFS);
-  $('resRun').addEventListener('click',function(){resolve(true).then(function(){return resolveCtb();}).then(refreshEtas);});
+  $('resRun').addEventListener('click',function(){resolve(true).then(refreshEtas);});
   $('resSave').addEventListener('click',function(){
     var ins=$('resList').getElementsByTagName('input'),i;
     for(i=0;i<ins.length;i++){var pk=ins[i].getAttribute('data-p'),v=ins[i].value.trim();
@@ -1056,10 +1044,10 @@ function bindUI(){
     refreshEtas();olog('已儲存覆寫 Overrides saved.');});
   $('resDefault').addEventListener('click',function(){
     MAP={};Object.keys(DEFAULT_MAP).forEach(function(k){MAP[k]=DEFAULT_MAP[k];});
-    CTB='';saveMap();buildResList();
+    CTB=DEFAULT_CTB;saveMap();buildResList();
     Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
     $('resLog').textContent='已還原內建預設對應 Defaults restored.\n';
-    resolve(false).then(function(){return resolveCtb();}).then(refreshEtas);});
+    resolve(false).then(refreshEtas);});
   window.addEventListener('pointerdown',function(e){
     var t=e.target,inPanel=t&&t.closest&&(t.closest('.panel')||t.closest('#setBtn'));
     if(S.open&&!inPanel)openPanel('');
@@ -1075,7 +1063,7 @@ function init(){
   buildRibbon();buildOver();ensureRows();buildResList();
   layout();startGuard();bindUI();
   buildPhases();tick();refreshWx();
-  resolve(false).then(function(){return resolveCtb();}).then(function(){refreshEtas();});
+  resolve(false).then(refreshEtas);
   setInterval(tick,1000);
   setInterval(refreshEtas,CFG.etaMs);
   setInterval(refreshWx,CFG.wxMs);
