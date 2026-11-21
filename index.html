@@ -6,12 +6,6 @@
 <meta name="theme-color" content="#0e1116">
 <title>和樂邨巴士到站時間顯示 | KTMC Wo Lok Estate Bus ETA Board</title>
 <style>
-/* ============================================================
-   KTMC Wo Lok Estate ETA Board
-   Arial (Latin/digits/symbols) + Microsoft JhengHei (Chinese).
-   Two weights (400/700). Flat. Light + dark via CSS variables.
-   Fixed 1920x1080 stage auto-scaled. Old-webOS-safe (Chr 53+).
-   ============================================================ */
 :root{
   --bg:#0e1116; --panel:#151a21; --panel2:#12161c; --line:#242c37;
   --rowline:#1d242e; --zebra:#171d25;
@@ -46,10 +40,10 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
 body.cursor{cursor:default}
 button{font-family:inherit}
 button:focus{outline:2px solid var(--focus);outline-offset:1px}
+input,select{font-family:inherit}
 #bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
        padding:24px;display:flex;flex-direction:column}
-/* header */
 #header{height:112px;flex-shrink:0;display:flex;align-items:center;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;padding:0 22px}
 #logo{height:66px;width:auto;margin-right:20px;flex-shrink:0}
@@ -70,8 +64,7 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .iconBtn{width:46px;height:46px;flex-shrink:0;margin-left:14px;display:flex;align-items:center;justify-content:center;
          background:var(--btn-bg);border:1px solid var(--btn-line);border-radius:6px;color:var(--sub);cursor:pointer}
 .iconBtn:hover{color:var(--txt);border-color:var(--sub)}
-/* settings panel */
-#setPanel{position:absolute;top:144px;right:24px;width:300px;z-index:30;display:none;
+#setPanel{position:absolute;top:144px;right:24px;width:320px;z-index:30;display:none;
           background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}
 #setPanel.show{display:block}
 .spTitle{font-size:16px;font-weight:700}
@@ -80,14 +73,12 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
           background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:8px;cursor:pointer}
 .themeOpt.on{border-color:var(--accent);font-weight:700}
 .spHint{font-size:11px;color:var(--dim);margin-top:12px;line-height:1.5}
-/* warning strip */
 #warnStrip{flex-shrink:0;display:flex;flex-wrap:wrap;margin-top:10px}
 #warnStrip:empty{display:none;margin-top:0}
 .wb{display:inline-flex;align-items:center;font-size:14px;font-weight:400;padding:4px 10px;border-radius:4px;
     margin:0 8px 6px 0;line-height:1.25;color:#f2f5f8;max-width:100%}
 .wb img{width:20px;height:20px;margin-right:6px;flex-shrink:0}
 .wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-/* boards */
 #boards{flex:1;display:flex;margin-top:12px;min-height:0}
 .col{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--panel);
      border:1px solid var(--line);border-radius:6px;overflow:hidden;position:relative}
@@ -111,19 +102,18 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .lg b{font-size:13.5px;font-weight:700;color:var(--sub);margin-right:5px}
 .thead{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 16px;
        font-size:12.5px;color:var(--dim);border-bottom:1px solid var(--line)}
-.hRoute{width:150px;flex-shrink:0}
+.hRoute{width:172px;flex-shrink:0}
 .hDest{flex:1;min-width:0}
 .hPlat{width:84px;flex-shrink:0;text-align:center}
 .hEta{width:264px;flex-shrink:0;text-align:right}
 .view{flex:1;min-height:0;overflow:hidden;position:relative}
 .pages{position:absolute;left:0;top:0;width:100%;transition:transform .7s cubic-bezier(.4,0,.2,1);will-change:transform}
-/* row */
 .row{height:88px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid var(--rowline)}
 .row:nth-child(even){background:var(--zebra)}
 .row.dim{opacity:.55}
-.c-route{width:150px;flex-shrink:0;display:flex;align-items:center}
-.badge{width:92px;height:48px;border-radius:4px;display:flex;align-items:center;justify-content:center;
-       font-size:30px;font-weight:700;color:var(--badge-txt);background:var(--badge-bg);flex-shrink:0}
+.c-route{width:172px;flex-shrink:0;display:flex;align-items:center}
+.badge{width:114px;height:56px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+       font-size:38px;font-weight:700;color:var(--badge-txt);background:var(--badge-bg);flex-shrink:0}
 .cos{margin-left:8px;display:flex;flex-direction:column}
 .co{font-size:11px;font-weight:400;margin:1px 0;white-space:nowrap}
 .co.kmb{color:var(--kmb)}
@@ -135,7 +125,6 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .d-svc{font-size:12.5px;color:var(--dim);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-plat{width:84px;flex-shrink:0;text-align:center}
 .plat{font-size:20px;font-weight:700;color:var(--txt)}
-/* ETA cell: big countdown pill left; two-line block right, left-aligned to each other */
 .c-eta{width:264px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
 .e-main{display:flex;align-items:center;justify-content:flex-end;line-height:1;max-width:100%}
 .e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);
@@ -165,7 +154,6 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .stat.off,.stat.none{color:var(--dim)}
 .stat.load{color:var(--sub)}
 .nx-sched{color:var(--amber)}
-/* facility badges */
 .fac{display:inline-flex;align-items:center;margin-left:9px;flex-shrink:0;color:var(--sub)}
 .fac svg{width:18px;height:18px;display:block}
 .fac.solar{color:var(--green)}
@@ -173,12 +161,10 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .fac .n{font-size:11px;font-weight:700;margin-left:2px}
 .occ{display:inline-flex;align-items:flex-end;margin-left:9px;flex-shrink:0;height:14px}
 .occ i{width:4px;margin-left:2px;border-radius:1px;background:var(--dot)}
-/* low-RAM mode: animations off */
 body.no-anim .pages{transition:none}
 body.no-anim .pbar{display:none}
 body.no-anim #tickTrack{animation:none}
 body.no-anim .e-min{animation:none}
-/* footer */
 #footer{height:50px;flex-shrink:0;margin-top:12px;display:flex;align-items:stretch;
         background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
 #tickTag{width:92px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
@@ -197,7 +183,6 @@ body.no-anim .e-min{animation:none}
 #upd{font-size:13px;color:var(--sub);margin-left:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #upd.warn{color:var(--amber)}
 #upd.bad{color:var(--red)}
-/* overlays */
 #fsPrompt{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:var(--overlay);
           display:flex;align-items:center;justify-content:center}
 #fsPrompt.hide{display:none}
@@ -218,6 +203,32 @@ body.no-anim .e-min{animation:none}
 #dbg::-webkit-scrollbar-track{background:var(--panel2)}
 #dbg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:5px}
 #dbg::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+/* ---- data-source inspector ---- */
+.insPanel{position:absolute;left:24px;top:144px;width:940px;max-height:840px;z-index:40;display:none;
+          flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px}
+.insPanel.show{display:flex}
+.insHead{display:flex;align-items:center;flex-shrink:0}
+.insTitle{font-size:16px;font-weight:700;flex:1;min-width:0}
+.insClose{width:34px;height:34px;flex-shrink:0;background:var(--btn-bg);border:1px solid var(--btn-line);
+          border-radius:6px;color:var(--sub);font-size:15px;cursor:pointer}
+.insClose:hover{color:var(--txt);border-color:var(--sub)}
+.insRow{display:flex;align-items:center;margin-top:12px;flex-shrink:0}
+.insSel{flex:1;min-width:0;font-size:14px;color:var(--txt);background:var(--panel2);
+        border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin-right:10px}
+.insBtn{flex-shrink:0;font-size:14px;font-weight:700;color:#fff;background:var(--accent);
+        border:1px solid var(--accent);border-radius:6px;padding:8px 18px;cursor:pointer}
+.insNote{font-size:12px;color:var(--dim);line-height:1.6;margin-top:12px;flex-shrink:0}
+.insField{width:100%;font-size:12.5px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);
+          border-radius:6px;padding:8px 10px;margin-top:8px;flex-shrink:0}
+.insSave{margin-top:8px;flex-shrink:0;font-size:13px;color:var(--txt);background:var(--panel2);
+         border:1px solid var(--line);border-radius:6px;padding:7px 14px;cursor:pointer}
+.insSave:hover{border-color:var(--sub)}
+.insOut{flex:1;min-height:120px;margin-top:12px;overflow:auto;background:var(--panel2);border:1px solid var(--line);
+        border-radius:6px;padding:12px;font-size:12px;line-height:1.6;color:var(--sub);white-space:pre-wrap;word-break:break-all}
+.insOut::-webkit-scrollbar{width:12px}
+.insOut::-webkit-scrollbar-track{background:var(--panel)}
+.insOut::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
+.insOut::-webkit-scrollbar-thumb:hover{background:var(--sub)}
 </style>
 </head>
 <body>
@@ -250,11 +261,29 @@ body.no-anim .e-min{animation:none}
   <div id="setPanel">
     <div class="spTitle">設定 Settings</div>
     <div class="spLabel">主題 Theme</div>
-    <button class="themeOpt" id="thDark" data-th="dark">深色 Dark</button>
-    <button class="themeOpt" id="thLight" data-th="light">淺色 Light</button>
+    <button class="themeOpt" id="thDark">深色 Dark</button>
+    <button class="themeOpt" id="thLight">淺色 Light</button>
     <div class="spLabel">動畫 Animations</div>
     <button class="themeOpt" id="animBtn">動畫：開 Animations: On</button>
+    <div class="spLabel">巴士設施 Bus facilities</div>
+    <button class="themeOpt" id="facBtn">設施：開 Facilities: On</button>
+    <button class="themeOpt" id="insBtn">數據源檢視 Data source inspector</button>
     <div class="spHint">選擇後自動儲存 Saved automatically<br>按 Esc 或點擊外面關閉 Close with Esc / outside click</div>
+  </div>
+
+  <div id="insPanel" class="insPanel">
+    <div class="insHead">
+      <div class="insTitle">設施數據源檢視 Facility Data Source Inspector</div>
+      <button id="insClose" class="insClose" aria-label="關閉 Close">✕</button>
+    </div>
+    <div class="insRow">
+      <select id="insRoute" class="insSel"></select>
+      <button id="insFetch" class="insBtn">探測 Probe</button>
+    </div>
+    <div class="insNote">開放數據 data.etabus.gov.hk 的 stop-eta 並無太陽能／輪椅／載客量欄位。下方會逐一嘗試九巴網站／App 接口（直連失敗自動改行 CORS 代理），並遞迴掃描回傳 JSON 中任何相關欄位或文字。找到有數據的接口後，可把網址貼在下面（可用 {route} {bound} {serviceType} {stop} {kt} {dir}），系統會優先使用。</div>
+    <input id="insCustom" class="insField" placeholder="自訂接口網址 Custom endpoint URL（可留空）">
+    <button id="insSave" class="insSave">儲存並探測 Save &amp; Probe</button>
+    <pre id="insOut" class="insOut">尚未探測 Not probed yet.</pre>
   </div>
 
   <div id="warnStrip"></div>
@@ -314,9 +343,6 @@ body.no-anim .e-min{animation:none}
 
 <script>
 'use strict';
-/* ================================================================
-   CONFIG
-   ================================================================ */
 var CFG = {
   etaMs: 30000, wxMs: 300000, stnMs: 180000, facMs: 60000,
   pageMs: 10000, staleMs: 120000, arriveMs: 60000, graceMs: 45000,
@@ -327,12 +353,27 @@ var CFG = {
   stnUrl: 'https://www.td.gov.hk/en/special_news/trafficnews.xml',
   proxy: 'https://api.allorigins.win/raw?url=',
   kmb: 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
-  kmbApp: 'https://search.kmb.hk/KMBWebSite/Function/FunctionRequest.ashx',
+  kmbFn: 'https://search.kmb.hk/KMBWebSite/Function/FunctionRequest.ashx',
   ctb: 'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
   wx: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
   warn: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
   wxIcon: 'https://rss.weather.gov.hk/img/pic'
 };
+/* Candidate facility endpoints — tried in order until one returns usable JSON. */
+var FAC_CANDIDATES = [
+  { name:'KMB Web getEta (GET)', method:'GET',
+    url: CFG.kmbFn + '?action=getEta&route={route}&bound={bound}&serviceType={serviceType}&bsiCode={stop}' },
+  { name:'KMB Web getEta (GET + token)', method:'GET',
+    url: CFG.kmbFn + '?action=getEta&route={route}&bound={bound}&serviceType={serviceType}&bsiCode={stop}&token=' },
+  { name:'KMB Web getEta (POST form)', method:'POST',
+    url: CFG.kmbFn, body:'action=getEta&route={route}&bound={bound}&serviceType={serviceType}&bsiCode={stop}&token=' },
+  { name:'KMB Web getEta (stopId)', method:'GET',
+    url: CFG.kmbFn + '?action=getEta&route={route}&bound={bound}&serviceType={serviceType}&stopId={stop}' },
+  { name:'KMB Web getBusEta (GET)', method:'GET',
+    url: CFG.kmbFn + '?action=getBusEta&route={route}&bound={bound}&serviceType={serviceType}&bsiCode={stop}' },
+  { name:'KMB Web getEta (POST no token)', method:'POST',
+    url: CFG.kmbFn, body:'action=getEta&route={route}&bound={bound}&serviceType={serviceType}&bsiCode={stop}' }
+];
 var ROW_H = 88, STAGE_W = 1920, STAGE_H = 1080;
 
 var PLATFORMS = {
@@ -429,20 +470,20 @@ function parseHkLocal(s){
   if (!m) return 0;
   return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) - 480 * 60000;
 }
-function fetchText(url, ms){
+function rawFetch(url, method, body, ms){
   return new Promise(function(res, rej){
     var done = false;
-    var to = setTimeout(function(){ if (!done){ done = true; rej(new Error('timeout')); } }, ms || 12000);
-    fetch(url, { cache:'no-store' }).then(function(r){
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    }).then(function(t){
-      if (!done){ done = true; clearTimeout(to); res(t); }
-    }).catch(function(e){
-      if (!done){ done = true; clearTimeout(to); rej(e); }
-    });
+    var to = setTimeout(function(){ if (!done){ done = true; rej(new Error('timeout')); } }, ms || 10000);
+    var opt = { cache:'no-store', method: method || 'GET' };
+    if (body){ opt.body = body; opt.headers = { 'Content-Type':'application/x-www-form-urlencoded' }; }
+    fetch(url, opt).then(function(rr){
+      if (!rr.ok) throw new Error('HTTP ' + rr.status);
+      return rr.text();
+    }).then(function(t){ if (!done){ done = true; clearTimeout(to); res(t); } })
+      .catch(function(e){ if (!done){ done = true; clearTimeout(to); rej(e); } });
   });
 }
+function fetchText(url, ms){ return rawFetch(url, 'GET', null, ms); }
 function fetchJSON(url){ return fetchText(url).then(function(t){ return JSON.parse(t); }); }
 function retryP(fn){ return fn().catch(function(){ return fn(); }); }
 function viaProxy(url){ return CFG.proxy ? fetchText(CFG.proxy + encodeURIComponent(url), 15000) : Promise.reject(new Error('no proxy')); }
@@ -452,7 +493,7 @@ function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
 var S = {
   scale:1, fs:false, wake:null, guard:'init', audio:'off', loaded:false, lastEta:0,
   wx:{ temp:null, hum:null, icon:null }, wxMsgs:[], warns:[], stn:[], trafRmk:[],
-  dbg:false, errs:[], frameT:0, facCount:0, anim:true,
+  dbg:false, errs:[], frameT:0, facCount:0, anim:true, facOn:true, insOpen:false,
   theme:'dark', setOpen:false, guardBg:'#0e1116', guardWash:'rgba(255,255,255,0.015)'
 };
 var H = {
@@ -470,8 +511,9 @@ var WZH = ['日','一','二','三','四','五','六'];
 var WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var lastTickStr = '', lastStripSig = '', etaBusy = false, facBusy = false;
+var FAC_CUSTOM = '';
 
-/* ---------------- theme / animation / settings ---------------- */
+/* ---------------- settings ---------------- */
 function setTheme(th){
   if (th !== 'light') th = 'dark';
   S.theme = th;
@@ -493,10 +535,21 @@ function applyAnim(){
   lastTickStr = '';
   rebuildTicker();
 }
+function applyFac(){
+  $('facBtn').textContent = S.facOn ? '設施：開 Facilities: On' : '設施：關 Facilities: Off';
+  $('facBtn').className = 'themeOpt' + (S.facOn ? ' on' : '');
+  try { localStorage.setItem('ktmcFac', S.facOn ? '1' : '0'); } catch (e){}
+}
 function toggleSettings(open){
   S.setOpen = (open === undefined) ? !S.setOpen : open;
   $('setPanel').className = S.setOpen ? 'show' : '';
   if (S.setOpen){ try { $(S.theme === 'light' ? 'thLight' : 'thDark').focus(); } catch (e){} }
+  else { try { $('setBtn').focus(); } catch (e){} }
+}
+function toggleInspector(open){
+  S.insOpen = (open === undefined) ? !S.insOpen : open;
+  $('insPanel').className = 'insPanel' + (S.insOpen ? ' show' : '');
+  if (S.insOpen){ buildInsRoutes(); try { $('insRoute').focus(); } catch (e){} }
   else { try { $('setBtn').focus(); } catch (e){} }
 }
 
@@ -511,7 +564,7 @@ function isLast(e){ return !isEnded(e) && /尾班車|last\s*bus/i.test(rmkAll(e)
 function isSourceRmk(e){ return /提供|provided by/i.test(rmkAll(e)); }
 function isTrafficRmk(e){ return /擠塞|塞車|交通阻塞|交通意外|交通情況|congestion|traffic accident|traffic condition/i.test(rmkAll(e)); }
 
-/* ---------------- data fetching ---------------- */
+/* ---------------- ETA fetching ---------------- */
 function norm(it, kt, co){
   return {
     co: co, route: it.route, kt: kt, dir: it.dir || '',
@@ -584,19 +637,26 @@ function mergeAgg(dir){
   return out;
 }
 
-/* ---------------- KMB app feed: solar / wheelchair / occupancy ---------------- */
-function truthy(v){ return v === true || v === 1 || v === '1' || v === 'Y' || v === 'yes' || v === 'true'; }
-function occLevel(v){
+/* ---------------- facility engine ---------------- */
+function truthy(v){
+  return v === true || v === 1 || v === '1' || v === 'Y' || v === 'y' ||
+         String(v).toLowerCase() === 'yes' || String(v).toLowerCase() === 'true';
+}
+function occFrom(v){
   if (v === null || v === undefined || v === '') return null;
   if (typeof v === 'object'){
-    if (v.level !== undefined) return occLevel(v.level);
-    if (v.occupancy !== undefined) return occLevel(v.occupancy);
+    if (v.level !== undefined) return occFrom(v.level);
+    if (v.occupancy !== undefined) return occFrom(v.occupancy);
+    if (v.status !== undefined) return occFrom(v.status);
     return null;
   }
-  var s = String(v).toLowerCase();
-  if (/^(0|low|l|empty|plenty|green)$/.test(s)) return 0;
-  if (/^(1|med|medium|m|amber|yellow)$/.test(s)) return 1;
-  if (/^(2|high|h|full|red|crowded)$/.test(s)) return 2;
+  var s = String(v).toLowerCase().trim();
+  if (/full|crowd|standing|企|滿|擠/.test(s)) return 2;
+  if (/seat|some|moderate|medium|半|中/.test(s)) return 1;
+  if (/empty|plenty|low|available|空|充裕|少/.test(s)) return 0;
+  if (/^(0|l|green)$/.test(s)) return 0;
+  if (/^(1|m|amber|yellow)$/.test(s)) return 1;
+  if (/^(2|h|red)$/.test(s)) return 2;
   var n = parseFloat(s);
   if (!isNaN(n)){
     if (n > 2) return n >= 80 ? 2 : (n >= 45 ? 1 : 0);
@@ -604,56 +664,187 @@ function occLevel(v){
   }
   return null;
 }
-function parseFac(e){
-  if (!e || typeof e !== 'object') return null;
+function parseFac(o){
+  if (!o || typeof o !== 'object') return null;
   var out = {}, k;
-  for (k in e){ if (e.hasOwnProperty(k)){
-    var lk = k.toLowerCase(), v = e[k];
-    if (/solar|clover|leaf/.test(lk) || lk === 'sp'){ if (truthy(v)) out.solar = true; }
-    if (lk === 'w' || /wheel|wc/.test(lk)){
+  for (k in o){ if (o.hasOwnProperty(k)){
+    var lk = String(k).toLowerCase(), v = o[k];
+    var sv = (v === null || v === undefined || typeof v === 'object') ? '' : String(v).toLowerCase();
+    if (/solar|clover|leaf|panel/.test(lk) || lk === 'sp' || lk === 'solarpanel'){ if (truthy(v)) out.solar = true; }
+    if (/solar|clover|太陽能|四葉草/.test(sv)) out.solar = true;
+    if (lk === 'w' || /wheel|wc|handicap/.test(lk)){
       var n = parseInt(v, 10);
       if (v === true) n = 1;
-      if (!isNaN(n) && n > 0) out.wheelchair = n;
+      if (!isNaN(n) && n > 0) out.wheelchair = Math.max(out.wheelchair || 0, n);
     }
-    if (lk === 'ol' || /occup|load|capac/.test(lk)){
-      var lv = occLevel(v);
+    if (/wheelchair|輪椅/.test(sv)){
+      var m = /(\d+)/.exec(sv);
+      out.wheelchair = Math.max(out.wheelchair || 0, m ? parseInt(m[1], 10) : 1);
+    }
+    if (lk === 'ol' || /occup|load|capac|standing|seat/.test(lk)){
+      var lv = occFrom(v);
       if (lv !== null) out.occupancy = lv;
+    }
+    if (/載客量|occupancy/.test(sv)){
+      var lv2 = occFrom(sv);
+      if (lv2 !== null) out.occupancy = lv2;
     }
   } }
   return (out.solar || out.wheelchair || out.occupancy !== undefined) ? out : null;
 }
+function findEtaArray(node, depth){
+  if (!node || typeof node !== 'object' || depth > 6) return null;
+  var best = null, bestScore = -1, k;
+  if (Array.isArray(node)){
+    var score = 0;
+    node.forEach(function(x){
+      if (x && typeof x === 'object'){
+        var ks = Object.keys(x).join(',').toLowerCase();
+        if (/eta|rmk|dest|seq/.test(ks)) score += 2; else score += 1;
+      }
+    });
+    if (node.length && score > bestScore){ best = node; bestScore = score; }
+  }
+  for (k in node){ if (node.hasOwnProperty(k)){
+    var f = findEtaArray(node[k], depth + 1);
+    if (f){
+      var sc = f.length;
+      if (sc > bestScore){ best = f; bestScore = sc; }
+    }
+  } }
+  return best;
+}
+function fillTpl(s, ctx){
+  return String(s).replace(/\{route\}/g, encodeURIComponent(ctx.route))
+    .replace(/\{bound\}/g, ctx.bound).replace(/\{serviceType\}/g, ctx.st)
+    .replace(/\{stop\}/g, ctx.stop).replace(/\{kt\}/g, ctx.kt).replace(/\{dir\}/g, ctx.dir);
+}
+function probeFac(ctx, onLog){
+  var cands = [];
+  if (FAC_CUSTOM) cands.push({ name:'自訂 Custom', method:'GET', url:FAC_CUSTOM });
+  cands = cands.concat(FAC_CANDIDATES);
+  var i = 0;
+  function attempt(){
+    if (i >= cands.length) return Promise.reject(new Error('all candidates failed'));
+    var c = cands[i++];
+    var url = fillTpl(c.url, ctx);
+    var body = c.body ? fillTpl(c.body, ctx) : null;
+    if (onLog) onLog('→ ' + c.name + '\n  ' + url + (body ? '\n  body: ' + body : ''));
+    return rawFetch(url, c.method, body, 8000)
+      .catch(function(e){
+        if (onLog) onLog('  direct failed: ' + (e && e.message || e) + ' — trying proxy');
+        if (c.method !== 'GET' || !CFG.proxy) throw e;
+        return fetchText(CFG.proxy + encodeURIComponent(url), 14000);
+      })
+      .then(function(t){
+        var j;
+        try { j = JSON.parse(t); } catch (e){ throw new Error('not JSON: ' + cap(t, 100)); }
+        var arr = findEtaArray(j, 0);
+        if (!arr || !arr.length) throw new Error('no ETA array in response');
+        var facs = arr.map(parseFac);
+        var hits = 0;
+        facs.forEach(function(f){ if (f) hits++; });
+        if (onLog) onLog('  ✓ ' + c.name + ' — ' + arr.length + ' entries, ' + hits + ' with facilities');
+        return { name:c.name, url:url, raw:t, arr:arr, facs:facs, hits:hits };
+      })
+      .catch(function(e){
+        if (onLog) onLog('  ✗ ' + (e && e.message || e));
+        return attempt();
+      });
+  }
+  return attempt();
+}
+function firstKmbEta(dir){
+  var merged = mergeAgg(dir), out = [], now = Date.now();
+  Object.keys(merged).forEach(function(rt){
+    var es = merged[rt], i;
+    for (i = 0; i < es.length; i++){
+      if (es[i].t && es[i].t > now - CFG.graceMs && es[i].co === 'KMB'){
+        out.push({ route:rt, e:es[i] }); break;
+      }
+    }
+  });
+  out.sort(function(a, b){ return a.e.t - b.e.t; });
+  return out;
+}
+function ctxOf(dir, route, e){
+  return { route:route, bound: e.dir === 'I' ? 2 : 1, st: e.st || 1,
+           stop: stopFor(dir, e.kt), kt: e.kt, dir: e.dir || 'O' };
+}
 function refreshFacilities(){
-  if (!CFG.facilities || facBusy) return;
+  if (!CFG.facilities || !S.facOn || facBusy) return;
   facBusy = true;
-  var now = Date.now(), jobs = [], count = 0;
+  var jobs = [], count = 0;
   ['south','north'].forEach(function(dir){
-    var merged = mergeAgg(dir);
-    Object.keys(merged).forEach(function(rt){
-      var es = merged[rt], first = null, i;
-      for (i = 0; i < es.length; i++){ if (es[i].t && es[i].t > now - CFG.graceMs && es[i].co === 'KMB'){ first = es[i]; break; } }
-      if (!first) return;
-      var stop = stopFor(dir, first.kt);
-      if (!stop) return;
-      var bound = first.dir === 'I' ? 2 : 1;
-      var url = CFG.kmbApp + '?action=getEta&route=' + encodeURIComponent(rt) +
-                '&bound=' + bound + '&serviceType=' + (first.st || 1) + '&bsiCode=' + stop;
-      jobs.push(
-        fetchText(url, 10000).catch(function(){ return viaProxy(url); })
-        .then(function(t){
-          var j = JSON.parse(t);
-          var arr = (j && j.data && j.data.response) ? j.data.response :
-                    (j && j.data ? j.data : (j && j.response ? j.response : []));
-          if (!Array.isArray(arr)) arr = [];
-          var facs = arr.map(parseFac);
-          FAC[dir][rt] = facs;
-          facs.forEach(function(f){ if (f) count++; });
-        })
-        .catch(function(){ FAC[dir][rt] = []; })
-      );
+    firstKmbEta(dir).slice(0, 8).forEach(function(item){
+      if (!stopFor(dir, item.e.kt)) return;
+      jobs.push(probeFac(ctxOf(dir, item.route, item.e), null).then(function(res){
+        FAC[dir][item.route] = res.facs;
+        count += res.hits;
+      }).catch(function(){ FAC[dir][item.route] = []; }));
     });
   });
   Promise.all(jobs).then(function(){ S.facCount = count; facBusy = false; })
     .catch(function(){ facBusy = false; });
+}
+
+/* ---------------- inspector ---------------- */
+function buildInsRoutes(){
+  var sel = $('insRoute'), keep = sel.value;
+  clear(sel);
+  ['south','north'].forEach(function(dir){
+    firstKmbEta(dir).forEach(function(item){
+      var op = document.createElement('option');
+      op.value = dir + '|' + item.route;
+      op.textContent = (dir === 'south' ? '南行 ' : '北行 ') + item.route +
+        ' — ' + item.e.kt + ' — ' + hhmm(item.e.t);
+      sel.appendChild(op);
+    });
+  });
+  if (!sel.options.length){
+    var op2 = document.createElement('option');
+    op2.value = 'south|1A';
+    op2.textContent = '南行 1A（示範 sample — 未有實時班次）';
+    sel.appendChild(op2);
+  }
+  if (keep) sel.value = keep;
+  $('insCustom').value = FAC_CUSTOM;
+}
+function runProbe(){
+  var v = $('insRoute').value || 'south|1A';
+  var parts = v.split('|'), dir = parts[0], route = parts[1];
+  var merged = mergeAgg(dir), es = merged[route] || [], e = null, i;
+  for (i = 0; i < es.length; i++){ if (es[i].co === 'KMB'){ e = es[i]; break; } }
+  if (!e){
+    var cfg = cfgFor(dir, route);
+    e = { kt: cfg ? cfg.kt : PLATFORMS[dir][0].kt, dir: dir === 'south' ? 'O' : 'I', st:1, t:0 };
+  }
+  var ctx = ctxOf(dir, route, e);
+  var out = $('insOut');
+  out.textContent = '探測中 Probing…\nroute=' + ctx.route + '  bound=' + ctx.bound +
+    '  serviceType=' + ctx.st + '  stop=' + ctx.stop + '\n\n';
+  function log(s){ out.textContent += s + '\n'; out.scrollTop = out.scrollHeight; }
+  probeFac(ctx, log).then(function(res){
+    log('\n===== 成功來源 SUCCESS: ' + res.name + ' =====');
+    log('URL: ' + res.url);
+    log('\n----- 原始回應 RAW RESPONSE -----');
+    log(cap(res.raw, 6000));
+    log('\n----- 辨識結果 DETECTED -----');
+    res.arr.forEach(function(o, idx){
+      log('[' + idx + '] ' + JSON.stringify(o));
+      log('     → ' + (res.facs[idx] ? JSON.stringify(res.facs[idx]) : '（無設施欄位 no facility fields）'));
+    });
+    FAC[dir][route] = res.facs;
+    var hits = 0; res.facs.forEach(function(f){ if (f) hits++; });
+    S.facCount = hits;
+    log('\n已套用至顯示屏 Applied to board: ' + hits + ' badge set(s).');
+  }).catch(function(err){
+    log('\n===== 全部接口失敗 ALL CANDIDATES FAILED =====');
+    log(String(err && err.message || err));
+    log('\n可能原因：接口需要 token／簽名、只接受 POST、或 CORS 阻擋而代理亦失敗。');
+    log('請用瀏覽器開發工具或 App 抓包找出真正接口，貼到上面「自訂接口網址」再按「儲存並探測」。');
+    log('Likely needs a token/signature, POST-only, or CORS blocked. Capture the real endpoint and paste it above.');
+  });
 }
 
 /* ---------------- weather ---------------- */
@@ -727,7 +918,7 @@ function refreshWx(){
   });
 }
 
-/* ---------------- TD Special Traffic News ---------------- */
+/* ---------------- TD traffic news ---------------- */
 function txt(node, tag){
   var n = node.getElementsByTagName(tag)[0];
   return n && n.textContent ? n.textContent.replace(/\s+/g, ' ').trim() : '';
@@ -825,7 +1016,7 @@ var SVG_CLOVER = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true
 var SVG_WC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M11 7v6h5l3 6"/><path d="M11 13a6 6 0 1 0 6 6"/></svg>';
 function facNodes(fac){
   var out = [];
-  if (!fac) return out;
+  if (!fac || !S.facOn) return out;
   if (fac.solar){
     var s = el('span', 'fac solar'); s.innerHTML = SVG_CLOVER;
     s.title = '太陽能板巴士（四葉草）Solar-panel bus';
@@ -833,7 +1024,7 @@ function facNodes(fac){
   }
   if (fac.wheelchair){
     var w = el('span', 'fac wc'); w.innerHTML = SVG_WC;
-    if (fac.wheelchair >= 2) w.appendChild(el('span', 'n', '2'));
+    if (fac.wheelchair >= 2) w.appendChild(el('span', 'n', String(fac.wheelchair)));
     w.title = fac.wheelchair >= 2 ? '雙輪椅停放位置 2 wheelchair spaces' : '輪椅停放位置 Wheelchair space';
     out.push(w);
   }
@@ -841,7 +1032,7 @@ function facNodes(fac){
     var lv = fac.occupancy;
     var col = lv === 0 ? 'var(--green)' : (lv === 1 ? 'var(--amber)' : 'var(--red)');
     var lab = lv === 0 ? '充裕 Plenty' : (lv === 1 ? '中等 Moderate' : '擠迫 Full');
-    var o = el('span', 'occ'); o.title = '載客量 Occupancy：' + lab;
+    var o = el('span', 'occ'); o.title = '實時載客量 Occupancy：' + lab;
     var heights = [6, 9, 12];
     for (var i = 0; i < 3; i++){
       var b = el('i');
@@ -854,7 +1045,7 @@ function facNodes(fac){
   return out;
 }
 
-/* ---------------- DOM rows ---------------- */
+/* ---------------- rows ---------------- */
 function makeRow(dir, c){
   var row = el('div', 'row');
   row.setAttribute('data-group', c.kt);
@@ -903,8 +1094,7 @@ function ensureRows(){
     Object.keys(merged).forEach(function(rt){
       if (cfgFor(dir, rt)) return;
       var es = merged[rt], e = es[0];
-      var c = r(rt, e.destZh || rt, e.destEn || '', e.kt, [e.co], { dynamic:true });
-      DYN[dir][rt] = c;
+      DYN[dir][rt] = r(rt, e.destZh || rt, e.destEn || '', e.kt, [e.co], { dynamic:true });
     });
     Object.keys(DYN[dir]).forEach(function(rt){
       if (!ROWS[dir][rt]){ ROWS[dir][rt] = makeRow(dir, DYN[dir][rt]); }
@@ -916,7 +1106,7 @@ function updateRow(row, v, now){
   var curCo = f0 ? f0.co : null;
   var band = f0 ? etaBand(f0.t - now) : '';
   var sig = v.status + '|' + v.destZh + '|' + v.destEn + '|' + v.noRmk + '|' + v.traffic + '|' + (v.last ? 1 : 0) + '|' + (S.loaded ? 1 : 0) + '|' +
-    band + '|' + (curCo || '') + '|' + (f0 && f0.fac ? JSON.stringify(f0.fac) : '') + '|' +
+    band + '|' + (curCo || '') + '|' + (S.facOn ? 1 : 0) + '|' + (f0 && f0.fac ? JSON.stringify(f0.fac) : '') + '|' +
     v.etas.map(function(x){ return x.t + ':' + (x.sched ? 1 : 0) + (x.last ? 1 : 0) + ':' + Math.max(1, Math.floor((x.t - now) / 60000)); }).join(',');
   if (row.sig === sig) return;
   row.sig = sig;
@@ -1114,7 +1304,7 @@ function rebuildTicker(){
   });
   S.trafRmk.forEach(function(x){ parts.push('【巴士交通備註】路線 ' + x.route + '：' + x.rmk); });
   if (S.lastEta && Date.now() - S.lastEta > CFG.staleMs) parts.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
-  parts.push('圖例：四葉草＝太陽能板巴士｜輪椅(2)＝雙輪椅位｜色條＝載客量 Legend: clover = solar bus, wheelchair(2) = 2 spaces, bar = occupancy');
+  parts.push('圖例：四葉草＝太陽能板巴士｜輪椅(2)＝雙輪椅位｜色條＝實時載客量 Legend: clover = solar bus, wheelchair(2) = 2 spaces, bar = occupancy');
   parts.push('601／601P 九巴及城巴聯營 Joint-operated KMB & Citybus｜北行本站分段收費 Section fare (northbound)');
   parts.push('測試中・僅供參考 Testing in progress — for reference only');
   parts.push('資料來源 Data：九巴 KMB・城巴 Citybus・天文台 HKO・運輸署 TD Open Data');
@@ -1131,7 +1321,7 @@ function rebuildTicker(){
   track.style.animation = S.anim ? ('tickmove ' + dur + 's linear infinite') : 'none';
 }
 
-/* ---------------- clock / tick ---------------- */
+/* ---------------- tick ---------------- */
 function tick(){
   var now = Date.now(), hk = hkDate(now);
   $('ch').textContent = pad(hk.getHours());
@@ -1170,7 +1360,7 @@ function tick(){
   if (S.dbg) renderDbg(now);
 }
 
-/* ---------------- fullscreen / wake / anti-screensaver ---------------- */
+/* ---------------- fullscreen / wake / guard ---------------- */
 function isFS(){
   return !!(document.fullscreenElement || document.webkitFullscreenElement ||
             document.mozFullScreenElement || document.msFullscreenElement);
@@ -1265,7 +1455,7 @@ function playGuard(){
   }
 }
 
-/* ---------------- stage scaling + pixel shift ---------------- */
+/* ---------------- layout ---------------- */
 function layout(){
   var w = window.innerWidth, h = window.innerHeight;
   var s = Math.min(w / STAGE_W, h / STAGE_H);
@@ -1277,24 +1467,22 @@ function layout(){
   layoutPagers();
 }
 
-/* ---------------- debug (press D) ---------------- */
+/* ---------------- debug ---------------- */
 function renderDbg(now){
   var L = [];
   L.push('KTMC ETA Board — debug (press D to hide)');
-  L.push('HK time: ' + hhmm(now) + '  |  theme: ' + S.theme + '  |  anim: ' + (S.anim ? 'on' : 'off'));
+  L.push('HK time: ' + hhmm(now) + '  |  theme: ' + S.theme + '  |  anim: ' + (S.anim ? 'on' : 'off') + '  |  fac: ' + (S.facOn ? 'on' : 'off'));
   L.push('screen: ' + window.innerWidth + 'x' + window.innerHeight + '  scale: ' + S.scale.toFixed(3));
-  L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') +
-         '  guardVideo: ' + S.guard + '  audio: ' + S.audio);
+  L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') + '  guardVideo: ' + S.guard + '  audio: ' + S.audio);
   L.push('loaded: ' + S.loaded + '  lastEta: ' + (S.lastEta ? hhmm(S.lastEta) + ' (' + Math.round((now - S.lastEta) / 1000) + 's ago)' : 'never'));
-  L.push('facility badges live: ' + S.facCount + ' (KMB app feed; open-data has none)');
+  L.push('facility badge sets live: ' + S.facCount + '   custom endpoint: ' + (FAC_CUSTOM || '(none)'));
   ['kmb','ctb','hko','td'].forEach(function(k){
     var h = H[k];
     L.push(k.toUpperCase() + ': ' + (h.ok ? 'OK' : 'FAIL') + (h.t ? ' @' + hhmm(h.t) : '') + (h.err ? '  err=' + h.err : ''));
   });
   L.push('rows S/N: ' + Object.keys(ROWS.south).length + '/' + Object.keys(ROWS.north).length +
-         '  pages S/N: ' + P.south.starts.length + '/' + P.north.starts.length +
-         '  per: ' + P.south.per + '/' + P.north.per);
-  L.push('keys: D=debug  F=fullscreen  R=refresh  S=settings  Esc=close panel');
+         '  pages S/N: ' + P.south.starts.length + '/' + P.north.starts.length);
+  L.push('keys: D=debug  F=fullscreen  R=refresh  S=settings  I=inspector  Esc=close');
   if (S.errs.length){ L.push('errors:'); S.errs.slice(-5).forEach(function(e){ L.push('  ' + e); }); }
   $('dbg').textContent = L.join('\n');
 }
@@ -1318,21 +1506,32 @@ function bindEvents(){
   window.addEventListener('online', refreshAll);
   window.addEventListener('keydown', function(e){
     var k = e.key || '';
-    var onButton = document.activeElement && document.activeElement.tagName === 'BUTTON';
-    if ([32,37,38,39,40].indexOf(e.keyCode) >= 0 && !onButton) e.preventDefault();
-    if (k === 'Escape'){ if (S.setOpen) toggleSettings(false); }
+    var tag = document.activeElement ? document.activeElement.tagName : '';
+    var inField = tag === 'BUTTON' || tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+    if ([32,37,38,39,40].indexOf(e.keyCode) >= 0 && !inField) e.preventDefault();
+    if (k === 'Escape'){
+      if (S.insOpen) toggleInspector(false);
+      else if (S.setOpen) toggleSettings(false);
+    }
+    else if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA'){ return; }
     else if (k === 'd' || k === 'D'){ S.dbg = !S.dbg; $('dbg').className = S.dbg ? 'show' : ''; }
     else if (k === 'f' || k === 'F'){ if (isFS()) exitFS(); else tryFS(true); }
     else if (k === 'r' || k === 'R'){ refreshAll(); refreshFacilities(); }
     else if (k === 's' || k === 'S'){ toggleSettings(); }
+    else if (k === 'i' || k === 'I'){ toggleInspector(); }
     else gesture();
   });
   window.addEventListener('pointerdown', function(e){
-    if (S.setOpen && e.target && e.target.closest &&
-        !e.target.closest('#setPanel') && !e.target.closest('#setBtn')) toggleSettings(false);
-    gesture();
+    var t = e.target;
+    var inside = t && t.closest && (t.closest('#setPanel') || t.closest('#setBtn') || t.closest('#insPanel'));
+    if (S.setOpen && !inside) toggleSettings(false);
+    if (S.insOpen && t && t.closest && !t.closest('#insPanel') && !t.closest('#setPanel')) toggleInspector(false);
+    if (!inside) gesture();
   });
-  window.addEventListener('touchstart', gesture);
+  window.addEventListener('touchstart', function(e){
+    var t = e.target;
+    if (!(t && t.closest && (t.closest('#insPanel') || t.closest('#setPanel')))) gesture();
+  });
   var cursorTimer = null;
   window.addEventListener('mousemove', function(){
     document.body.classList.add('cursor');
@@ -1349,6 +1548,20 @@ function bindEvents(){
   $('thDark').addEventListener('click', function(){ setTheme('dark'); toggleSettings(false); });
   $('thLight').addEventListener('click', function(){ setTheme('light'); toggleSettings(false); });
   $('animBtn').addEventListener('click', function(){ S.anim = !S.anim; applyAnim(); });
+  $('facBtn').addEventListener('click', function(){
+    S.facOn = !S.facOn; applyFac();
+    if (S.facOn) refreshFacilities();
+    ['south','north'].forEach(function(d){ Object.keys(ROWS[d]).forEach(function(rt){ ROWS[d][rt].sig = ''; }); });
+    tick();
+  });
+  $('insBtn').addEventListener('click', function(){ toggleSettings(false); toggleInspector(true); });
+  $('insClose').addEventListener('click', function(){ toggleInspector(false); });
+  $('insFetch').addEventListener('click', runProbe);
+  $('insSave').addEventListener('click', function(){
+    FAC_CUSTOM = $('insCustom').value.trim();
+    try { localStorage.setItem('ktmcFacUrl', FAC_CUSTOM); } catch (e){}
+    runProbe();
+  });
 }
 function buildStatic(){
   ['south','north'].forEach(function(dir){
@@ -1372,7 +1585,9 @@ function init(){
   try { saved = localStorage.getItem('ktmcTheme') || 'dark'; } catch (e){}
   setTheme(saved);
   try { S.anim = localStorage.getItem('ktmcAnim') !== '0'; } catch (e){ S.anim = true; }
-  applyAnim();
+  try { S.facOn = localStorage.getItem('ktmcFac') !== '0'; } catch (e){ S.facOn = true; }
+  try { FAC_CUSTOM = localStorage.getItem('ktmcFacUrl') || ''; } catch (e){ FAC_CUSTOM = ''; }
+  applyAnim(); applyFac();
   buildStatic();
   layout();
   startGuard();
