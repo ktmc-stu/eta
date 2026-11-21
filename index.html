@@ -8,10 +8,9 @@
 <style>
 /* ============================================================
    KTMC Wo Lok Estate ETA Board
-   One font stack: Arial (Latin / digits / symbols) +
-   Microsoft JhengHei (Chinese). Two weights only: 400 / 700.
-   Flat design, light + dark themes via CSS variables.
-   Fixed 1920x1080 stage, auto-scaled. Old-webOS-safe (Chr 53+).
+   Arial (Latin/digits/symbols) + Microsoft JhengHei (Chinese).
+   Two weights (400/700). Flat. Light + dark via CSS variables.
+   Fixed 1920x1080 stage auto-scaled. Old-webOS-safe (Chr 53+).
    ============================================================ */
 :root{
   --bg:#0e1116; --panel:#151a21; --panel2:#12161c; --line:#242c37;
@@ -134,19 +133,23 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .d-svc{font-size:12.5px;color:var(--dim);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-plat{width:84px;flex-shrink:0;text-align:center}
 .plat{font-size:20px;font-weight:700;color:var(--txt)}
+/* ETA cell: big countdown left; two-line block right (type on top, unit+clock below) */
 .c-eta{width:264px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
-.e-main{display:flex;align-items:baseline;justify-content:flex-end;line-height:1;max-width:100%}
-.e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt)}
-.e-unit{font-size:16px;color:var(--sub);margin-left:5px;white-space:nowrap}
-.e-abs{font-size:17px;color:var(--sub);margin-left:10px;font-variant-numeric:tabular-nums}
-.e-sub{margin-top:2px;height:20px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
-.e-next{margin-top:2px;font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums;
-        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.e-main{display:flex;align-items:center;justify-content:flex-end;line-height:1;max-width:100%}
+.e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);margin-right:10px;flex-shrink:0}
+.e-right{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;min-width:0}
+.e-top{height:21px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
+.e-bot{height:21px;display:flex;align-items:baseline;justify-content:flex-end;max-width:100%;overflow:hidden;white-space:nowrap}
+.e-unit{font-size:15px;color:var(--sub);white-space:nowrap}
+.e-abs{font-size:16px;color:var(--sub);margin-left:8px;font-variant-numeric:tabular-nums}
+.e-next{margin-top:4px;height:20px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden;
+        font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
 .chip{font-size:13px;font-weight:400;border-radius:3px;padding:1px 6px;margin-left:5px;border:1px solid;white-space:nowrap}
 .chip.sched{color:var(--amber);border-color:var(--amber-line)}
 .chip.last{color:var(--red);border-color:var(--red-line)}
 .chip.traf{color:var(--traf);border-color:var(--traf-line)}
 .chip.arrive{color:var(--green);border-color:var(--green-line)}
+.liveTag{font-size:13px;color:var(--dim);white-space:nowrap}
 .st-sched .e-min{color:var(--amber)}
 .st-arriving .e-min{color:var(--green)}
 .st-arriving .e-abs{color:var(--green)}
@@ -157,6 +160,14 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .stat.off,.stat.none{color:var(--dim)}
 .stat.load{color:var(--sub)}
 .nx-sched{color:var(--amber)}
+/* facility badges (solar clover / wheelchair / occupancy) */
+.fac{display:inline-flex;align-items:center;margin-left:9px;flex-shrink:0;color:var(--sub)}
+.fac svg{width:18px;height:18px;display:block}
+.fac.solar{color:var(--green)}
+.fac.wc{color:var(--ctb)}
+.fac .n{font-size:11px;font-weight:700;margin-left:2px}
+.occ{display:inline-flex;align-items:flex-end;margin-left:9px;flex-shrink:0;height:14px}
+.occ i{width:4px;margin-left:2px;border-radius:1px;background:var(--dot)}
 /* footer */
 #footer{height:50px;flex-shrink:0;margin-top:12px;display:flex;align-items:stretch;
         background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
@@ -291,13 +302,15 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
    CONFIG
    ================================================================ */
 var CFG = {
-  etaMs: 30000, wxMs: 300000, stnMs: 180000,
+  etaMs: 30000, wxMs: 300000, stnMs: 180000, facMs: 60000,
   pageMs: 10000, staleMs: 120000, arriveMs: 60000, graceMs: 45000,
-  sort: 'platform',      // 'platform' | 'route' | 'eta'
+  sort: 'platform',
   stn: true,
+  facilities: true,   // solar / wheelchair / occupancy from KMB app ETA feed
   stnUrl: 'https://www.td.gov.hk/en/special_news/trafficnews.xml',
-  stnProxy: 'https://api.allorigins.win/raw?url=',
+  proxy: 'https://api.allorigins.win/raw?url=',
   kmb: 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
+  kmbApp: 'https://search.kmb.hk/KMBWebSite/Function/FunctionRequest.ashx',
   ctb: 'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
   wx: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
   warn: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
@@ -305,7 +318,6 @@ var CFG = {
 };
 var ROW_H = 88, STAGE_W = 1920, STAGE_H = 1080;
 
-/* Stop-ID <-> platform mapping, verified live against the KMB API. */
 var PLATFORMS = {
   south: [
     { kt:'KT537', stop:'AE2A9F719AB5E353', label:'油尖旺・深水埗' },
@@ -416,12 +428,13 @@ function fetchText(url, ms){
 }
 function fetchJSON(url){ return fetchText(url).then(function(t){ return JSON.parse(t); }); }
 function retryP(fn){ return fn().catch(function(){ return fn(); }); }
+function viaProxy(url){ return CFG.proxy ? fetchText(CFG.proxy + encodeURIComponent(url), 15000) : Promise.reject(new Error('no proxy')); }
 
 /* ---------------- state ---------------- */
 var S = {
   scale:1, fs:false, wake:null, guard:'init', audio:'off', loaded:false, lastEta:0,
   wx:{ temp:null, hum:null, icon:null }, wxMsgs:[], warns:[], stn:[], trafRmk:[],
-  dbg:false, errs:[], frameT:0,
+  dbg:false, errs:[], frameT:0, facCount:0,
   theme:'dark', setOpen:false, guardBg:'#0e1116', guardWash:'rgba(255,255,255,0.015)'
 };
 var H = {
@@ -429,6 +442,7 @@ var H = {
   hko:{ ok:false, t:0, err:'' }, td:{ ok:false, t:0, err:'' }
 };
 var AGG = { kmb:{ south:{}, north:{} }, ctb:{ south:{}, north:{} } };
+var FAC = { south:{}, north:{} };
 var DYN = { south:{}, north:{} };
 var ROWS = { south:{}, north:{} };
 var PLATIDX = { south:{}, north:{} };
@@ -437,7 +451,7 @@ var SHIFT = [[0,0],[2,1],[3,3],[1,2]], shiftIdx = 0;
 var WZH = ['日','一','二','三','四','五','六'];
 var WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-var lastTickStr = '', lastStripSig = '', etaBusy = false;
+var lastTickStr = '', lastStripSig = '', etaBusy = false, facBusy = false;
 
 /* ---------------- theme + settings ---------------- */
 function setTheme(th){
@@ -473,7 +487,7 @@ function isTrafficRmk(e){ return /擠塞|塞車|交通阻塞|交通意外|交通
 /* ---------------- data fetching ---------------- */
 function norm(it, kt, co){
   return {
-    co: co, route: it.route, kt: kt,
+    co: co, route: it.route, kt: kt, dir: it.dir || '',
     destZh: it.dest_tc || '', destEn: it.dest_en || '',
     t: it.eta ? Date.parse(it.eta) : null,
     rmk: it.rmk_tc || '', rmkEn: it.rmk_en || '',
@@ -527,6 +541,11 @@ function cfgFor(dir, rt){
   for (i = 0; i < ROWCFG[dir].length; i++){ if (ROWCFG[dir][i].route === rt) return ROWCFG[dir][i]; }
   return DYN[dir][rt] || null;
 }
+function stopFor(dir, kt){
+  var i;
+  for (i = 0; i < PLATFORMS[dir].length; i++){ if (PLATFORMS[dir][i].kt === kt) return PLATFORMS[dir][i].stop; }
+  return '';
+}
 function mergeAgg(dir){
   var out = {}, k;
   for (k in AGG.kmb[dir]){ if (AGG.kmb[dir].hasOwnProperty(k)){
@@ -536,6 +555,78 @@ function mergeAgg(dir){
     AGG.ctb[dir][k].forEach(function(e){ (out[e.route] || (out[e.route] = [])).push(e); });
   } }
   return out;
+}
+
+/* ---------------- KMB app feed: solar / wheelchair / occupancy ---------------- */
+function truthy(v){ return v === true || v === 1 || v === '1' || v === 'Y' || v === 'yes' || v === 'true'; }
+function occLevel(v){
+  if (v === null || v === undefined || v === '') return null;
+  if (typeof v === 'object'){
+    if (v.level !== undefined) return occLevel(v.level);
+    if (v.occupancy !== undefined) return occLevel(v.occupancy);
+    return null;
+  }
+  var s = String(v).toLowerCase();
+  if (/^(0|low|l|empty|plenty|green)$/.test(s)) return 0;
+  if (/^(1|med|medium|m|amber|yellow)$/.test(s)) return 1;
+  if (/^(2|high|h|full|red|crowded)$/.test(s)) return 2;
+  var n = parseFloat(s);
+  if (!isNaN(n)){
+    if (n > 2) return n >= 80 ? 2 : (n >= 45 ? 1 : 0);   // percent
+    return n >= 2 ? 2 : (n >= 1 ? 1 : 0);
+  }
+  return null;
+}
+function parseFac(e){
+  if (!e || typeof e !== 'object') return null;
+  var out = {}, k;
+  for (k in e){ if (e.hasOwnProperty(k)){
+    var lk = k.toLowerCase(), v = e[k];
+    if (/solar|clover|leaf/.test(lk) || lk === 'sp'){ if (truthy(v)) out.solar = true; }
+    if (lk === 'w' || /wheel|wc/.test(lk)){
+      var n = parseInt(v, 10);
+      if (v === true) n = 1;
+      if (!isNaN(n) && n > 0) out.wheelchair = n;
+    }
+    if (lk === 'ol' || /occup|load|capac/.test(lk)){
+      var lv = occLevel(v);
+      if (lv !== null) out.occupancy = lv;
+    }
+  } }
+  return (out.solar || out.wheelchair || out.occupancy !== undefined) ? out : null;
+}
+function refreshFacilities(){
+  if (!CFG.facilities || facBusy) return;
+  facBusy = true;
+  var now = Date.now(), jobs = [], count = 0;
+  ['south','north'].forEach(function(dir){
+    var merged = mergeAgg(dir);
+    Object.keys(merged).forEach(function(rt){
+      var es = merged[rt], first = null, i;
+      for (i = 0; i < es.length; i++){ if (es[i].t && es[i].t > now - CFG.graceMs && es[i].co === 'KMB'){ first = es[i]; break; } }
+      if (!first) return;
+      var stop = stopFor(dir, first.kt);
+      if (!stop) return;
+      var bound = first.dir === 'I' ? 2 : 1;
+      var url = CFG.kmbApp + '?action=getEta&route=' + encodeURIComponent(rt) +
+                '&bound=' + bound + '&serviceType=' + (first.st || 1) + '&bsiCode=' + stop;
+      jobs.push(
+        fetchText(url, 10000).catch(function(){ return viaProxy(url); })
+        .then(function(t){
+          var j = JSON.parse(t);
+          var arr = (j && j.data && j.data.response) ? j.data.response :
+                    (j && j.data ? j.data : (j && j.response ? j.response : []));
+          if (!Array.isArray(arr)) arr = [];
+          var facs = arr.map(parseFac);
+          FAC[dir][rt] = facs;
+          facs.forEach(function(f){ if (f) count++; });
+        })
+        .catch(function(){ FAC[dir][rt] = []; })
+      );
+    });
+  });
+  Promise.all(jobs).then(function(){ S.facCount = count; facBusy = false; })
+    .catch(function(){ facBusy = false; });
 }
 
 /* ---------------- weather ---------------- */
@@ -616,9 +707,8 @@ function txt(node, tag){
 }
 function refreshStn(){
   if (!CFG.stn) return;
-  var direct = fetchText(CFG.stnUrl, 12000);
-  var attempt = CFG.stnProxy ? direct.catch(function(){ return fetchText(CFG.stnProxy + encodeURIComponent(CFG.stnUrl), 15000); }) : direct;
-  attempt.then(function(xml){
+  fetchText(CFG.stnUrl, 12000).catch(function(){ return viaProxy(CFG.stnUrl); })
+  .then(function(xml){
     var doc = new DOMParser().parseFromString(xml, 'text/xml');
     if (doc.getElementsByTagName('parsererror').length) throw new Error('XML parse');
     var msgs = doc.getElementsByTagName('message'), items = [], now = Date.now(), i;
@@ -662,6 +752,8 @@ function viewFor(dir, c, es, now, hk){
     seenKey[k] = 1;
     etas.push({ t:e.t, co:e.co, sched:isSched(e), last:isLast(e) });
   }
+  var fa = FAC[dir][c.route] || [];
+  etas.forEach(function(x, idx){ x.fac = fa[idx] || null; });
   var ended = false, noRmk = '', noRmkEn = '', traffic = '';
   for (i = 0; i < nulls.length; i++){
     e = nulls[i];
@@ -695,6 +787,40 @@ function buildViews(dir){
   return list;
 }
 
+/* ---------------- facility icons ---------------- */
+var SVG_CLOVER = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.2" r="4.1"/><circle cx="16.8" cy="12" r="4.1"/><circle cx="12" cy="16.8" r="4.1"/><circle cx="7.2" cy="12" r="4.1"/><path d="M12 12l1.6 8h-3.2z"/></svg>';
+var SVG_WC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M11 7v6h5l3 6"/><path d="M11 13a6 6 0 1 0 6 6"/></svg>';
+function facNodes(fac){
+  var out = [];
+  if (!fac) return out;
+  if (fac.solar){
+    var s = el('span', 'fac solar'); s.innerHTML = SVG_CLOVER;
+    s.title = '太陽能板巴士（四葉草）Solar-panel bus';
+    out.push(s);
+  }
+  if (fac.wheelchair){
+    var w = el('span', 'fac wc'); w.innerHTML = SVG_WC;
+    if (fac.wheelchair >= 2) w.appendChild(el('span', 'n', '2'));
+    w.title = fac.wheelchair >= 2 ? '雙輪椅停放位置 2 wheelchair spaces' : '輪椅停放位置 Wheelchair space';
+    out.push(w);
+  }
+  if (fac.occupancy !== undefined && fac.occupancy !== null){
+    var lv = fac.occupancy;
+    var col = lv === 0 ? 'var(--green)' : (lv === 1 ? 'var(--amber)' : 'var(--red)');
+    var lab = lv === 0 ? '充裕 Plenty' : (lv === 1 ? '中等 Moderate' : '擠迫 Full');
+    var o = el('span', 'occ'); o.title = '載客量 Occupancy：' + lab;
+    var heights = [6, 9, 12];
+    for (var i = 0; i < 3; i++){
+      var b = el('i');
+      b.style.height = heights[i] + 'px';
+      b.style.background = i <= lv ? col : 'var(--dot)';
+      o.appendChild(b);
+    }
+    out.push(o);
+  }
+  return out;
+}
+
 /* ---------------- DOM rows ---------------- */
 function makeRow(dir, c){
   var row = el('div', 'row');
@@ -723,13 +849,16 @@ function makeRow(dir, c){
 
   var ec = el('div', 'c-eta');
   var main = el('div', 'e-main');
-  var min = el('span', 'e-min', '--'), unit = el('span', 'e-unit', ''), abs = el('span', 'e-abs', '');
-  main.appendChild(min); main.appendChild(unit); main.appendChild(abs);
-  var sub = el('div', 'e-sub'), next = el('div', 'e-next');
-  ec.appendChild(main); ec.appendChild(sub); ec.appendChild(next);
+  var min = el('span', 'e-min', '--');
+  var right = el('div', 'e-right');
+  var top = el('div', 'e-top'), bot = el('div', 'e-bot');
+  right.appendChild(top); right.appendChild(bot);
+  main.appendChild(min); main.appendChild(right);
+  var next = el('div', 'e-next');
+  ec.appendChild(main); ec.appendChild(next);
   row.appendChild(ec);
 
-  return { el:row, min:min, unit:unit, abs:abs, sub:sub, next:next, dzh:dzh, den:den, eta:ec, sig:'' };
+  return { el:row, min:min, top:top, bot:bot, next:next, dzh:dzh, den:den, eta:ec, sig:'' };
 }
 function ensureRows(){
   ['south','north'].forEach(function(dir){
@@ -745,8 +874,11 @@ function ensureRows(){
     });
   });
 }
+function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
 function updateRow(row, v, now){
+  var f0 = v.etas[0] || null;
   var sig = v.status + '|' + v.destZh + '|' + v.destEn + '|' + v.noRmk + '|' + v.traffic + '|' + (v.last ? 1 : 0) + '|' + (S.loaded ? 1 : 0) + '|' +
+    (f0 && f0.fac ? JSON.stringify(f0.fac) : '') + '|' +
     v.etas.map(function(x){ return x.t + ':' + (x.sched ? 1 : 0) + (x.last ? 1 : 0) + ':' + Math.max(1, Math.floor((x.t - now) / 60000)); }).join(',');
   if (row.sig === sig) return;
   row.sig = sig;
@@ -755,28 +887,28 @@ function updateRow(row, v, now){
   row.den.textContent = v.destEn;
   row.eta.className = 'c-eta st-' + v.status;
   row.el.className = 'row' + ((v.status === 'off' || v.status === 'none' || v.status === 'ended' || v.status === 'rmk') ? ' dim' : '');
-  while (row.sub.firstChild) row.sub.removeChild(row.sub.firstChild);
-  while (row.next.firstChild) row.next.removeChild(row.next.firstChild);
+  clear(row.top); clear(row.bot); clear(row.next);
 
   if (v.status === 'arriving' || v.status === 'live' || v.status === 'sched'){
     var f = v.etas[0];
-    /* main display is ALWAYS a minute countdown (no seconds);
-       the clock arrival time is shown small beside it */
     row.min.textContent = Math.max(1, Math.floor((f.t - now) / 60000));
-    row.unit.textContent = '分鐘 min';
-    row.abs.textContent = hhmm(f.t);
-    if (v.status === 'arriving') row.sub.appendChild(el('span', 'chip arrive', '即將到站 Arriving'));
+    /* right block line 1 = type chips; line 2 = unit + clock arrival */
+    var anyChip = false;
+    if (v.status === 'arriving'){ row.top.appendChild(el('span', 'chip arrive', '即將到站 Arriving')); anyChip = true; }
     if (f.sched){
       var c1 = el('span', 'chip sched', '預定班次 Scheduled');
       c1.title = '編定班次時間，司機可能尚未開車 Scheduled departure — bus may not have started yet';
-      row.sub.appendChild(c1);
+      row.top.appendChild(c1); anyChip = true;
     }
-    if (v.last) row.sub.appendChild(el('span', 'chip last', '尾班車 Last Bus'));
+    if (v.last){ row.top.appendChild(el('span', 'chip last', '尾班車 Last Bus')); anyChip = true; }
     if (v.traffic){
-      var c3 = el('span', 'chip traf', '交通延誤 Traffic');
-      c3.title = v.traffic;
-      row.sub.appendChild(c3);
+      var c3 = el('span', 'chip traf', '交通延誤 Traffic'); c3.title = v.traffic;
+      row.top.appendChild(c3); anyChip = true;
     }
+    if (!anyChip) row.top.appendChild(el('span', 'liveTag', '實時 Live'));
+    row.bot.appendChild(el('span', 'e-unit', '分鐘 min'));
+    row.bot.appendChild(el('span', 'e-abs', hhmm(f.t)));
+    /* next line + facility badges */
     row.next.appendChild(el('span', '', '下一班 Next '));
     if (v.etas.length > 1){
       v.etas.slice(1).forEach(function(x, i){
@@ -784,8 +916,9 @@ function updateRow(row, v, now){
         row.next.appendChild(el('span', x.sched ? 'nx-sched' : '', hhmm(x.t)));
       });
     } else row.next.appendChild(el('span', '', '—'));
+    facNodes(f.fac).forEach(function(n){ row.next.appendChild(n); });
   } else {
-    row.min.textContent = '--'; row.unit.textContent = ''; row.abs.textContent = '';
+    row.min.textContent = '--';
     var st, cls;
     if (!S.loaded && v.status === 'none'){ st = '載入中 Loading…'; cls = 'load'; }
     else if (v.status === 'ended'){ st = '尾班車已過此站 Last bus departed'; cls = 'ended'; }
@@ -794,9 +927,9 @@ function updateRow(row, v, now){
     else { st = '未有班次資料 No ETA'; cls = 'none'; }
     var sp = el('span', 'stat ' + cls, st);
     sp.title = v.noRmk ? (v.noRmk + ' ' + v.noRmkEn) : st;
-    row.sub.appendChild(sp);
+    row.top.appendChild(sp);
     var tail = v.status === 'rmk' ? v.noRmkEn : (v.status === 'off' ? (v.c.peak || (v.c.night ? '通宵服務 Overnight service' : '')) : '');
-    if (tail) row.next.appendChild(el('span', '', cap(tail, 60)));
+    if (tail) row.bot.appendChild(el('span', 'e-unit', cap(tail, 40)));
   }
 }
 function orderRows(){
@@ -853,7 +986,7 @@ function layoutPager(pg){
   }
   pg.starts = starts;
   if (pg.page >= starts.length) pg.page = 0;
-  while (pg.dots.firstChild) pg.dots.removeChild(pg.dots.firstChild);
+  clear(pg.dots);
   starts.forEach(function(_, idx){
     var d = el('i'); if (idx === pg.page) d.className = 'on';
     pg.dots.appendChild(d);
@@ -899,7 +1032,7 @@ function buildWarnStrip(){
   if (sig === lastStripSig) return;
   lastStripSig = sig;
   var strip = $('warnStrip');
-  while (strip.firstChild) strip.removeChild(strip.firstChild);
+  clear(strip);
   S.warns.forEach(function(w){
     var b = el('div', 'wb'); b.style.backgroundColor = w.bg;
     if (w.icon){
@@ -938,12 +1071,11 @@ function rebuildTicker(){
   });
   S.trafRmk.forEach(function(x){ parts.push('【巴士交通備註】路線 ' + x.route + '：' + x.rmk); });
   if (S.lastEta && Date.now() - S.lastEta > CFG.staleMs) parts.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
-  parts.push('狀態說明：綠色＝實到站時間｜黃色＝預定班次（司機或尚未開車）｜紅色＝尾班車 Status: green = live, amber = scheduled, red = last bus');
-  parts.push('601／601P 為九巴及城巴聯營路線 Joint-operated by KMB & Citybus｜北行本站實施分段收費 Section fare applies at this stop (northbound)');
-  parts.push('23M 設特別班次經九龍灣商貿區（週一至五上午）23M special trips via Kowloon Bay Business Area (weekday AM peak)');
+  parts.push('圖例：四葉草＝太陽能板巴士｜輪椅(2)＝雙輪椅位｜色條＝載客量 Legend: clover = solar bus, wheelchair(2) = 2 spaces, bar = occupancy');
+  parts.push('狀態：綠＝實時｜黃＝預定班次（司機或尚未開車）｜紅＝尾班車 Status: green = live, amber = scheduled, red = last bus');
+  parts.push('601／601P 九巴及城巴聯營 Joint-operated KMB & Citybus｜北行本站分段收費 Section fare (northbound)');
   parts.push('測試中・僅供參考 Testing in progress — for reference only');
-  parts.push('資料來源 Data sources：九巴 KMB・城巴 Citybus・天文台 HKO・運輸署 TD Open Data');
-  parts.push('感謝使用 KTMC 巴士到站時間顯示系統 Thank you for using the KTMC Bus ETA Display System');
+  parts.push('資料來源 Data：九巴 KMB・城巴 Citybus・天文台 HKO・運輸署 TD Open Data');
   var str = parts.join('  •  ');
   if (str === lastTickStr) return;
   lastTickStr = str;
@@ -1112,6 +1244,7 @@ function renderDbg(now){
   L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') +
          '  guardVideo: ' + S.guard + '  audio: ' + S.audio);
   L.push('loaded: ' + S.loaded + '  lastEta: ' + (S.lastEta ? hhmm(S.lastEta) + ' (' + Math.round((now - S.lastEta) / 1000) + 's ago)' : 'never'));
+  L.push('facility badges live: ' + S.facCount + ' (KMB app feed; open-data has none)');
   ['kmb','ctb','hko','td'].forEach(function(k){
     var h = H[k];
     L.push(k.toUpperCase() + ': ' + (h.ok ? 'OK' : 'FAIL') + (h.t ? ' @' + hhmm(h.t) : '') + (h.err ? '  err=' + h.err : ''));
@@ -1119,14 +1252,7 @@ function renderDbg(now){
   L.push('rows S/N: ' + Object.keys(ROWS.south).length + '/' + Object.keys(ROWS.north).length +
          '  pages S/N: ' + P.south.starts.length + '/' + P.north.starts.length +
          '  per: ' + P.south.per + '/' + P.north.per);
-  L.push('warns: ' + (S.warns.map(function(w){ return w.code; }).join(',') || 'none') +
-         '  STN items: ' + S.stn.length + ' (near ' + S.stn.filter(function(x){ return x.near; }).length + ')');
   L.push('keys: D=debug  F=fullscreen  R=refresh  S=settings  Esc=close panel');
-  L.push('LG screensaver tips:');
-  L.push(' 1) Settings > General > System > Additional Settings > Screen Saver Promotion = Off');
-  L.push(' 2) Same menu: Auto Power Off / No Signal Image = Off; Energy Saving = Off');
-  L.push(' 3) Some models: press MUTE 3x quickly for the hidden signage menu');
-  L.push(' 4) Hotel/Installation mode can disable idle screensaver timers');
   if (S.errs.length){ L.push('errors:'); S.errs.slice(-5).forEach(function(e){ L.push('  ' + e); }); }
   $('dbg').textContent = L.join('\n');
 }
@@ -1155,7 +1281,7 @@ function bindEvents(){
     if (k === 'Escape'){ if (S.setOpen) toggleSettings(false); }
     else if (k === 'd' || k === 'D'){ S.dbg = !S.dbg; $('dbg').className = S.dbg ? 'show' : ''; }
     else if (k === 'f' || k === 'F'){ if (isFS()) exitFS(); else tryFS(true); }
-    else if (k === 'r' || k === 'R'){ refreshAll(); }
+    else if (k === 'r' || k === 'R'){ refreshAll(); refreshFacilities(); }
     else if (k === 's' || k === 'S'){ toggleSettings(); }
     else gesture();
   });
@@ -1212,6 +1338,7 @@ function init(){
   setInterval(refreshEtas, CFG.etaMs);
   setInterval(refreshWx, CFG.wxMs);
   if (CFG.stn) setInterval(refreshStn, CFG.stnMs);
+  if (CFG.facilities){ setTimeout(refreshFacilities, 4000); setInterval(refreshFacilities, CFG.facMs); }
   setInterval(function(){ shiftIdx = (shiftIdx + 1) % SHIFT.length; layout(); }, 45000);
   requestAnimationFrame(frame);
   reqFS().then(onFS).catch(function(){});
