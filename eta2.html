@@ -74,7 +74,6 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 #setBtn{width:46px;height:46px;flex-shrink:0;margin-left:14px;display:flex;align-items:center;justify-content:center;
         background:var(--btn-bg);border:1px solid var(--btn-line);border-radius:6px;color:var(--sub);cursor:pointer}
 #setBtn:hover{color:var(--txt);border-color:var(--sub)}
-/* ribbon: 12 stops in 2 rows of 6 */
 #ribbon{height:78px;flex-shrink:0;margin-top:10px;display:flex;flex-wrap:wrap;align-content:space-between;
         position:relative;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;overflow:hidden}
 .chip{width:306px;height:33px;flex-shrink:0;margin:0 4px 0 0;padding:3px 9px;border-radius:5px;background:var(--panel2);
@@ -90,7 +89,6 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
           white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip.on .chipMeta{color:var(--sub)}
 #ribBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
-/* main */
 #main{flex:1;min-height:0;margin-top:10px;position:relative}
 #over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
 #over.show{display:flex}
@@ -370,7 +368,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
 
   <div class="panel" id="resPanel">
     <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
-    <div class="resNote">所有九巴月台與城巴站均已內建經核實的 stop ID（預設對應），開機即用。若個別仍顯示未連結，或日後站點改動，可在此貼上新 ID 覆寫，或按「重新解析」由系統以站名＋實際路線組合自動配對。「還原預設」會清除所有覆寫並回復內建對應。</div>
+    <div class="resNote">所有九巴月台與城巴站均已內建經核實的 stop ID（預設對應），開機即用。若個別仍顯示未連結，或日後站點改動，可在此貼上新 ID 覆寫，或按「重新解析」由系統以站名＋實際路線組合自動配對。「還原預設」會清除所有覆寫並回復內建對應。以本站為終點的到達班次不會顯示，只顯示可在此上車的開出班次。</div>
     <div id="resList"></div>
     <div class="resActs">
       <button class="opt" id="resRun">重新解析 Re-resolve</button>
@@ -399,34 +397,17 @@ var CFG={etaMs:30000,wxMs:300000,staleMs:120000,arriveMs:60000,graceMs:45000,
   wx:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
   warn:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
   wxIcon:'https://rss.weather.gov.hk/img/pic'};
-/* 內建預設月台對應（已按開放數據核實，2026-11）Built-in verified map */
 var DEFAULT_MAP={
-  'WOH-S-537':'AE2A9F719AB5E353',   /* 和樂邨 南 KT537 */
-  'WOH-S-536':'6CEE063506576EDB',   /* 和樂邨 南 KT536 */
-  'WOH-S-535':'073C44CE5FF431BC',   /* 和樂邨 南 KT535 */
-  'WOH-N-260':'11EC0BEF4F8781A9',   /* 和樂邨 北 KT260 */
-  'WOH-N-259':'072046BF00257739',   /* 和樂邨 北 KT259 */
-  'WOH-N-258':'B314CF2831F9C5F1',   /* 和樂邨 北 KT258 */
-  'WOH-N-257':'55AE88BFD351F56D',   /* 和樂邨 北 KT257 */
-  'WOH-N-256':'17A8BC1197F76422',   /* 和樂邨 北 KT256 */
-  'WOH-N-255':'6530130BE25E909C',   /* 和樂邨 北 KT255 */
-  'WCH-S-534':'6CF34EF02CDBE26B',   /* 祥和苑 南 KT534 */
-  'WCH-N-261':'DE925628D8747F6D',   /* 祥和苑 北 KT261 */
-  'PPC-S-1000':'C6E63C45FF2EA573',  /* 寶珮苑 南 */
-  'PPC-N-1100':'CED060CB0E89E2B3',  /* 寶珮苑 北 */
-  'COH-N-1075':'F9210821429F55B6',  /* 翠桉樓 北 */
-  'CTH-S-1050':'3673A01280621EC2',  /* 翠梓樓 南 */
-  'TPR-T-0':'1AEB39A1738104D3',     /* 觀塘（翠屏道）總站 */
-  'TPN-T-1050':'71B7CB659DF54E28',  /* 觀塘（翠屏北邨）總站 */
-  'KTP-S-1100':'3558FA1D8DCF1F12',  /* 觀塘游泳池 南 */
-  'KTP-N-1000':'49229D04FCA51B61'   /* 觀塘游泳池 北 */
+  'WOH-S-537':'AE2A9F719AB5E353','WOH-S-536':'6CEE063506576EDB','WOH-S-535':'073C44CE5FF431BC',
+  'WOH-N-260':'11EC0BEF4F8781A9','WOH-N-259':'072046BF00257739','WOH-N-258':'B314CF2831F9C5F1',
+  'WOH-N-257':'55AE88BFD351F56D','WOH-N-256':'17A8BC1197F76422','WOH-N-255':'6530130BE25E909C',
+  'WCH-S-534':'6CF34EF02CDBE26B','WCH-N-261':'DE925628D8747F6D',
+  'PPC-S-1000':'C6E63C45FF2EA573','PPC-N-1100':'CED060CB0E89E2B3',
+  'COH-N-1075':'F9210821429F55B6','CTH-S-1050':'3673A01280621EC2',
+  'TPR-T-0':'1AEB39A1738104D3','TPN-T-1050':'71B7CB659DF54E28',
+  'KTP-S-1100':'3558FA1D8DCF1F12','KTP-N-1000':'49229D04FCA51B61'
 };
-/* 城巴站預設（601/601P 聯營）Built-in Citybus stops */
-var CTB_DEF={
-  'WOH-S-536':'003040',   /* 城巴 和樂邨 南行 */
-  'WOH-N-255':'003041',   /* 城巴 和樂邨 北行 */
-  'WCH-S-533':'003039'    /* 城巴 祥和苑 南行 */
-};
+var CTB_DEF={ 'WOH-S-536':'003040', 'WOH-N-255':'003041', 'WCH-S-533':'003039' };
 var ROW_H=88,SW=1920,SH=1080;
 var W={wkAM:{d:[1,2,3,4,5],from:360,to:660},satAM:{d:[1,2,3,4,5,6],from:360,to:660},
   wkPM:{d:[1,2,3,4,5],from:960,to:1290},night:{d:[0,1,2,3,4,5,6],from:1380,to:400},
@@ -503,14 +484,14 @@ var STOPS=[
  aliases:['觀塘(翠屏道)總站','觀塘（翠屏道）總站','翠屏道總站','觀塘(翠屏道)','觀塘（翠屏道）'],platforms:[
   {key:'TPR-T-0',label:'總站',note:'開出班次 Departures',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),
-    rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午，不經石門・第一城・彩虹）'}),
+    rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午到達，不設回程；到達班不顯示）'}),
     rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,
  aliases:['觀塘(翠屏北邨)總站','觀塘（翠屏北邨）總站','翠屏北邨總站','觀塘(翠屏北邨)','觀塘（翠屏北邨）'],platforms:[
   {key:'TPN-T-1050',label:'1050',note:'往瀝源・青龍頭',routes:[
     rt('89','瀝源','LEK YUEN'),
-    rt('234C','青龍頭','TSING LUNG TAU',{peak:'上午去程・下午回程（經梨木樹・黃大仙）',win:W.satAM}),
-    rt('234D','青龍頭','TSING LUNG TAU',{peak:'平日上午去程・下午回程（經中九龍繞道）',win:W.wkAM})]}]},
+    rt('234C','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM}),
+    rt('234D','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM})]}]},
 {key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',aliases:['觀塘游泳池'],platforms:[
   {key:'KTP-S-1100',label:'1100',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('89C','恆安','HENG ON'),
@@ -659,9 +640,9 @@ function resolve(force){
   }).catch(function(e){olog('站清單下載失敗：'+(e&&e.message||e));buildResList();})
    .then(function(){S.resolving=false;refreshEtas();});
 }
-function platShort(p){
-  var ls=p.stop.platforms.map(function(x){return x.label;});
-  return ls.length>3?(ls[0]+' 等'+ls.length+'個'):(ls.join('/'));
+function platShort(g){
+  var ls=g.platforms.map(function(x){return x.label;});
+  return ls.length>3?(ls[0]+' 等'+ls.length+'個'):ls.join('/');
 }
 function buildResList(){
   var box=$('resList');clear(box);
@@ -708,10 +689,22 @@ function refreshEtas(){
     if(okK+okC>0){S.lastEta=Date.now();S.loaded=true;}
     etaBusy=false;buildPhases();renderAll();});
 }
-function entries(p){var out=(AGG[p.key]||[]).slice();
+/* Trips whose destination IS this stop (terminating here) are excluded,
+   so inbound dead-runs never hide the boardable return departures. */
+function termSetOf(p){
+  if(p._ts)return p._ts;
+  var s={};
+  (p.stop.aliases||[]).forEach(function(a){s[nname(a)]=1;});
+  s[nname(p.stop.name)]=1;
+  p._ts=s;return s;
+}
+function entries(p){
+  var out=(AGG[p.key]||[]).slice();
   var cs=CTBM[p.key];
   if(cs)['601','601P'].forEach(function(r){(AGG['CTB|'+p.key+'|'+r]||[]).forEach(function(e){out.push(e);});});
-  return out;}
+  var ts=termSetOf(p);
+  return out.filter(function(e){return !ts[nname(e.destZh)];});
+}
 function viewFor(p,c,now,hk){
   var es=entries(p).filter(function(e){return e.route===c.route;}),timed=[],nulls=[],i,e;
   for(i=0;i<es.length;i++){e=es[i];if(e.t&&e.t>now-CFG.graceMs)timed.push(e);else if(!e.t)nulls.push(e);}
@@ -748,7 +741,7 @@ function buildRibbon(){
     top.appendChild(el('div','chipDir',g.arrow+g.dir));
     c.appendChild(top);
     var n=g.platforms.reduce(function(a,p){return a+p.routes.length;},0);
-    c.appendChild(el('div','chipMeta','月台 '+platShort(g.platforms[0].stop?{stop:g,platforms:g.platforms}:g.platforms)+' · '+n+' 線'));
+    c.appendChild(el('div','chipMeta','月台 '+platShort(g)+' · '+n+' 線'));
     box.insertBefore(c,$('ribBar'));CHIP[g.key]=c;});
 }
 function buildOver(){
@@ -983,6 +976,7 @@ function ticker(){
   if(un)p.push('注意：'+un+' 個月台數據未連結，請於設定→站點解析處理 '+un+' platform(s) not linked');
   if(S.lastEta&&Date.now()-S.lastEta>CFG.staleMs)p.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
   p.push('本顯示屏自動輪播：先顯示全部 '+STOPS.length+' 個站點最快班次，再逐站顯示所有路線');
+  p.push('總站只顯示開出班次，到達／終點班不顯示 Terminuses show departures only');
   p.push('和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站');
   p.push('601／601P 九巴及城巴聯營 Joint-operated KMB & Citybus');
   p.push('資料來源 Data：九巴 KMB・城巴 Citybus・天文台 HKO Open Data');
