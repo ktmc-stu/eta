@@ -24,6 +24,7 @@
   --btn-bg:#1c232d; --btn-line:#2c3644; --accent:#3d5a78;
   --overlay:rgba(8,10,14,.78); --card:#151a21;
   --tick:#c4cdd8; --focus:#9aa6b4;
+  --eta-red:#c62828; --eta-yellow:#b8860b; --eta-green:#2e7d32;
 }
 :root[data-theme="light"]{
   --bg:#eef1f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#d3dae3;
@@ -127,16 +128,22 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .co{font-size:11px;font-weight:400;margin:1px 0;white-space:nowrap}
 .co.kmb{color:var(--kmb)}
 .co.ctb{color:var(--ctb)}
+.co.off{color:var(--faint)}
 .c-dest{flex:1;min-width:0;margin:0 12px;display:flex;flex-direction:column;justify-content:center}
 .d-zh{font-size:26px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .d-en{font-size:14px;color:var(--sub);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .d-svc{font-size:12.5px;color:var(--dim);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-plat{width:84px;flex-shrink:0;text-align:center}
 .plat{font-size:20px;font-weight:700;color:var(--txt)}
-/* ETA cell: big countdown left; two-line block right (type on top, unit+clock below) */
+/* ETA cell: big countdown pill left; two-line block right (type on top, unit+clock below) */
 .c-eta{width:264px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
 .e-main{display:flex;align-items:center;justify-content:flex-end;line-height:1;max-width:100%}
-.e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);margin-right:10px;flex-shrink:0}
+.e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);
+       margin-right:10px;flex-shrink:0;padding:2px 10px;border-radius:6px;line-height:1.1}
+.e-min.b3{background:var(--eta-red);color:#fff;animation:etaBlink 1s infinite}
+.e-min.b6{background:var(--eta-yellow);color:#fff;animation:etaBlink 1.4s infinite}
+.e-min.b10{background:var(--eta-green);color:#fff}
+@keyframes etaBlink{0%,100%{opacity:1}50%{opacity:.4}}
 .e-right{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;min-width:0}
 .e-top{height:21px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
 .e-bot{height:21px;display:flex;align-items:baseline;justify-content:flex-end;max-width:100%;overflow:hidden;white-space:nowrap}
@@ -150,17 +157,14 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .chip.traf{color:var(--traf);border-color:var(--traf-line)}
 .chip.arrive{color:var(--green);border-color:var(--green-line)}
 .liveTag{font-size:13px;color:var(--dim);white-space:nowrap}
-.st-sched .e-min{color:var(--amber)}
-.st-arriving .e-min{color:var(--green)}
-.st-arriving .e-abs{color:var(--green)}
-.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:var(--faint);font-size:30px}
+.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:var(--faint);font-size:30px;background:none;animation:none}
 .stat{font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
 .stat.ended{color:var(--red)}
 .stat.rmk{color:var(--amber)}
 .stat.off,.stat.none{color:var(--dim)}
 .stat.load{color:var(--sub)}
 .nx-sched{color:var(--amber)}
-/* facility badges (solar clover / wheelchair / occupancy) */
+/* facility badges */
 .fac{display:inline-flex;align-items:center;margin-left:9px;flex-shrink:0;color:var(--sub)}
 .fac svg{width:18px;height:18px;display:block}
 .fac.solar{color:var(--green)}
@@ -168,6 +172,11 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 .fac .n{font-size:11px;font-weight:700;margin-left:2px}
 .occ{display:inline-flex;align-items:flex-end;margin-left:9px;flex-shrink:0;height:14px}
 .occ i{width:4px;margin-left:2px;border-radius:1px;background:var(--dot)}
+/* low-RAM mode: animations off */
+body.no-anim .pages{transition:none}
+body.no-anim .pbar{display:none}
+body.no-anim #tickTrack{animation:none}
+body.no-anim .e-min{animation:none}
 /* footer */
 #footer{height:50px;flex-shrink:0;margin-top:12px;display:flex;align-items:stretch;
         background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
@@ -204,6 +213,10 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
      border-radius:6px;color:var(--sub);font-family:inherit;font-size:12px;line-height:1.55;padding:12px 14px;
      max-width:660px;max-height:92%;overflow:auto;white-space:pre-wrap}
 #dbg.show{display:block}
+#dbg::-webkit-scrollbar{width:10px}
+#dbg::-webkit-scrollbar-track{background:var(--panel2)}
+#dbg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:5px}
+#dbg::-webkit-scrollbar-thumb:hover{background:var(--sub)}
 </style>
 </head>
 <body>
@@ -238,6 +251,8 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
     <div class="spLabel">主題 Theme</div>
     <button class="themeOpt" id="thDark" data-th="dark">深色 Dark</button>
     <button class="themeOpt" id="thLight" data-th="light">淺色 Light</button>
+    <div class="spLabel">動畫 Animations</div>
+    <button class="themeOpt" id="animBtn">動畫：開 Animations: On</button>
     <div class="spHint">選擇後自動儲存 Saved automatically<br>按 Esc 或點擊外面關閉 Close with Esc / outside click</div>
   </div>
 
@@ -304,9 +319,10 @@ button:focus{outline:2px solid var(--focus);outline-offset:1px}
 var CFG = {
   etaMs: 30000, wxMs: 300000, stnMs: 180000, facMs: 60000,
   pageMs: 10000, staleMs: 120000, arriveMs: 60000, graceMs: 45000,
+  band3: 180000, band6: 360000, band10: 600000,
   sort: 'platform',
   stn: true,
-  facilities: true,   // solar / wheelchair / occupancy from KMB app ETA feed
+  facilities: true,
   stnUrl: 'https://www.td.gov.hk/en/special_news/trafficnews.xml',
   proxy: 'https://api.allorigins.win/raw?url=',
   kmb: 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
@@ -429,12 +445,13 @@ function fetchText(url, ms){
 function fetchJSON(url){ return fetchText(url).then(function(t){ return JSON.parse(t); }); }
 function retryP(fn){ return fn().catch(function(){ return fn(); }); }
 function viaProxy(url){ return CFG.proxy ? fetchText(CFG.proxy + encodeURIComponent(url), 15000) : Promise.reject(new Error('no proxy')); }
+function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
 
 /* ---------------- state ---------------- */
 var S = {
   scale:1, fs:false, wake:null, guard:'init', audio:'off', loaded:false, lastEta:0,
   wx:{ temp:null, hum:null, icon:null }, wxMsgs:[], warns:[], stn:[], trafRmk:[],
-  dbg:false, errs:[], frameT:0, facCount:0,
+  dbg:false, errs:[], frameT:0, facCount:0, anim:true,
   theme:'dark', setOpen:false, guardBg:'#0e1116', guardWash:'rgba(255,255,255,0.015)'
 };
 var H = {
@@ -453,7 +470,7 @@ var WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var lastTickStr = '', lastStripSig = '', etaBusy = false, facBusy = false;
 
-/* ---------------- theme + settings ---------------- */
+/* ---------------- theme / animation / settings ---------------- */
 function setTheme(th){
   if (th !== 'light') th = 'dark';
   S.theme = th;
@@ -465,6 +482,15 @@ function setTheme(th){
   $('thDark').textContent = (th === 'dark' ? '✓ ' : '') + '深色 Dark';
   $('thLight').textContent = (th === 'light' ? '✓ ' : '') + '淺色 Light';
   try { localStorage.setItem('ktmcTheme', th); } catch (e){}
+}
+function applyAnim(){
+  if (S.anim) document.body.classList.remove('no-anim');
+  else document.body.classList.add('no-anim');
+  $('animBtn').textContent = S.anim ? '動畫：開 Animations: On' : '動畫：關 Animations: Off';
+  $('animBtn').className = 'themeOpt' + (S.anim ? ' on' : '');
+  try { localStorage.setItem('ktmcAnim', S.anim ? '1' : '0'); } catch (e){}
+  lastTickStr = '';
+  rebuildTicker();
 }
 function toggleSettings(open){
   S.setOpen = (open === undefined) ? !S.setOpen : open;
@@ -572,7 +598,7 @@ function occLevel(v){
   if (/^(2|high|h|full|red|crowded)$/.test(s)) return 2;
   var n = parseFloat(s);
   if (!isNaN(n)){
-    if (n > 2) return n >= 80 ? 2 : (n >= 45 ? 1 : 0);   // percent
+    if (n > 2) return n >= 80 ? 2 : (n >= 45 ? 1 : 0);
     return n >= 2 ? 2 : (n >= 1 ? 1 : 0);
   }
   return null;
@@ -736,6 +762,12 @@ function refreshStn(){
 }
 
 /* ---------------- view model ---------------- */
+function etaBand(diff){
+  if (diff <= CFG.band3) return ' b3';
+  if (diff <= CFG.band6) return ' b6';
+  if (diff <= CFG.band10) return ' b10';
+  return '';
+}
 function viewFor(dir, c, es, now, hk){
   var timed = [], nulls = [], i, e;
   for (i = 0; i < es.length; i++){
@@ -828,8 +860,12 @@ function makeRow(dir, c){
 
   var rc = el('div', 'c-route');
   rc.appendChild(el('div', 'badge', c.route));
-  var cos = el('div', 'cos');
-  c.cos.forEach(function(co){ cos.appendChild(el('span', 'co ' + co.toLowerCase(), co === 'KMB' ? '九巴 KMB' : '城巴 CTB')); });
+  var cos = el('div', 'cos'), cosMap = {};
+  c.cos.forEach(function(co){
+    var sp = el('span', 'co ' + co.toLowerCase(), co === 'KMB' ? '九巴 KMB' : '城巴 CTB');
+    cosMap[co] = sp;
+    cos.appendChild(sp);
+  });
   rc.appendChild(cos);
   row.appendChild(rc);
 
@@ -858,7 +894,7 @@ function makeRow(dir, c){
   ec.appendChild(main); ec.appendChild(next);
   row.appendChild(ec);
 
-  return { el:row, min:min, top:top, bot:bot, next:next, dzh:dzh, den:den, eta:ec, sig:'' };
+  return { el:row, min:min, top:top, bot:bot, next:next, dzh:dzh, den:den, eta:ec, cos:cosMap, sig:'' };
 }
 function ensureRows(){
   ['south','north'].forEach(function(dir){
@@ -874,11 +910,12 @@ function ensureRows(){
     });
   });
 }
-function clear(n){ while (n.firstChild) n.removeChild(n.firstChild); }
 function updateRow(row, v, now){
   var f0 = v.etas[0] || null;
+  var curCo = f0 ? f0.co : null;
+  var band = f0 ? etaBand(f0.t - now) : '';
   var sig = v.status + '|' + v.destZh + '|' + v.destEn + '|' + v.noRmk + '|' + v.traffic + '|' + (v.last ? 1 : 0) + '|' + (S.loaded ? 1 : 0) + '|' +
-    (f0 && f0.fac ? JSON.stringify(f0.fac) : '') + '|' +
+    band + '|' + (curCo || '') + '|' + (f0 && f0.fac ? JSON.stringify(f0.fac) : '') + '|' +
     v.etas.map(function(x){ return x.t + ':' + (x.sched ? 1 : 0) + (x.last ? 1 : 0) + ':' + Math.max(1, Math.floor((x.t - now) / 60000)); }).join(',');
   if (row.sig === sig) return;
   row.sig = sig;
@@ -889,10 +926,16 @@ function updateRow(row, v, now){
   row.el.className = 'row' + ((v.status === 'off' || v.status === 'none' || v.status === 'ended' || v.status === 'rmk') ? ' dim' : '');
   clear(row.top); clear(row.bot); clear(row.next);
 
+  /* joint operators: current bus's company normal, the other greyed */
+  var joint = v.c.cos.length > 1;
+  Object.keys(row.cos).forEach(function(co){
+    row.cos[co].className = 'co ' + co.toLowerCase() + ((joint && curCo && co !== curCo) ? ' off' : '');
+  });
+
   if (v.status === 'arriving' || v.status === 'live' || v.status === 'sched'){
     var f = v.etas[0];
     row.min.textContent = Math.max(1, Math.floor((f.t - now) / 60000));
-    /* right block line 1 = type chips; line 2 = unit + clock arrival */
+    row.min.className = 'e-min' + band;
     var anyChip = false;
     if (v.status === 'arriving'){ row.top.appendChild(el('span', 'chip arrive', '即將到站 Arriving')); anyChip = true; }
     if (f.sched){
@@ -908,7 +951,6 @@ function updateRow(row, v, now){
     if (!anyChip) row.top.appendChild(el('span', 'liveTag', '實時 Live'));
     row.bot.appendChild(el('span', 'e-unit', '分鐘 min'));
     row.bot.appendChild(el('span', 'e-abs', hhmm(f.t)));
-    /* next line + facility badges */
     row.next.appendChild(el('span', '', '下一班 Next '));
     if (v.etas.length > 1){
       v.etas.slice(1).forEach(function(x, i){
@@ -919,6 +961,7 @@ function updateRow(row, v, now){
     facNodes(f.fac).forEach(function(n){ row.next.appendChild(n); });
   } else {
     row.min.textContent = '--';
+    row.min.className = 'e-min';
     var st, cls;
     if (!S.loaded && v.status === 'none'){ st = '載入中 Loading…'; cls = 'load'; }
     else if (v.status === 'ended'){ st = '尾班車已過此站 Last bus departed'; cls = 'ended'; }
@@ -1007,13 +1050,13 @@ function frame(ts){
     if (!pg.t0) pg.t0 = ts;
     if (pg.starts.length > 1){
       var elap = ts - pg.t0;
-      pg.bar.style.width = Math.min(100, elap / CFG.pageMs * 100) + '%';
+      if (S.anim) pg.bar.style.width = Math.min(100, elap / CFG.pageMs * 100) + '%';
       if (elap >= CFG.pageMs){
         pg.page = (pg.page + 1) % pg.starts.length;
         pg.t0 = ts;
         applyPage(pg);
       }
-    } else pg.bar.style.width = '0';
+    } else if (S.anim) pg.bar.style.width = '0';
   });
   S.frameT = ts;
   requestAnimationFrame(frame);
@@ -1072,11 +1115,10 @@ function rebuildTicker(){
   S.trafRmk.forEach(function(x){ parts.push('【巴士交通備註】路線 ' + x.route + '：' + x.rmk); });
   if (S.lastEta && Date.now() - S.lastEta > CFG.staleMs) parts.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
   parts.push('圖例：四葉草＝太陽能板巴士｜輪椅(2)＝雙輪椅位｜色條＝載客量 Legend: clover = solar bus, wheelchair(2) = 2 spaces, bar = occupancy');
-  parts.push('狀態：綠＝實時｜黃＝預定班次（司機或尚未開車）｜紅＝尾班車 Status: green = live, amber = scheduled, red = last bus');
   parts.push('601／601P 九巴及城巴聯營 Joint-operated KMB & Citybus｜北行本站分段收費 Section fare (northbound)');
   parts.push('測試中・僅供參考 Testing in progress — for reference only');
   parts.push('資料來源 Data：九巴 KMB・城巴 Citybus・天文台 HKO・運輸署 TD Open Data');
-  var str = parts.join('  •  ');
+  var str = parts.join(' | ');
   if (str === lastTickStr) return;
   lastTickStr = str;
   $('tickA').textContent = str;
@@ -1086,7 +1128,7 @@ function rebuildTicker(){
   var dur = Math.max(25, w / 110);
   track.style.animation = 'none';
   void track.offsetWidth;
-  track.style.animation = 'tickmove ' + dur + 's linear infinite';
+  track.style.animation = S.anim ? ('tickmove ' + dur + 's linear infinite') : 'none';
 }
 
 /* ---------------- clock / tick ---------------- */
@@ -1239,7 +1281,7 @@ function layout(){
 function renderDbg(now){
   var L = [];
   L.push('KTMC ETA Board — debug (press D to hide)');
-  L.push('HK time: ' + hhmm(now) + '  |  theme: ' + S.theme + '  |  device: ' + new Date().toString());
+  L.push('HK time: ' + hhmm(now) + '  |  theme: ' + S.theme + '  |  anim: ' + (S.anim ? 'on' : 'off'));
   L.push('screen: ' + window.innerWidth + 'x' + window.innerHeight + '  scale: ' + S.scale.toFixed(3));
   L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') +
          '  guardVideo: ' + S.guard + '  audio: ' + S.audio);
@@ -1293,9 +1335,9 @@ function bindEvents(){
   window.addEventListener('touchstart', gesture);
   var cursorTimer = null;
   window.addEventListener('mousemove', function(){
-    document.body.className = 'cursor';
+    document.body.classList.add('cursor');
     if (cursorTimer) clearTimeout(cursorTimer);
-    cursorTimer = setTimeout(function(){ document.body.className = ''; }, 2500);
+    cursorTimer = setTimeout(function(){ document.body.classList.remove('cursor'); }, 2500);
   });
   window.addEventListener('error', function(e){
     S.errs.push(String(e.message || e));
@@ -1306,6 +1348,7 @@ function bindEvents(){
   $('setBtn').addEventListener('click', function(){ toggleSettings(); });
   $('thDark').addEventListener('click', function(){ setTheme('dark'); toggleSettings(false); });
   $('thLight').addEventListener('click', function(){ setTheme('light'); toggleSettings(false); });
+  $('animBtn').addEventListener('click', function(){ S.anim = !S.anim; applyAnim(); });
 }
 function buildStatic(){
   ['south','north'].forEach(function(dir){
@@ -1328,6 +1371,8 @@ function init(){
   var saved = 'dark';
   try { saved = localStorage.getItem('ktmcTheme') || 'dark'; } catch (e){}
   setTheme(saved);
+  try { S.anim = localStorage.getItem('ktmcAnim') !== '0'; } catch (e){ S.anim = true; }
+  applyAnim();
   buildStatic();
   layout();
   startGuard();
