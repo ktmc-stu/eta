@@ -3,192 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#04070d">
+<meta name="theme-color" content="#0e1116">
 <title>和樂邨巴士到站時間顯示 | KTMC Wo Lok Estate Bus ETA Board</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+HK:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   KTMC Wo Lok Estate ETA Board v2  —  fixed 1920x1080 stage,
-   auto-scaled to ANY screen. No CSS grid / flex-gap / clamp(),
-   no async-await / optional-chaining in JS  →  works on old
-   LG webOS browsers (Chromium 53+) as well as modern ones.
+   KTMC Wo Lok Estate ETA Board — flat, single-typeface edition.
+   One font (Noto Sans HK), two weights (400 / 500). No gradients,
+   no shadows, no glow, no flashing. Fixed 1920x1080 stage scaled
+   to any screen. Old-webOS-safe CSS / JS (Chromium 53+).
    ============================================================ */
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#04070d}
+html,body{width:100%;height:100%;overflow:hidden;background:#0e1116}
 body{font-family:'Noto Sans HK','Noto Sans TC','Microsoft JhengHei','PingFang HK','Heiti TC',sans-serif;
-     color:#e8eef7;-webkit-user-select:none;user-select:none;cursor:none;touch-action:none}
+     font-weight:400;color:#e9edf2;-webkit-user-select:none;user-select:none;cursor:none;touch-action:none}
 body.cursor{cursor:default}
-
-/* live canvas-video background = anti-screensaver "video playback" */
-#bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:.6;z-index:0;pointer-events:none}
-
+#bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
-       padding:22px;display:flex;flex-direction:column}
-
-/* ---------- header ---------- */
-#header{height:104px;flex-shrink:0;display:flex;align-items:center;background:rgba(10,17,28,.9);
-        border:1px solid #1c2940;border-radius:12px;padding:0 20px}
-#logo{height:72px;width:auto;margin-right:18px;flex-shrink:0}
+       padding:24px;display:flex;flex-direction:column}
+#header{height:104px;flex-shrink:0;display:flex;align-items:center;background:#151a21;
+        border:1px solid #242c37;border-radius:6px;padding:0 22px}
+#logo{height:64px;width:auto;margin-right:20px;flex-shrink:0}
 #titleBox{flex:1;min-width:0}
-#tZh{font-size:31px;font-weight:900;letter-spacing:1px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#tEn{font-size:15px;font-weight:600;color:#38bdf8;letter-spacing:2.5px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
-#tSub{font-size:12.5px;color:#8fa1b8;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#testTag{display:inline-block;font-size:10.5px;color:#fbbf24;border:1px solid rgba(251,191,36,.5);
-         border-radius:3px;padding:0 6px;margin-left:8px}
-#wxCard{display:flex;align-items:center;background:rgba(4,8,14,.7);border:1px solid #22304a;
-        border-radius:10px;padding:8px 14px;margin-left:14px;flex-shrink:0}
-#wxIcon{width:46px;height:46px;margin-right:10px;display:none}
-#wxTemp{font-size:32px;font-weight:700;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;line-height:1}
-#wxHum{font-size:11px;color:#8fa1b8;margin-top:2px;white-space:nowrap}
-#wxLabel{font-size:10.5px;color:#64748b;margin-left:10px;line-height:1.35;text-align:right}
-#clockCard{background:rgba(4,8,14,.7);border:1px solid #22304a;border-radius:10px;padding:6px 16px;
-           margin-left:14px;text-align:right;flex-shrink:0}
-#clock{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:54px;font-weight:600;color:#38bdf8;
-       line-height:.95;font-variant-numeric:tabular-nums}
-#colon{animation:blink 2s steps(1) infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-#dateZh{font-size:14px;color:#cbd5e1;margin-top:2px;white-space:nowrap}
-#dateEn{font-size:11px;color:#64748b;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:1.5px}
-
-/* ---------- warning / traffic strip ---------- */
+#tZh{font-size:26px;font-weight:500;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tEn{font-size:13px;font-weight:400;color:#9aa6b4;margin-top:2px}
+#tSub{font-size:12px;color:#66727f;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#testTag{display:inline-block;font-size:10.5px;color:#9aa6b4;border:1px solid #242c37;border-radius:3px;padding:0 6px;margin-left:8px}
+#wxCard{display:flex;align-items:center;background:#12161c;border:1px solid #242c37;border-radius:6px;padding:8px 14px;margin-left:14px;flex-shrink:0}
+#wxIcon{width:42px;height:42px;margin-right:10px;display:none}
+#wxTemp{font-size:26px;font-weight:500;line-height:1}
+#wxHum{font-size:11px;color:#9aa6b4;margin-top:3px;white-space:nowrap}
+#wxLabel{font-size:10.5px;color:#66727f;margin-left:10px;line-height:1.35;text-align:right}
+#clockCard{background:#12161c;border:1px solid #242c37;border-radius:6px;padding:8px 16px;margin-left:14px;text-align:right;flex-shrink:0}
+#clock{font-size:44px;font-weight:500;line-height:1;font-variant-numeric:tabular-nums}
+#dateZh{font-size:13px;color:#9aa6b4;margin-top:4px;white-space:nowrap}
+#dateEn{font-size:11px;color:#66727f;margin-top:1px}
 #warnStrip{flex-shrink:0;display:flex;flex-wrap:wrap;margin-top:10px}
 #warnStrip:empty{display:none;margin-top:0}
-.wb{display:inline-flex;align-items:center;font-size:14.5px;font-weight:700;padding:4px 10px;border-radius:6px;
-    margin:0 8px 6px 0;border:1px solid rgba(255,255,255,.25);line-height:1.25;color:#fff;
-    animation:pulse 1.6s ease-in-out infinite;max-width:100%}
-.wb img{width:22px;height:22px;margin-right:6px;flex-shrink:0}
+.wb{display:inline-flex;align-items:center;font-size:13.5px;font-weight:400;padding:4px 10px;border-radius:4px;
+    margin:0 8px 6px 0;line-height:1.25;color:#f2f5f8;max-width:100%}
+.wb img{width:20px;height:20px;margin-right:6px;flex-shrink:0}
 .wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
-
-/* ---------- boards ---------- */
 #boards{flex:1;display:flex;margin-top:12px;min-height:0}
-.col{flex:1;min-width:0;display:flex;flex-direction:column;background:rgba(8,13,22,.93);
-     border:1px solid #1c2940;border-radius:12px;overflow:hidden;position:relative}
-#colSouth{margin-right:18px}
-.colHead{height:52px;flex-shrink:0;display:flex;align-items:center;padding:0 14px;
-         background:rgba(16,24,38,.9);border-bottom:1px solid #22304a;position:relative}
-.dirIcon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-         font-size:14px;margin-right:10px;flex-shrink:0;color:#04070d;font-weight:900}
-#colSouth .dirIcon{background:#38bdf8}
-#colNorth .dirIcon{background:#fb923c}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;background:#151a21;
+     border:1px solid #242c37;border-radius:6px;overflow:hidden;position:relative}
+#colSouth{margin-right:16px}
+.colHead{height:50px;flex-shrink:0;display:flex;align-items:center;padding:0 16px;
+         background:#12161c;border-bottom:1px solid #242c37;position:relative}
+.dirIcon{font-size:15px;color:#66727f;margin-right:10px;flex-shrink:0}
 .dirTitle{flex-shrink:0;white-space:nowrap}
-.dZh{font-size:21px;font-weight:900;margin-right:8px}
-.dEn{font-size:13px;font-weight:700;letter-spacing:2px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
-#colSouth .dEn{color:#38bdf8}
-#colNorth .dEn{color:#fb923c}
-.dirSub{flex:1;min-width:0;font-size:11px;color:#8fa1b8;line-height:1.3;margin-left:14px;
+.dZh{font-size:19px;font-weight:500;margin-right:8px}
+.dEn{font-size:12px;font-weight:400;color:#66727f}
+.dirSub{flex:1;min-width:0;font-size:11px;color:#66727f;line-height:1.3;margin-left:14px;
         overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pager{flex-shrink:0;display:flex;align-items:center;margin-left:10px}
-.dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#334155;margin-left:5px}
-#colSouth .dots i.on{background:#38bdf8}
-#colNorth .dots i.on{background:#fb923c}
-.plabel{font-size:12px;color:#64748b;margin-left:8px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
-.pbar{position:absolute;left:0;bottom:0;height:2px;width:0;background:#38bdf8;opacity:.7}
-#colNorth .pbar{background:#fb923c}
-.legend{height:32px;flex-shrink:0;display:flex;align-items:center;padding:0 14px;
-        border-bottom:1px solid #16202f;overflow:hidden;white-space:nowrap}
-.lg{display:inline-flex;align-items:center;font-size:11.5px;color:#8fa1b8;margin-right:16px;flex-shrink:0}
-.lg i{width:8px;height:8px;border-radius:2px;margin-right:5px}
-.lg b{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:13px;color:#cbd5e1;margin-right:5px;letter-spacing:.5px}
-.thead{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 12px 0 16px;
-       font-size:11px;color:#64748b;letter-spacing:1px;border-bottom:1px solid #16202f}
+.dots i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#333d4a;margin-left:5px}
+.dots i.on{background:#e9edf2}
+.plabel{font-size:11px;color:#66727f;margin-left:8px;font-variant-numeric:tabular-nums}
+.pbar{position:absolute;left:0;bottom:0;height:2px;width:0;background:#4a5563}
+.legend{height:30px;flex-shrink:0;display:flex;align-items:center;padding:0 16px;
+        border-bottom:1px solid #242c37;overflow:hidden;white-space:nowrap}
+.lg{display:inline-flex;align-items:center;font-size:11px;color:#66727f;margin-right:18px;flex-shrink:0}
+.lg b{font-size:12px;font-weight:500;color:#9aa6b4;margin-right:5px}
+.thead{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 16px;
+       font-size:11px;color:#66727f;border-bottom:1px solid #242c37}
 .hRoute{width:150px;flex-shrink:0}
 .hDest{flex:1;min-width:0}
 .hPlat{width:92px;flex-shrink:0;text-align:center}
 .hEta{width:252px;flex-shrink:0;text-align:right}
 .view{flex:1;min-height:0;overflow:hidden;position:relative}
-.pages{position:absolute;left:0;top:0;width:100%;transition:transform .8s cubic-bezier(.45,0,.2,1);will-change:transform}
-
-/* ---------- route row ---------- */
-.row{height:84px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #101827;border-left:4px solid #334155}
-.row:nth-child(even){background:rgba(15,22,36,.55)}
-.row.dim{opacity:.6}
+.pages{position:absolute;left:0;top:0;width:100%;transition:transform .7s cubic-bezier(.4,0,.2,1);will-change:transform}
+.row{height:84px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #1d242e}
+.row:nth-child(even){background:#171d25}
+.row.dim{opacity:.55}
 .c-route{width:150px;flex-shrink:0;display:flex;align-items:center}
-.badge{width:94px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;
-       font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:30px;font-weight:700;color:#fff;
-       letter-spacing:.5px;flex-shrink:0;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35)}
-.badge.kmb{background:linear-gradient(180deg,#e0242e,#b91c25)}
-.badge.ctb{background:linear-gradient(180deg,#0a63c9,#004a9e)}
-.badge.joint{background:linear-gradient(135deg,#e0242e 50%,#0a63c9 50%)}
-.badge.night{background:linear-gradient(180deg,#3730a3,#1e1b4b)}
-.cos{margin-left:7px;display:flex;flex-direction:column}
-.co{font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 4px;margin:1px 0;white-space:nowrap}
-.co.kmb{background:rgba(224,36,46,.18);color:#fca5a5;border:1px solid rgba(224,36,46,.5)}
-.co.ctb{background:rgba(10,99,201,.18);color:#93c5fd;border:1px solid rgba(10,99,201,.55)}
-.c-dest{flex:1;min-width:0;margin:0 10px;display:flex;flex-direction:column;justify-content:center}
-.d-zh{font-size:23px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.d-en{font-size:12.5px;color:#94a3b8;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:.8px;
-      line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.d-svc{font-size:11px;color:#64748b;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{width:88px;height:42px;border-radius:4px;display:flex;align-items:center;justify-content:center;
+       font-size:25px;font-weight:500;color:#f2f5f8;background:#242d39;flex-shrink:0}
+.cos{margin-left:8px;display:flex;flex-direction:column}
+.co{font-size:10px;font-weight:400;margin:1px 0;white-space:nowrap}
+.co.kmb{color:#c08a8a}
+.co.ctb{color:#8aa6c4}
+.c-dest{flex:1;min-width:0;margin:0 12px;display:flex;flex-direction:column;justify-content:center}
+.d-zh{font-size:22px;font-weight:400;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-en{font-size:12px;color:#9aa6b4;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-svc{font-size:11px;color:#66727f;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .c-plat{width:92px;flex-shrink:0;text-align:center}
-.plat{display:inline-block;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:19px;font-weight:700;
-      letter-spacing:.5px;border:1.5px solid;border-radius:6px;padding:1px 8px}
-.p-type{font-size:10px;color:#64748b;margin-top:2px}
+.plat{font-size:16px;font-weight:500;color:#9aa6b4}
+.p-type{font-size:10px;color:#66727f;margin-top:2px}
 .c-eta{width:252px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
 .e-main{display:flex;align-items:baseline;justify-content:flex-end;line-height:1;max-width:100%}
-.e-min{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
-.e-unit{font-size:13px;color:#8fa1b8;margin-left:4px;white-space:nowrap}
-.e-abs{font-size:15px;color:#8fa1b8;margin-left:9px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;
-       font-weight:600;font-variant-numeric:tabular-nums}
-.e-sub{margin-top:3px;height:19px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
-.e-next{margin-top:2px;font-size:12.5px;color:#64748b;font-variant-numeric:tabular-nums;
+.e-min{font-size:34px;font-weight:500;font-variant-numeric:tabular-nums;color:#e9edf2}
+.e-unit{font-size:13px;color:#9aa6b4;margin-left:5px;white-space:nowrap}
+.e-abs{font-size:14px;color:#9aa6b4;margin-left:10px;font-variant-numeric:tabular-nums}
+.e-sub{margin-top:4px;height:18px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
+.e-next{margin-top:3px;font-size:12px;color:#66727f;font-variant-numeric:tabular-nums;
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.chip{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-left:5px;border:1px solid;white-space:nowrap}
-.chip.sched{color:#fbbf24;border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.1)}
-.chip.last{color:#f87171;border-color:rgba(248,113,113,.55);background:rgba(248,113,113,.1)}
-.chip.traf{color:#fb923c;border-color:rgba(251,146,60,.55);background:rgba(251,146,60,.1)}
-.st-live .e-min{color:#4ade80}
-.st-sched .e-min{color:#fbbf24}
-.st-arriving .e-min{color:#4ade80;font-family:'Noto Sans HK',sans-serif;font-size:25px;font-weight:900;animation:pulse 1.2s infinite}
-.st-arriving .e-abs{color:#4ade80}
-.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:#475569;font-size:32px}
-.stat{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
-.stat.ended{color:#f87171}
-.stat.rmk{color:#fbbf24}
-.stat.off,.stat.none{color:#64748b}
-.stat.load{color:#38bdf8}
-.nx-sched{color:#d9a514}
-
-/* ---------- footer ---------- */
-#footer{height:52px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;
-        background:rgba(8,13,22,.93);border:1px solid #1c2940;border-radius:10px;overflow:hidden}
-#tickTag{width:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-         background:linear-gradient(180deg,#dc2626,#991b1b);font-size:13px;font-weight:900;letter-spacing:2px}
+.chip{font-size:11px;font-weight:400;border-radius:3px;padding:1px 6px;margin-left:5px;border:1px solid;white-space:nowrap}
+.chip.sched{color:#c9a468;border-color:#5a4d33}
+.chip.last{color:#c47f7f;border-color:#5a3a3a}
+.chip.traf{color:#c99a6b;border-color:#5a4632}
+.st-sched .e-min{color:#c9a468}
+.st-arriving .e-min{color:#86b394;font-size:23px}
+.st-arriving .e-abs{color:#86b394}
+.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:#4a5563;font-size:28px}
+.stat{font-size:13px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
+.stat.ended{color:#c47f7f}
+.stat.rmk{color:#c9a468}
+.stat.off,.stat.none{color:#66727f}
+.stat.load{color:#9aa6b4}
+.nx-sched{color:#c9a468}
+#footer{height:50px;flex-shrink:0;margin-top:12px;display:flex;align-items:stretch;
+        background:#151a21;border:1px solid #242c37;border-radius:6px;overflow:hidden}
+#tickTag{width:92px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+         background:#12161c;border-right:1px solid #242c37;font-size:12px;font-weight:500;color:#9aa6b4}
 #tickWrap{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;position:relative}
 #tickTrack{display:inline-block;white-space:nowrap;will-change:transform;animation:tickmove 60s linear infinite}
-#tickTrack span{font-size:16px;color:#dbe4f0;padding-right:70px}
+#tickTrack span{font-size:15px;color:#c4cdd8;padding-right:70px}
 @keyframes tickmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-#statusBox{width:352px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;
-           padding:0 14px;border-left:1px solid #1c2940;background:rgba(4,8,14,.6)}
-.src{display:inline-flex;align-items:center;font-size:12px;color:#8fa1b8;margin-left:10px;
-     font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:1px}
-.src i{width:8px;height:8px;border-radius:50%;background:#475569;margin-right:4px}
-.src i.ok{background:#34d399}
-.src i.warn{background:#fbbf24}
-.src i.bad{background:#f87171}
-#upd{font-size:13px;color:#8fa1b8;margin-left:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
-#upd.warn{color:#fbbf24}
-#upd.bad{color:#f87171}
-
-/* ---------- overlays ---------- */
-#fsPrompt{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:rgba(2,4,8,.72);
+#statusBox{width:340px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;
+           padding:0 16px;border-left:1px solid #242c37;background:#12161c}
+.src{display:inline-flex;align-items:center;font-size:11px;color:#9aa6b4;margin-left:10px}
+.src i{width:7px;height:7px;border-radius:50%;background:#3a4451;margin-right:4px}
+.src i.ok{background:#86b394}
+.src i.warn{background:#c9a468}
+.src i.bad{background:#c47f7f}
+#upd{font-size:12px;color:#9aa6b4;margin-left:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#upd.warn{color:#c9a468}
+#upd.bad{color:#c47f7f}
+#fsPrompt{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:rgba(10,12,16,.8);
           display:flex;align-items:center;justify-content:center}
 #fsPrompt.hide{display:none}
-#fsCard{background:#0b1424;border:1px solid #2b3b58;border-radius:16px;padding:38px 52px;text-align:center;max-width:880px}
-#fsTitle{font-size:34px;font-weight:900}
-#fsSub{font-size:17px;color:#38bdf8;letter-spacing:2px;margin-top:4px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
-#fsBtn{margin-top:24px;font-size:21px;font-weight:700;font-family:inherit;color:#04070d;background:#38bdf8;
-       border:none;border-radius:10px;padding:14px 34px;cursor:pointer}
-#fsBtn:focus{outline:3px solid #fbbf24}
-#fsTip{margin-top:20px;font-size:12.5px;color:#8fa1b8;line-height:1.7}
-#fsPill{position:fixed;right:18px;bottom:18px;z-index:55;background:rgba(11,20,36,.92);border:1px solid #2b3b58;
-        color:#38bdf8;font-size:14px;font-weight:700;border-radius:24px;padding:9px 18px;display:none;cursor:pointer}
+#fsCard{background:#151a21;border:1px solid #242c37;border-radius:8px;padding:36px 50px;text-align:center;max-width:860px}
+#fsTitle{font-size:28px;font-weight:500}
+#fsSub{font-size:14px;color:#9aa6b4;margin-top:6px}
+#fsBtn{margin-top:22px;font-size:18px;font-weight:500;font-family:inherit;color:#f2f5f8;background:#3d5a78;
+       border:1px solid #4a6a8c;border-radius:6px;padding:12px 32px;cursor:pointer}
+#fsBtn:focus{outline:2px solid #9aa6b4}
+#fsTip{margin-top:18px;font-size:12px;color:#66727f;line-height:1.7}
+#fsPill{position:fixed;right:18px;bottom:18px;z-index:55;background:#151a21;border:1px solid #242c37;
+        color:#9aa6b4;font-size:13px;font-weight:400;border-radius:6px;padding:8px 16px;display:none;cursor:pointer}
 #fsPill.show{display:block}
-#dbg{position:fixed;left:14px;top:14px;z-index:70;display:none;background:rgba(0,0,0,.88);border:1px solid #334155;
-     border-radius:8px;color:#a5f3fc;font:12px/1.55 monospace;padding:12px 14px;max-width:660px;max-height:92%;
-     overflow:auto;white-space:pre-wrap}
+#dbg{position:fixed;left:14px;top:14px;z-index:70;display:none;background:rgba(10,12,16,.94);border:1px solid #242c37;
+     border-radius:6px;color:#9fb4c4;font-family:inherit;font-size:12px;line-height:1.55;padding:12px 14px;
+     max-width:660px;max-height:92%;overflow:auto;white-space:pre-wrap}
 #dbg.show{display:block}
 </style>
 </head>
@@ -277,17 +236,12 @@ body.cursor{cursor:default}
    CONFIG — everything tunable lives here
    ================================================================ */
 var CFG = {
-  etaMs: 30000,          // bus ETA refresh
-  wxMs: 300000,          // weather refresh
-  stnMs: 180000,         // TD traffic news refresh
-  pageMs: 10000,         // dwell time per board page
-  staleMs: 120000,       // data older than this = "stale"
-  arriveMs: 60000,       // <= 60s  → 即將到站 Arriving
-  graceMs: 45000,        // keep a passed ETA for 45s (API lag)
+  etaMs: 30000, wxMs: 300000, stnMs: 180000,
+  pageMs: 10000, staleMs: 120000, arriveMs: 60000, graceMs: 45000,
   sort: 'platform',      // 'platform' | 'route' | 'eta'
-  stn: true,             // TD Special Traffic News feed (traffic incident locations)
+  stn: true,
   stnUrl: 'https://www.td.gov.hk/en/special_news/trafficnews.xml',
-  stnProxy: 'https://api.allorigins.win/raw?url=',   // CORS fallback, set '' to disable
+  stnProxy: 'https://api.allorigins.win/raw?url=',
   kmb: 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
   ctb: 'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
   wx: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
@@ -296,31 +250,27 @@ var CFG = {
 };
 var ROW_H = 84, STAGE_W = 1920, STAGE_H = 1080;
 
-/* Stop-ID ↔ platform mapping — verified live against the KMB API
-   (route sets returned per stop). NOTE: both original ID arrays were
-   in REVERSE platform order; the mapping below is the corrected one. */
+/* Stop-ID <-> platform mapping, verified live against the KMB API.
+   (The original ID arrays were in reverse platform order.) */
 var PLATFORMS = {
   south: [
-    { kt:'KT537', stop:'AE2A9F719AB5E353', color:'#fbbf24', shelter:true,  label:'油尖旺・深水埗' },
-    { kt:'KT536', stop:'6CEE063506576EDB', color:'#38bdf8', shelter:true,  label:'啟德・港島・通宵' },
-    { kt:'KT535', stop:'073C44CE5FF431BC', color:'#a78bfa', shelter:true,  label:'觀塘・紅磡・沙田' }
+    { kt:'KT537', stop:'AE2A9F719AB5E353', shelter:true,  label:'油尖旺・深水埗' },
+    { kt:'KT536', stop:'6CEE063506576EDB', shelter:true,  label:'啟德・港島・通宵' },
+    { kt:'KT535', stop:'073C44CE5FF431BC', shelter:true,  label:'觀塘・紅磡・沙田' }
   ],
   north: [
-    { kt:'KT260', stop:'11EC0BEF4F8781A9', color:'#34d399', shelter:true,  label:'寶林' },
-    { kt:'KT259', stop:'072046BF00257739', color:'#f472b6', shelter:true,  label:'翠林・通宵' },
-    { kt:'KT258', stop:'B314CF2831F9C5F1', color:'#fbbf24', shelter:true,  label:'四順・聯合醫院' },
-    { kt:'KT257', stop:'55AE88BFD351F56D', color:'#38bdf8', shelter:false, label:'彩福' },
-    { kt:'KT256', stop:'17A8BC1197F76422', color:'#a3e635', shelter:false, label:'中秀茂坪' },
-    { kt:'KT255', stop:'6530130BE25E909C', color:'#a78bfa', shelter:false, label:'寶達・安泰' }
+    { kt:'KT260', stop:'11EC0BEF4F8781A9', shelter:true,  label:'寶林' },
+    { kt:'KT259', stop:'072046BF00257739', shelter:true,  label:'翠林・通宵' },
+    { kt:'KT258', stop:'B314CF2831F9C5F1', shelter:true,  label:'四順・聯合醫院' },
+    { kt:'KT257', stop:'55AE88BFD351F56D', shelter:false, label:'彩福' },
+    { kt:'KT256', stop:'17A8BC1197F76422', shelter:false, label:'中秀茂坪' },
+    { kt:'KT255', stop:'6530130BE25E909C', shelter:false, label:'寶達・安泰' }
   ]
 };
 var CTBCFG = {
   south: { stop:'003040', kt:'KT536', routes:['601','601P'] },
   north: { stop:'003041', kt:'KT255', routes:['601','601P'] }
 };
-
-/* service windows (minutes from midnight, HK time). Generous on purpose:
-   they only label "非服務時段" when the API gives no ETA and no remark. */
 var W = {
   wkAM:  { d:[1,2,3,4,5],   from:360,  to:660  },
   satAM: { d:[1,2,3,4,5,6], from:360,  to:660  },
@@ -369,9 +319,7 @@ var ROWCFG = {
   ]
 };
 
-/* ================================================================
-   utils
-   ================================================================ */
+/* ---------------- utils ---------------- */
 function $(id){ return document.getElementById(id); }
 function el(tag, cls, text){
   var e = document.createElement(tag);
@@ -381,7 +329,6 @@ function el(tag, cls, text){
 }
 function pad(n){ return (n < 10 ? '0' : '') + n; }
 function cap(s, n){ s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
-/* HK time regardless of the TV's own timezone (UTC+8, no DST) */
 function hkDate(ms){ var d = new Date(ms); return new Date(ms + (d.getTimezoneOffset() + 480) * 60000); }
 function hhmm(ms){ var d = hkDate(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 function inWin(win, hk){
@@ -394,7 +341,6 @@ function routeNum(rt){
   if (rt.charAt(0) === 'N') n += 10000;
   return n;
 }
-/* naive "2026-11-21T16:25:00" (TD XML) → epoch, treated as HK local */
 function parseHkLocal(s){
   var m = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(s || ''));
   if (!m) return 0;
@@ -417,9 +363,7 @@ function fetchText(url, ms){
 function fetchJSON(url){ return fetchText(url).then(function(t){ return JSON.parse(t); }); }
 function retryP(fn){ return fn().catch(function(){ return fn(); }); }
 
-/* ================================================================
-   state
-   ================================================================ */
+/* ---------------- state ---------------- */
 var S = {
   scale:1, fs:false, wake:null, guard:'init', audio:'off', loaded:false, lastEta:0,
   wx:{ temp:null, hum:null, icon:null }, wxMsgs:[], warns:[], stn:[], trafRmk:[],
@@ -429,21 +373,18 @@ var H = {
   kmb:{ ok:false, t:0, err:'' }, ctb:{ ok:false, t:0, err:'' },
   hko:{ ok:false, t:0, err:'' }, td:{ ok:false, t:0, err:'' }
 };
-/* per-stop slices so a single failed request never wipes good data */
 var AGG = { kmb:{ south:{}, north:{} }, ctb:{ south:{}, north:{} } };
-var DYN = { south:{}, north:{} };            // routes discovered from the API (e.g. SP1)
+var DYN = { south:{}, north:{} };
 var ROWS = { south:{}, north:{} };
 var PLATIDX = { south:{}, north:{} }, PLATBYKT = { south:{}, north:{} };
-var P = {};                                   // pagers
+var P = {};
 var SHIFT = [[0,0],[2,1],[3,3],[1,2]], shiftIdx = 0;
 var WZH = ['日','一','二','三','四','五','六'];
 var WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var lastTickStr = '', lastStripSig = '', etaBusy = false;
 
-/* ================================================================
-   remark classification (KMB / Citybus rmk_tc / rmk_en)
-   ================================================================ */
+/* ---------------- remark classification ---------------- */
 function rmkAll(e){ return (e.rmk || '') + ' ' + (e.rmkEn || ''); }
 function isSched(e){ return /原定|預計班次|scheduled/i.test(rmkAll(e)); }
 function isEnded(e){
@@ -454,9 +395,7 @@ function isLast(e){ return !isEnded(e) && /尾班車|last\s*bus/i.test(rmkAll(e)
 function isSourceRmk(e){ return /提供|provided by/i.test(rmkAll(e)); }
 function isTrafficRmk(e){ return /擠塞|塞車|交通阻塞|交通意外|交通情況|congestion|traffic accident|traffic condition/i.test(rmkAll(e)); }
 
-/* ================================================================
-   data fetching
-   ================================================================ */
+/* ---------------- data fetching ---------------- */
 function norm(it, kt, co){
   return {
     co: co, route: it.route, kt: kt,
@@ -524,34 +463,34 @@ function mergeAgg(dir){
   return out;
 }
 
-/* ---- weather ---- */
+/* ---------------- weather ---------------- */
 var WARNMAP = {
-  TC1:{ icon:'t1.png', label:'一號戒備信號 T1', bg:'#e11d48' },
-  TC3:{ icon:'t3.png', label:'三號強風信號 T3', bg:'#e11d48' },
-  TC9:{ icon:'t9.png', label:'九號烈風或暴風風力增強信號 T9', bg:'#7c3aed' },
-  TC10:{ icon:'t10.png', label:'十號颶風信號 T10', bg:'#7c3aed' },
-  WRAINA:{ icon:'yellow-rain.png', label:'黃色暴雨警告 Amber Rain', bg:'#ca8a04' },
-  WRAINR:{ icon:'red-rain.png', label:'紅色暴雨警告 Red Rain', bg:'#dc2626' },
-  WRAINB:{ icon:'black-rain.png', label:'黑色暴雨警告 Black Rain', bg:'#111827' },
-  WL:{ icon:'landslip.png', label:'山泥傾瀉警告 Landslip', bg:'#b45309' },
-  WTS:{ icon:'thunder.png', label:'雷暴警告 Thunderstorm', bg:'#d97706' },
-  WFNTSA:{ icon:'nt-flood.png', label:'新界北部水浸特別報告 NT Flooding', bg:'#2563eb' },
-  WCOLD:{ icon:'cold.png', label:'寒冷天氣警告 Cold Weather', bg:'#2563eb' },
-  WHOT:{ icon:'hot.png', label:'酷熱天氣警告 Very Hot Weather', bg:'#d97706' },
-  WMSGNL:{ icon:'monsoon.png', label:'強烈季候風信號 Monsoon', bg:'#059669' },
-  WFIREY:{ icon:null, label:'黃色火災危險警告 Fire Danger (Yellow)', bg:'#ca8a04' },
-  WFIRER:{ icon:null, label:'紅色火災危險警告 Fire Danger (Red)', bg:'#dc2626' },
-  WTMW:{ icon:null, label:'海嘯警告 Tsunami Warning', bg:'#7c3aed' },
-  WFRNT:{ icon:null, label:'霜凍警告 Frost Warning', bg:'#2563eb' }
+  TC1:{ icon:'t1.png', label:'一號戒備信號 T1', bg:'#8f4a4c' },
+  TC3:{ icon:'t3.png', label:'三號強風信號 T3', bg:'#8f4a4c' },
+  TC9:{ icon:'t9.png', label:'九號烈風或暴風風力增強信號 T9', bg:'#7d5a86' },
+  TC10:{ icon:'t10.png', label:'十號颶風信號 T10', bg:'#7d5a86' },
+  WRAINA:{ icon:'yellow-rain.png', label:'黃色暴雨警告 Amber Rain', bg:'#9a7d3f' },
+  WRAINR:{ icon:'red-rain.png', label:'紅色暴雨警告 Red Rain', bg:'#96473f' },
+  WRAINB:{ icon:'black-rain.png', label:'黑色暴雨警告 Black Rain', bg:'#1c1f26' },
+  WL:{ icon:'landslip.png', label:'山泥傾瀉警告 Landslip', bg:'#8a6a3f' },
+  WTS:{ icon:'thunder.png', label:'雷暴警告 Thunderstorm', bg:'#96703f' },
+  WFNTSA:{ icon:'nt-flood.png', label:'新界北部水浸特別報告 NT Flooding', bg:'#4a6a8a' },
+  WCOLD:{ icon:'cold.png', label:'寒冷天氣警告 Cold Weather', bg:'#4a6a8a' },
+  WHOT:{ icon:'hot.png', label:'酷熱天氣警告 Very Hot Weather', bg:'#96703f' },
+  WMSGNL:{ icon:'monsoon.png', label:'強烈季候風信號 Monsoon', bg:'#4f7a5f' },
+  WFIREY:{ icon:null, label:'黃色火災危險警告 Fire Danger (Yellow)', bg:'#9a7d3f' },
+  WFIRER:{ icon:null, label:'紅色火災危險警告 Fire Danger (Red)', bg:'#96473f' },
+  WTMW:{ icon:null, label:'海嘯警告 Tsunami Warning', bg:'#7d5a86' },
+  WFRNT:{ icon:null, label:'霜凍警告 Frost Warning', bg:'#4a6a8a' }
 };
 var TC8DIR = { NE:'東北', SE:'東南', SW:'西南', NW:'西北' };
 function warnInfo(w){
   var code = w.code || '';
   if (code.indexOf('TC8') === 0){
     var d = TC8DIR[code.slice(3)] || '';
-    return { icon:'t8.png', label:'八號' + d + '烈風或暴風信號 T8', bg:'#7c3aed' };
+    return { icon:'t8.png', label:'八號' + d + '烈風或暴風信號 T8', bg:'#7d5a86' };
   }
-  return WARNMAP[code] || { icon:null, label:(w.name || 'Warning') + (w.type ? ' ' + w.type : ''), bg:'#b45309' };
+  return WARNMAP[code] || { icon:null, label:(w.name || 'Warning') + (w.type ? ' ' + w.type : ''), bg:'#8a6a3f' };
 }
 function refreshWx(){
   retryP(function(){ return fetchJSON(CFG.wx); }).then(function(j){
@@ -591,12 +530,11 @@ function refreshWx(){
     } }
     S.warns = list;
   }).catch(function(){
-    /* fallback: plain warning strings from rhrread */
-    S.warns = S.wxMsgs.map(function(m){ return { code:'MSG', icon:null, label:cap(m, 60), bg:'#dc2626' }; });
+    S.warns = S.wxMsgs.map(function(m){ return { code:'MSG', icon:null, label:cap(m, 60), bg:'#96473f' }; });
   });
 }
 
-/* ---- TD Special Traffic News (incident LOCATION feed) ---- */
+/* ---------------- TD Special Traffic News ---------------- */
 function txt(node, tag){
   var n = node.getElementsByTagName(tag)[0];
   return n && n.textContent ? n.textContent.replace(/\s+/g, ' ').trim() : '';
@@ -632,9 +570,7 @@ function refreshStn(){
   }).catch(function(e){ H.td.ok = false; H.td.err = String(e && e.message || e); });
 }
 
-/* ================================================================
-   view model
-   ================================================================ */
+/* ---------------- view model ---------------- */
 function viewFor(dir, c, es, now, hk){
   var timed = [], nulls = [], i, e;
   for (i = 0; i < es.length; i++){
@@ -684,18 +620,14 @@ function buildViews(dir){
   return list;
 }
 
-/* ================================================================
-   DOM — rows built ONCE, cells updated by textContent only
-   ================================================================ */
+/* ---------------- DOM rows ---------------- */
 function makeRow(dir, c){
-  var plat = PLATBYKT[dir][c.kt] || { color:'#64748b', shelter:false };
+  var plat = PLATBYKT[dir][c.kt] || { shelter:false };
   var row = el('div', 'row');
   row.setAttribute('data-group', c.kt);
-  row.style.borderLeftColor = plat.color;
 
   var rc = el('div', 'c-route');
-  var bcls = c.night ? 'night' : (c.cos.length > 1 ? 'joint' : (c.cos[0] === 'CTB' ? 'ctb' : 'kmb'));
-  rc.appendChild(el('div', 'badge ' + bcls, c.route));
+  rc.appendChild(el('div', 'badge', c.route));
   var cos = el('div', 'cos');
   c.cos.forEach(function(co){ cos.appendChild(el('span', 'co ' + co.toLowerCase(), co === 'KMB' ? '九巴 KMB' : '城巴 CTB')); });
   rc.appendChild(cos);
@@ -712,9 +644,7 @@ function makeRow(dir, c){
   row.appendChild(dc);
 
   var pc = el('div', 'c-plat');
-  var chip = el('span', 'plat', c.kt);
-  chip.style.color = plat.color; chip.style.borderColor = plat.color;
-  pc.appendChild(chip);
+  pc.appendChild(el('span', 'plat', c.kt));
   pc.appendChild(el('div', 'p-type', plat.shelter ? '候車亭' : '站柱'));
   row.appendChild(pc);
 
@@ -738,9 +668,7 @@ function ensureRows(){
       DYN[dir][rt] = c;
     });
     Object.keys(DYN[dir]).forEach(function(rt){
-      if (!ROWS[dir][rt]){
-        ROWS[dir][rt] = makeRow(dir, DYN[dir][rt]);
-      }
+      if (!ROWS[dir][rt]){ ROWS[dir][rt] = makeRow(dir, DYN[dir][rt]); }
     });
   });
 }
@@ -822,9 +750,7 @@ function orderRows(){
   });
 }
 
-/* ================================================================
-   pagination (page-flip instead of endless crawl)
-   ================================================================ */
+/* ---------------- pagination ---------------- */
 function makePager(dir){
   var sfx = dir === 'south' ? 'South' : 'North';
   return { dir:dir, view:$('view' + sfx), inner:$('pages' + sfx), dots:$('dots' + sfx),
@@ -887,9 +813,7 @@ function frame(ts){
   requestAnimationFrame(frame);
 }
 
-/* ================================================================
-   warning strip + ticker
-   ================================================================ */
+/* ---------------- warning strip + ticker ---------------- */
 function freshStn(){
   var now = Date.now();
   return S.stn.filter(function(x){ return !x.t || now - x.t < 12 * 3600000; });
@@ -915,22 +839,22 @@ function buildWarnStrip(){
     strip.appendChild(b);
   });
   nearby.slice(0, 2).forEach(function(x){
-    var b = el('div', 'wb'); b.style.backgroundColor = '#9a3412';
+    var b = el('div', 'wb'); b.style.backgroundColor = '#7a5a3f';
     b.appendChild(el('span', '', '交通消息：' + cap(x.where || x.content, 36)));
     b.title = cap(x.content, 300);
     strip.appendChild(b);
   });
   if (nearby.length > 2){
-    var more = el('div', 'wb'); more.style.backgroundColor = '#9a3412';
+    var more = el('div', 'wb'); more.style.backgroundColor = '#7a5a3f';
     more.appendChild(el('span', '', '另有 ' + (nearby.length - 2) + ' 宗附近交通消息'));
     strip.appendChild(more);
   }
   S.trafRmk.slice(0, 2).forEach(function(x){
-    var b = el('div', 'wb'); b.style.backgroundColor = '#9a3412';
+    var b = el('div', 'wb'); b.style.backgroundColor = '#7a5a3f';
     b.appendChild(el('span', '', '路線 ' + x.route + '：' + cap(x.rmk, 30)));
     strip.appendChild(b);
   });
-  layoutPagers();   // strip height changed → rows-per-page may change
+  layoutPagers();
 }
 function rebuildTicker(){
   var parts = [];
@@ -960,9 +884,7 @@ function rebuildTicker(){
   track.style.animation = 'tickmove ' + dur + 's linear infinite';
 }
 
-/* ================================================================
-   clock / per-second tick (no seconds shown anywhere)
-   ================================================================ */
+/* ---------------- clock / tick ---------------- */
 function tick(){
   var now = Date.now(), hk = hkDate(now);
   $('ch').textContent = pad(hk.getHours());
@@ -981,7 +903,6 @@ function tick(){
   buildWarnStrip();
   rebuildTicker();
 
-  /* footer health */
   var age;
   [['kmb','dotKmb'],['ctb','dotCtb'],['hko','dotHko'],['td','dotTd']].forEach(function(pr){
     var h = H[pr[0]], dot = $(pr[1]), cls = '';
@@ -1002,9 +923,7 @@ function tick(){
   if (S.dbg) renderDbg(now);
 }
 
-/* ================================================================
-   fullscreen / wake-lock / anti-screensaver
-   ================================================================ */
+/* ---------------- fullscreen / wake / anti-screensaver ---------------- */
 function isFS(){
   return !!(document.fullscreenElement || document.webkitFullscreenElement ||
             document.mozFullScreenElement || document.msFullscreenElement);
@@ -1063,26 +982,20 @@ function startAudio(){
     S.audio = 'on';
   } catch (e){ S.audio = 'err'; }
 }
-/* Full-viewport canvas→video: webOS treats playing video as activity,
-   which suppresses the idle screensaver. Doubles as a live background
-   and OLED anti-burn-in motion. */
 var guardVideo = null;
 function startGuard(){
   try {
     var cv = document.createElement('canvas');
     cv.width = 480; cv.height = 270;
     var cx = cv.getContext('2d'), t = 0;
-    function blob(x, y, rad, col){
-      var g = cx.createRadialGradient(x, y, 0, x, y, rad);
-      g.addColorStop(0, col); g.addColorStop(1, 'rgba(4,7,13,0)');
-      cx.fillStyle = g; cx.fillRect(0, 0, 480, 270);
-    }
     function draw(){
-      t += 0.02;
-      cx.fillStyle = '#04070d'; cx.fillRect(0, 0, 480, 270);
-      blob(240 + Math.sin(t) * 160, 135 + Math.cos(t * 0.8) * 80, 190, 'rgba(20,40,70,0.55)');
-      blob(240 + Math.cos(t * 0.6) * 200, 135 + Math.sin(t * 0.5) * 100, 150, 'rgba(12,30,50,0.5)');
-      blob(240 + Math.sin(t * 0.4 + 2) * 220, 135 + Math.cos(t * 0.7 + 1) * 90, 130, 'rgba(30,25,55,0.4)');
+      t += 0.008;
+      cx.fillStyle = '#0e1116'; cx.fillRect(0, 0, 480, 270);
+      var x = 240 + Math.sin(t) * 180, y = 135 + Math.cos(t * 0.7) * 90;
+      var g = cx.createRadialGradient(x, y, 0, x, y, 320);
+      g.addColorStop(0, 'rgba(255,255,255,0.015)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      cx.fillStyle = g; cx.fillRect(0, 0, 480, 270);
     }
     draw();
     setInterval(draw, 150);
@@ -1105,9 +1018,7 @@ function playGuard(){
   }
 }
 
-/* ================================================================
-   stage scaling + pixel shift (OLED burn-in protection)
-   ================================================================ */
+/* ---------------- stage scaling + pixel shift ---------------- */
 function layout(){
   var w = window.innerWidth, h = window.innerHeight;
   var s = Math.min(w / STAGE_W, h / STAGE_H);
@@ -1119,12 +1030,10 @@ function layout(){
   layoutPagers();
 }
 
-/* ================================================================
-   debug panel (press D)
-   ================================================================ */
+/* ---------------- debug (press D) ---------------- */
 function renderDbg(now){
   var L = [];
-  L.push('KTMC ETA Board v2 — debug (press D to hide)');
+  L.push('KTMC ETA Board — debug (press D to hide)');
   L.push('HK time: ' + hhmm(now) + '  |  device: ' + new Date().toString());
   L.push('screen: ' + window.innerWidth + 'x' + window.innerHeight + '  scale: ' + S.scale.toFixed(3));
   L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') +
@@ -1149,9 +1058,7 @@ function renderDbg(now){
   $('dbg').textContent = L.join('\n');
 }
 
-/* ================================================================
-   events + boot
-   ================================================================ */
+/* ---------------- events + boot ---------------- */
 function refreshAll(){ refreshEtas(); refreshWx(); refreshStn(); }
 function gesture(){
   startAudio(); playGuard();
@@ -1199,15 +1106,11 @@ function buildStatic(){
       PLATIDX[dir][p.kt] = idx;
       PLATBYKT[dir][p.kt] = p;
       var chip = el('span', 'lg');
-      var dot = el('i'); dot.style.background = p.color;
-      chip.appendChild(dot);
       chip.appendChild(el('b', '', p.kt));
       chip.appendChild(el('span', '', p.label));
       leg.appendChild(chip);
     });
-    ROWCFG[dir].forEach(function(c){
-      ROWS[dir][c.route] = makeRow(dir, c);
-    });
+    ROWCFG[dir].forEach(function(c){ ROWS[dir][c.route] = makeRow(dir, c); });
     P[dir] = makePager(dir);
   });
   if (!CFG.stn) $('srcTd').style.display = 'none';
@@ -1226,8 +1129,6 @@ function init(){
   if (CFG.stn) setInterval(refreshStn, CFG.stnMs);
   setInterval(function(){ shiftIdx = (shiftIdx + 1) % SHIFT.length; layout(); }, 45000);
   requestAnimationFrame(frame);
-  /* optimistic auto-fullscreen attempt (works where the browser allows it);
-     otherwise the OK/Click prompt handles the required user gesture */
   reqFS().then(onFS).catch(function(){});
   try { $('fsBtn').focus(); } catch (e){}
 }
