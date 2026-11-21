@@ -37,10 +37,13 @@
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
 body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Heiti TC',sans-serif;
      font-weight:400;color:var(--txt);-webkit-user-select:none;user-select:none;cursor:none;touch-action:none}
+body.cursor{cursor:default}
+button,select,input{font-family:inherit}
+button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-offset:1px}
 #bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
-       padding:24px;display:flex;flex-direction:column;pointer-events:none}
-/* ---------- header ---------- */
+       padding:24px;display:flex;flex-direction:column}
+/* header */
 #header{height:100px;flex-shrink:0;display:flex;align-items:center;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;padding:0 22px}
 #logo{height:60px;width:auto;margin-right:20px;flex-shrink:0}
@@ -49,7 +52,7 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
 #tEn{font-size:13px;color:var(--sub);margin-top:2px;letter-spacing:.4px}
 #tSub{font-size:12px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #phaseCard{flex-shrink:0;margin-left:16px;background:var(--panel2);border:1px solid var(--line);
-           border-radius:6px;padding:8px 16px;text-align:right;min-width:190px}
+           border-radius:6px;padding:8px 16px;text-align:right;min-width:186px}
 #phaseLab{font-size:11px;color:var(--dim);letter-spacing:1px}
 #phaseVal{font-size:20px;font-weight:700;margin-top:2px;white-space:nowrap}
 #phaseSub{font-size:11.5px;color:var(--sub);margin-top:2px;font-variant-numeric:tabular-nums}
@@ -62,10 +65,13 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
 #clock{font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 #dateZh{font-size:13px;color:var(--sub);margin-top:4px;white-space:nowrap}
 #dateEn{font-size:11.5px;color:var(--dim);margin-top:1px;letter-spacing:.6px}
-/* ---------- stop ribbon (read-only index) ---------- */
+#setBtn{width:46px;height:46px;flex-shrink:0;margin-left:14px;display:flex;align-items:center;justify-content:center;
+        background:var(--btn-bg);border:1px solid var(--btn-line);border-radius:6px;color:var(--sub);cursor:pointer}
+#setBtn:hover{color:var(--txt);border-color:var(--sub)}
+/* ribbon */
 #ribbon{height:72px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;position:relative;
         background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px;overflow:hidden}
-.chip{width:182px;flex-shrink:0;margin-right:5px;padding:6px 10px;border-radius:5px;background:var(--panel2);
+.chip{width:181px;flex-shrink:0;margin-right:5px;padding:6px 10px;border-radius:5px;background:var(--panel2);
       border-left:4px solid var(--faint);display:flex;flex-direction:column;justify-content:center;overflow:hidden}
 .chip:last-child{margin-right:0}
 .chip.on{background:var(--badge-bg)}
@@ -77,40 +83,39 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
 .chipMeta{font-size:11px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip.on .chipMeta{color:var(--sub)}
 #ribBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
-/* ---------- warnings ---------- */
+/* warnings */
 #warnStrip{flex-shrink:0;display:flex;flex-wrap:wrap;margin-top:8px}
 #warnStrip:empty{display:none;margin-top:0}
 .wb{display:inline-flex;align-items:center;font-size:14px;padding:4px 10px;border-radius:4px;
     margin:0 8px 6px 0;line-height:1.25;color:#f2f5f8;max-width:100%}
 .wb img{width:20px;height:20px;margin-right:6px;flex-shrink:0}
 .wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-/* ---------- main ---------- */
+/* main */
 #main{flex:1;min-height:0;margin-top:10px;position:relative}
-#over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start}
+#over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
 #over.show{display:flex}
-.oCard{width:457px;height:258px;margin:0 14px 14px 0;background:var(--panel);border:1px solid var(--line);
-       border-top:3px solid var(--faint);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;overflow:hidden}
+.oCard{width:457px;height:252px;margin:0 14px 14px 0;background:var(--panel);border:1px solid var(--line);
+       border-top:3px solid var(--faint);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;overflow:hidden}
 .oCard:nth-child(4n){margin-right:0}
-.oCard.on{border-color:var(--accent)}
 .oHead{flex-shrink:0;display:flex;align-items:baseline}
-.oName{font-size:25px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oName{font-size:24px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oDir{font-size:13px;font-weight:700;color:var(--sub);margin-left:8px;flex-shrink:0}
-.oMeta{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:4px;padding-bottom:7px;border-bottom:1px solid var(--line);
+.oMeta{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:3px;padding-bottom:6px;border-bottom:1px solid var(--line);
        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oList{flex:1;min-height:0;margin-top:4px;overflow:hidden}
-.oRow{height:40px;display:flex;align-items:center;border-bottom:1px solid var(--rowline)}
+.oList{flex:1;min-height:0;margin-top:3px;overflow:hidden}
+.oRow{height:38px;display:flex;align-items:center;border-bottom:1px solid var(--rowline)}
 .oRow:last-child{border-bottom:none}
 .oBadge{width:76px;height:30px;flex-shrink:0;border-radius:4px;background:var(--badge-bg);color:var(--badge-txt);
-        font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center}
+        font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .oDest{flex:1;min-width:0;margin:0 10px;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oMin{flex-shrink:0;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 8px;border-radius:5px;color:var(--txt)}
+.oMin{flex-shrink:0;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 8px;border-radius:5px;color:var(--txt)}
 .oMin.b3{background:var(--eta-red);color:#fff;animation:etaBlink 1s infinite}
 .oMin.b6{background:var(--eta-yellow);color:#fff;animation:etaBlink 1.4s infinite}
 .oMin.b10{background:var(--eta-green);color:#fff}
 .oUnit{flex-shrink:0;font-size:12px;color:var(--sub);margin-left:5px;width:26px}
-.oFoot{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oEmpty{font-size:15px;color:var(--dim);padding-top:16px}
-/* ---------- detail ---------- */
+.oFoot{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oEmpty{font-size:15px;color:var(--dim);padding-top:14px}
+/* detail */
 #detail{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-direction:column;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;overflow:hidden}
 #detail.show{display:flex}
@@ -136,7 +141,7 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
        border-bottom:1px solid var(--line);letter-spacing:.5px}
 .hRoute{width:172px;flex-shrink:0}
 .hDest{flex:1;min-width:0}
-.hPlat{width:104px;flex-shrink:0;text-align:center}
+.hPlat{width:96px;flex-shrink:0;text-align:center}
 .hEta{width:264px;flex-shrink:0;text-align:right}
 #dView{flex:1;min-height:0;overflow:hidden;position:relative}
 #dPages{position:absolute;left:0;top:0;width:100%;transition:transform .7s cubic-bezier(.4,0,.2,1);will-change:transform}
@@ -155,9 +160,8 @@ body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Hei
 .d-zh{font-size:26px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .d-en{font-size:14px;color:var(--sub);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .d-svc{font-size:12.5px;color:var(--dim);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.c-plat{width:104px;flex-shrink:0;text-align:center}
-.plat{font-size:19px;font-weight:700;color:var(--txt)}
-.p-sub{font-size:10.5px;color:var(--dim);margin-top:2px}
+.c-plat{width:96px;flex-shrink:0;text-align:center}
+.plat{font-size:20px;font-weight:700;color:var(--txt)}
 .c-eta{width:264px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
 .e-main{display:flex;align-items:center;justify-content:flex-end;line-height:1;max-width:100%}
 .e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);
@@ -190,7 +194,7 @@ body.no-anim #dPages{transition:none}
 body.no-anim #dBar,body.no-anim #ribBar{display:none}
 body.no-anim #tickTrack{animation:none}
 body.no-anim .e-min,body.no-anim .oMin{animation:none}
-/* ---------- footer ---------- */
+/* footer */
 #footer{height:46px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;overflow:hidden}
 #tickTag{width:92px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--panel2);
@@ -210,52 +214,66 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
 #upd{font-size:13px;color:var(--sub);margin-left:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #upd.warn{color:var(--amber)}
 #upd.bad{color:var(--red)}
-/* ---------- operator-only layer (hidden, keyboard) ---------- */
-#op{position:fixed;left:20px;top:20px;z-index:80;display:none;width:1040px;max-height:1000px;
-   background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;pointer-events:auto;
-   flex-direction:column}
-#op.show{display:flex}
-#op *{pointer-events:auto}
-.opHead{display:flex;align-items:center;flex-shrink:0}
-.opTitle{font-size:16px;font-weight:700;flex:1;min-width:0}
-.opHint{font-size:11.5px;color:var(--dim)}
-.opGrid{display:flex;flex-wrap:wrap;flex-shrink:0;margin-top:10px}
-.opCell{width:242px;margin:0 10px 10px 0}
-.opLab{font-size:11.5px;color:var(--dim);margin-bottom:4px}
-.opCtl{width:100%;font-size:14px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);
-       border-radius:6px;padding:8px 10px}
-button.opCtl{cursor:pointer;text-align:left}
-button.opCtl.on{border-color:var(--accent);font-weight:700}
-.opNote{font-size:11.5px;color:var(--dim);line-height:1.6;flex-shrink:0}
-#opList{flex:1;min-height:80px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
-#opList::-webkit-scrollbar{width:12px}
-#opList::-webkit-scrollbar-track{background:var(--panel)}
-#opList::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
-#opList::-webkit-scrollbar-thumb:hover{background:var(--sub)}
-.opRow{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--rowline)}
-.opName{width:300px;flex-shrink:0;font-size:13.5px}
-.opName b{font-weight:700}
-.opName i{font-style:normal;display:block;font-size:11px;color:var(--dim);margin-top:2px}
-.opId{flex:1;min-width:0;font-size:12.5px;color:var(--sub);word-break:break-all}
-.opId.ok{color:var(--green)}
-.opId.bad{color:var(--amber)}
-.opIn{width:210px;flex-shrink:0;font-size:12.5px;color:var(--txt);background:var(--panel);border:1px solid var(--line);
-      border-radius:5px;padding:6px 8px;margin-left:10px}
-.opActs{display:flex;flex-shrink:0;margin-top:10px}
-.opActs button{font-size:13px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:6px;
-               padding:8px 14px;margin-right:10px;cursor:pointer}
-#opLog{flex-shrink:0;height:110px;overflow:auto;margin-top:10px;background:var(--panel2);border:1px solid var(--line);
-       border-radius:6px;padding:10px;font-size:11.5px;line-height:1.55;color:var(--sub);white-space:pre-wrap}
-#opLog::-webkit-scrollbar{width:12px}
-#opLog::-webkit-scrollbar-track{background:var(--panel)}
-#opLog::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
-#dbg{position:fixed;right:20px;top:20px;z-index:81;display:none;background:var(--card);border:1px solid var(--line);
-     border-radius:6px;color:var(--sub);font-size:12px;line-height:1.55;padding:12px 14px;max-width:600px;max-height:92%;
-     overflow:auto;white-space:pre-wrap;pointer-events:none}
-#dbg.show{display:block}
-#dbg::-webkit-scrollbar{width:10px}
-#dbg::-webkit-scrollbar-track{background:var(--panel2)}
-#dbg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:5px}
+/* panels */
+.panel{position:absolute;top:134px;right:24px;width:360px;max-height:900px;z-index:40;display:none;
+       flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow:auto}
+.panel.show{display:flex}
+.panel::-webkit-scrollbar{width:12px}
+.panel::-webkit-scrollbar-track{background:var(--panel2);border-radius:6px}
+.panel::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--card)}
+.panel::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+.pHead{display:flex;align-items:center;flex-shrink:0}
+.pTitle{font-size:16px;font-weight:700;flex:1;min-width:0}
+.pClose{width:34px;height:34px;flex-shrink:0;background:var(--btn-bg);border:1px solid var(--btn-line);
+        border-radius:6px;color:var(--sub);font-size:15px;cursor:pointer}
+.pClose:hover{color:var(--txt);border-color:var(--sub)}
+.pLab{font-size:11.5px;color:var(--dim);margin-top:12px;flex-shrink:0}
+.opt{display:block;width:100%;text-align:left;font-size:15px;color:var(--txt);background:var(--panel2);
+     border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:6px;cursor:pointer;flex-shrink:0}
+.opt.on{border-color:var(--accent);font-weight:700}
+.opt:hover{border-color:var(--sub)}
+.two{display:flex;flex-shrink:0}
+.two .opt{margin-right:8px}
+.two .opt:last-child{margin-right:0}
+.sel{width:100%;font-size:14px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);
+     border-radius:6px;padding:9px 10px;margin-top:6px;flex-shrink:0}
+.sRow{display:flex;align-items:center;margin-top:10px;flex-shrink:0}
+.sLab{flex:1;min-width:0;font-size:12.5px;color:var(--dim)}
+.step{display:flex;align-items:center;flex-shrink:0;border:1px solid var(--btn-line);border-radius:6px;overflow:hidden}
+.step button{width:34px;height:34px;font-size:17px;color:var(--txt);background:var(--btn-bg);border:none;cursor:pointer}
+.step button:hover{background:var(--accent);color:#fff}
+.step span{min-width:56px;text-align:center;font-size:14px;line-height:34px;background:var(--panel2);
+           color:var(--txt);font-variant-numeric:tabular-nums}
+.pHint{font-size:11px;color:var(--dim);line-height:1.6;margin-top:12px;flex-shrink:0}
+#resPanel{left:24px;right:auto;width:1010px;max-height:830px}
+.resNote{font-size:12px;color:var(--dim);line-height:1.6;margin-top:10px;flex-shrink:0}
+#resList{flex:1;min-height:90px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
+#resList::-webkit-scrollbar{width:12px}
+#resList::-webkit-scrollbar-track{background:var(--panel)}
+#resList::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
+#resList::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+.resRow{display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--rowline)}
+.resName{width:300px;flex-shrink:0;font-size:14px}
+.resName b{font-weight:700}
+.resName i{font-style:normal;display:block;font-size:11.5px;color:var(--dim);margin-top:2px}
+.resId{flex:1;min-width:0;font-size:12.5px;color:var(--sub);word-break:break-all}
+.resId.ok{color:var(--green)}
+.resId.bad{color:var(--amber)}
+.resIn{width:210px;flex-shrink:0;font-size:12.5px;color:var(--txt);background:var(--panel);border:1px solid var(--line);
+       border-radius:5px;padding:6px 8px;margin-left:10px}
+.resActs{display:flex;flex-wrap:wrap;flex-shrink:0;margin-top:10px}
+.resActs .opt{width:auto;margin-right:10px;padding:8px 14px;font-size:13px}
+#resLog{flex-shrink:0;height:120px;overflow:auto;margin-top:10px;background:var(--panel2);border:1px solid var(--line);
+        border-radius:6px;padding:10px;font-size:11.5px;line-height:1.55;color:var(--sub);white-space:pre-wrap}
+#resLog::-webkit-scrollbar{width:12px}
+#resLog::-webkit-scrollbar-track{background:var(--panel)}
+#resLog::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
+#dbgPanel{left:24px;right:auto;width:660px;max-height:830px}
+#dbg{flex:1;min-height:80px;overflow:auto;margin-top:10px;background:var(--panel2);border:1px solid var(--line);
+     border-radius:6px;padding:12px;font-size:12px;line-height:1.6;color:var(--sub);white-space:pre-wrap}
+#dbg::-webkit-scrollbar{width:12px}
+#dbg::-webkit-scrollbar-track{background:var(--panel)}
+#dbg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
 </style>
 </head>
 <body>
@@ -284,10 +302,12 @@ button.opCtl.on{border-color:var(--accent);font-weight:700}
       <div id="dateZh">----年--月--日</div>
       <div id="dateEn">---</div>
     </div>
+    <button id="setBtn" aria-label="設定 Settings" title="設定 Settings">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
   </div>
 
   <div id="ribbon"><div id="ribBar"></div></div>
-
   <div id="warnStrip"></div>
 
   <div id="main">
@@ -316,42 +336,63 @@ button.opCtl.on{border-color:var(--accent);font-weight:700}
       <span id="upd">載入中…</span>
     </div>
   </div>
+
+  <div class="panel" id="setPanel">
+    <div class="pHead"><div class="pTitle">設定 Settings</div><button class="pClose" id="setClose" aria-label="關閉">✕</button></div>
+    <div class="pLab">主題 Theme</div>
+    <div class="two"><button class="opt" id="thDark">深色 Dark</button><button class="opt" id="thLight">淺色 Light</button></div>
+    <div class="pLab">動畫 Animations</div>
+    <button class="opt" id="animBtn">動畫：開 Animations: On</button>
+    <div class="pLab">顯示模式 Display mode</div>
+    <select class="sel" id="modeSel">
+      <option value="cycle">自動輪播（總覽＋逐站）</option>
+      <option value="overview">只顯示全站總覽</option>
+      <option value="detail">只逐站輪播</option>
+    </select>
+    <div class="pLab">固定站點 Lock to one stop</div>
+    <select class="sel" id="lockSel"></select>
+    <div class="sRow"><span class="sLab">每頁停留 Dwell</span>
+      <div class="step"><button id="dwM" aria-label="減少">−</button><span id="dwV">10s</span><button id="dwP" aria-label="增加">+</button></div></div>
+    <div class="sRow"><span class="sLab">總覽每站班次 Overview rows</span>
+      <div class="step"><button id="rwM" aria-label="減少">−</button><span id="rwV">4</span><button id="rwP" aria-label="增加">+</button></div></div>
+    <div class="sRow"><span class="sLab">自動重載 Auto reload</span>
+      <div class="step"><button id="rlM" aria-label="減少">−</button><span id="rlV">關</span><button id="rlP" aria-label="增加">+</button></div></div>
+    <div class="pLab">排序 Sort</div>
+    <select class="sel" id="sortSel">
+      <option value="eta">最快到站 Soonest</option>
+      <option value="route">路線號 Route number</option>
+      <option value="platform">月台 Platform</option>
+    </select>
+    <div class="pLab">數據及畫面 Data &amp; screen</div>
+    <button class="opt" id="resBtn">站點解析 Stop resolver</button>
+    <button class="opt" id="dbgBtn">診斷 Diagnostics</button>
+    <button class="opt" id="refBtn">立即更新 Refresh now</button>
+    <button class="opt" id="fsBtn2">全螢幕 Fullscreen</button>
+    <div class="pHint">設定會自動儲存。亦可用網址參數預先鎖定：?mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WCH-S&amp;reload=6</div>
+  </div>
+
+  <div class="panel" id="resPanel">
+    <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
+    <div class="resNote">系統下載九巴全站清單，按站名候選＋實際服務路線組合自動配對月台。若未配對或配錯，可直接貼上九巴 stop ID（16 位十六進位）後按「儲存覆寫」。城巴 601／601P 另以 601 站序解析祥和苑站。</div>
+    <div id="resList"></div>
+    <div class="resActs">
+      <button class="opt" id="resRun">重新解析 Re-resolve</button>
+      <button class="opt" id="resSave">儲存覆寫 Save overrides</button>
+      <button class="opt" id="resClear">清除快取 Clear cache</button>
+    </div>
+    <pre id="resLog">尚未解析 Not resolved yet.</pre>
+  </div>
+
+  <div class="panel" id="dbgPanel">
+    <div class="pHead"><div class="pTitle">診斷 Diagnostics</div><button class="pClose" id="dbgClose" aria-label="關閉">✕</button></div>
+    <pre id="dbg"></pre>
+  </div>
 </div>
 
-<div id="op">
-  <div class="opHead">
-    <div class="opTitle">管理員設定 Operator Console</div>
-    <div class="opHint">H 開關 · D 診斷 · F 全螢幕 · R 更新 · T 主題 · A 動畫 · Esc 關閉</div>
-  </div>
-  <div class="opGrid">
-    <div class="opCell"><div class="opLab">顯示模式 Mode</div>
-      <select class="opCtl" id="opMode"><option value="cycle">自動輪播 Cycle</option><option value="overview">只顯示總覽 Overview only</option><option value="detail">只輪播單站 Stops only</option></select></div>
-    <div class="opCell"><div class="opLab">固定站點 Lock stop</div><select class="opCtl" id="opLock"></select></div>
-    <div class="opCell"><div class="opLab">每頁停留 Dwell (秒)</div><input class="opCtl" id="opDwell" type="number" min="4" max="60" step="1"></div>
-    <div class="opCell"><div class="opLab">總覽每站班次 Overview rows</div><input class="opCtl" id="opRows" type="number" min="2" max="4" step="1"></div>
-    <div class="opCell"><div class="opLab">排序 Sort</div>
-      <select class="opCtl" id="opSort"><option value="eta">最快到站 Soonest</option><option value="route">路線號 Route</option><option value="platform">月台 Platform</option></select></div>
-    <div class="opCell"><div class="opLab">主題 Theme</div><button class="opCtl" id="opTheme">深色 Dark</button></div>
-    <div class="opCell"><div class="opLab">動畫 Animations</div><button class="opCtl" id="opAnim">開 On</button></div>
-    <div class="opCell"><div class="opLab">自動重載 Auto reload (小時, 0=關)</div><input class="opCtl" id="opReload" type="number" min="0" max="24" step="1"></div>
-  </div>
-  <div class="opNote">本顯示屏為純顯示，公開畫面沒有任何按鈕。所有設定亦可用網址參數預先鎖定：<b>?mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WCH-S&amp;reload=6&amp;sid_WCH-S-534=…&amp;ctb=…</b>。站點 ID 未提供時，系統會下載九巴站清單，以站名候選＋實際路線組合自動配對；配錯可在下方貼上正確 stop ID。</div>
-  <div id="opList"></div>
-  <div class="opActs">
-    <button id="opResolve">重新解析 Re-resolve</button>
-    <button id="opSave">儲存覆寫 Save overrides</button>
-    <button id="opClear">清除快取 Clear cache</button>
-    <button id="opRefresh">立即更新 Refresh now</button>
-    <button id="opFs">全螢幕 Fullscreen</button>
-  </div>
-  <pre id="opLog">尚未解析 Not resolved yet.</pre>
-</div>
-<pre id="dbg"></pre>
 <noscript><div style="color:#fff;padding:40px;font-size:24px">此顯示屏需要 JavaScript。This display requires JavaScript.</div></noscript>
 
 <script>
 'use strict';
-/* ============ config ============ */
 var CFG={etaMs:30000,wxMs:300000,staleMs:120000,arriveMs:60000,graceMs:45000,
   band4:240000,band6:360000,band10:600000,
   mode:'cycle',dwell:10000,rows:4,sort:'eta',lock:'',reloadH:0,
@@ -370,13 +411,12 @@ var W={wkAM:{d:[1,2,3,4,5],from:360,to:660},satAM:{d:[1,2,3,4,5,6],from:360,to:6
 function rt(r,z,e,x){var o={route:r,dest:z,destEn:e,cos:['KMB']};
   if(x)for(var k in x)if(x.hasOwnProperty(k))o[k]=x[k];
   if(o.joint)o.cos=['KMB','CTB'];return o;}
-/* ============ stops ============ */
 var STOPS=[
 {key:'WCH-S',name:'祥和苑',en:'Wo Cheong Court',street:'協和街',streetEn:'Hip Wo Street',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'hipwo',aliases:['祥和苑'],platforms:[
-  {key:'WCH-S-534',label:'KT534',pole:'HI04-S-1125-0',shelter:false,screen:false,note:'往竹園・紅磡・旺角',routes:[
+  {key:'WCH-S-534',label:'KT534',note:'往竹園・紅磡・旺角',routes:[
     rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('11X','紅磡站','HUNG HOM STATION'),rt('13D','維港灣','ISLAND HARBOURVIEW'),
     rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('93K','旺角東站','MONG KOK EAST STATION')]},
-  {key:'WCH-S-533',label:'KT533',pole:'HI04-S-1100-0',shelter:true,screen:true,note:'往尖沙咀・觀塘・港島',routes:[
+  {key:'WCH-S-533',label:'KT533',note:'往尖沙咀・觀塘・港島',routes:[
     rt('1A','尖沙咀碼頭','STAR FERRY'),rt('13M','觀塘（雅麗道）','KWUN TONG (ELEGANCE ROAD)',{circ:true}),
     rt('13P','長沙灣（麗閣邨）','CHEUNG SHA WAN (LAI KOK ESTATE)',{peak:'週一至五上午繁忙時間',win:W.wkAM}),
     rt('28B','啟德（啟晴邨）','KAI TAK (KAI CHING ESTATE)'),rt('93A','觀塘碼頭','KWUN TONG FERRY'),
@@ -384,46 +424,46 @@ var STOPS=[
     rt('601P','上環','SHEUNG WAN',{joint:true,peak:'週一至六上午繁忙時間',win:W.satAM}),
     rt('N293','旺角（柏景灣）','MONG KOK (PARK AVENUE)',{night:true,win:W.night})]}]},
 {key:'WCH-N',name:'祥和苑',en:'Wo Cheong Court',street:'協和街',streetEn:'Hip Wo Street',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'hipwo',aliases:['祥和苑'],platforms:[
-  {key:'WCH-N-261',label:'KT261',pole:'HI04-N-1200-0',shelter:true,screen:false,note:'往秀茂坪・安泰・寶達・順利',routes:[
+  {key:'WCH-N-261',label:'KT261',note:'往秀茂坪・安泰・寶達・順利',routes:[
     rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('11X','安泰（北）','ON TAI (NORTH)'),rt('13D','寶達','PO TAT'),
     rt('14H','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true,note:'經聯合醫院',win:W.day}),
     rt('23','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true}),rt('28B','彩福','CHOI FOOK'),
     rt('N293','尚德','SHEUNG TAK',{night:true,win:W.night})]}]},
 {key:'PPC-S',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',aliases:['寶珮苑'],platforms:[
-  {key:'PPC-S-1000',label:'S-1000',pole:'TS13-S-1000-0',shelter:true,screen:true,note:'往竹園・油塘',routes:[
+  {key:'PPC-S-1000',label:'1000',note:'往竹園・油塘',routes:[
     rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day})]}]},
 {key:'PPC-N',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',aliases:['寶珮苑'],platforms:[
-  {key:'PPC-N-1100',label:'N-1100',pole:'TS13-N-1100-0',shelter:true,screen:true,note:'往秀茂坪・寶達・沙田',routes:[
+  {key:'PPC-N-1100',label:'1100',note:'往秀茂坪・寶達・沙田',routes:[
     rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
     rt('89','瀝源','LEK YUEN'),rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'COH-N',name:'翠桉樓',en:'Chui On House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',aliases:['翠桉樓','翠屏邨翠桉樓'],platforms:[
-  {key:'COH-N-1075',label:'N-1075',pole:'TS13-N-1075-0',shelter:false,screen:false,note:'往秀茂坪・寶達・沙田・觀塘',routes:[
+  {key:'COH-N-1075',label:'1075',note:'往秀茂坪・寶達・沙田・觀塘',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),rt('89C','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
     rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'CTH-S',name:'翠梓樓',en:'Chui Tsz House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',aliases:['翠梓樓','翠屏邨翠梓樓'],platforms:[
-  {key:'CTH-S-1050',label:'S-1050',pole:'TS13-S-1050-0',shelter:true,screen:false,note:'往九龍城・竹園・油塘・恆安',routes:[
+  {key:'CTH-S-1050',label:'1050',note:'往九龍城・竹園・油塘・恆安',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),
     rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('89C','恆安','HENG ON')]}]},
 {key:'TPR-T',name:'觀塘（翠屏道）總站',en:'Kwun Tong (Tsui Ping Road) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,
  aliases:['觀塘(翠屏道)總站','觀塘（翠屏道）總站','翠屏道總站','觀塘(翠屏道)','觀塘（翠屏道）'],platforms:[
-  {key:'TPR-T-0',label:'總站',pole:'觀塘（翠屏道）巴士總站',shelter:true,screen:false,note:'開出班次 Departures',routes:[
+  {key:'TPR-T-0',label:'總站',note:'開出班次 Departures',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),
     rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午，不經石門・第一城・彩虹）'}),
     rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,
  aliases:['觀塘(翠屏北邨)總站','觀塘（翠屏北邨）總站','翠屏北邨總站','觀塘(翠屏北邨)','觀塘（翠屏北邨）'],platforms:[
-  {key:'TPN-T-1050',label:'N-1050',pole:'TS13-N-1050-0',shelter:true,screen:true,note:'往瀝源・青龍頭',routes:[
+  {key:'TPN-T-1050',label:'1050',note:'往瀝源・青龍頭',routes:[
     rt('89','瀝源','LEK YUEN'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'上午去程・下午回程（經梨木樹・黃大仙）',win:W.satAM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'平日上午去程・下午回程（經中九龍繞道）',win:W.wkAM})]}]},
 {key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-S-1100',label:'S-1100',pole:'TS13-S-1100-0',shelter:false,screen:false,note:'往鯉魚門道／觀塘道・青龍頭',routes:[
+  {key:'KTP-S-1100',label:'1100',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('89C','恆安','HENG ON'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM})]}]},
 {key:'KTP-N',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-N-1000',label:'N-1000',pole:'TS13-N-1000-0',shelter:false,screen:false,note:'往秀茂坪・寶達・沙田・翠屏',routes:[
+  {key:'KTP-N-1000',label:'1000',note:'往秀茂坪・寶達・沙田・翠屏',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
     rt('89','觀塘（翠屏北邨）','KWUN TONG (TSUI PING NORTH EST.)'),
@@ -435,7 +475,6 @@ var STOPS=[
 var PLATS=[],PLATBY={},STOPBY={},SIDX={};
 STOPS.forEach(function(g,i){STOPBY[g.key]=g;SIDX[g.key]=i;
   g.platforms.forEach(function(p){p.stop=g;PLATS.push(p);PLATBY[p.key]=p;});});
-/* ============ utils ============ */
 function $(i){return document.getElementById(i);}
 function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined&&x!==null)e.textContent=x;return e;}
 function clear(n){while(n.firstChild)n.removeChild(n.firstChild);}
@@ -457,9 +496,8 @@ function retry(f){return f().catch(function(){return f();});}
 function qs(){var o={},s=location.search.replace(/^\?/,'');if(!s)return o;
   s.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i<0)return;
     o[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});return o;}
-/* ============ state ============ */
 var S={scale:1,fs:false,wake:null,guard:'init',audio:'off',loaded:false,lastEta:0,theme:'dark',anim:true,
-  opOpen:false,dbg:false,errs:[],frameT:0,phases:[],pi:0,pT:0,resolving:false,boot:Date.now(),
+  open:'',errs:[],frameT:0,phases:[],pi:0,pT:0,resolving:false,boot:Date.now(),
   wx:{temp:null,hum:null,icon:null},wxMsgs:[],warns:[]};
 var H={kmb:{ok:false,t:0,err:''},ctb:{ok:false,t:0,err:''},hko:{ok:false,t:0,err:''}};
 var MAP={},CTB='',AGG={},CAND=[],ROWS={},OVC={},CHIP={};
@@ -468,68 +506,77 @@ var SHIFT=[[0,0],[2,1],[3,3],[1,2]],sIdx=0;
 var WZH=['日','一','二','三','四','五','六'],WEN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var lastTick='',lastStrip='',etaBusy=false;
-/* ============ settings ============ */
+function persist(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
 function setTheme(t){if(t!=='light')t='dark';S.theme=t;
   document.documentElement.setAttribute('data-theme',t);
   S.gBg=t==='light'?'#eef1f5':'#0e1116';
   S.gWash=t==='light'?'rgba(0,0,0,0.02)':'rgba(255,255,255,0.015)';
-  $('opTheme').textContent=t==='light'?'淺色 Light':'深色 Dark';
-  $('opTheme').className='opCtl'+(t==='light'?' on':'');
-  try{localStorage.setItem('ktmc2Theme',t);}catch(e){}}
+  $('thDark').className='opt'+(t==='dark'?' on':'');
+  $('thLight').className='opt'+(t==='light'?' on':'');
+  $('thDark').textContent=(t==='dark'?'✓ ':'')+'深色 Dark';
+  $('thLight').textContent=(t==='light'?'✓ ':'')+'淺色 Light';
+  persist('ktmc2Theme',t);}
 function setAnim(v){S.anim=!!v;
   if(S.anim)document.body.classList.remove('no-anim');else document.body.classList.add('no-anim');
-  $('opAnim').textContent=S.anim?'開 On':'關 Off';
-  $('opAnim').className='opCtl'+(S.anim?' on':'');
-  try{localStorage.setItem('ktmc2Anim',S.anim?'1':'0');}catch(e){}
-  lastTick='';ticker();}
-function persist(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+  $('animBtn').textContent=S.anim?'動畫：開 Animations: On':'動畫：關 Animations: Off';
+  $('animBtn').className='opt'+(S.anim?' on':'');
+  persist('ktmc2Anim',S.anim?'1':'0');lastTick='';ticker();}
+function syncCtrls(){
+  $('modeSel').value=CFG.mode;$('lockSel').value=CFG.lock;$('sortSel').value=CFG.sort;
+  $('dwV').textContent=Math.round(CFG.dwell/1000)+'s';
+  $('rwV').textContent=String(CFG.rows);
+  $('rlV').textContent=CFG.reloadH?CFG.reloadH+'h':'關';
+}
 function loadSettings(){
   var q=qs(),g=function(k,d){try{var v=localStorage.getItem(k);return v===null?d:v;}catch(e){return d;}};
-  setTheme(q.theme||g('ktmc2Theme','dark'));
-  setAnim((q.anim!==undefined?q.anim==='1':g('ktmc2Anim','1')==='1'));
   CFG.mode=q.mode||g('ktmc2Mode','cycle');
   if(['cycle','overview','detail'].indexOf(CFG.mode)<0)CFG.mode='cycle';
   CFG.dwell=Math.min(60000,Math.max(4000,(parseInt(q.dwell||g('ktmc2Dwell','10'),10)||10)*1000));
   CFG.rows=Math.min(4,Math.max(2,parseInt(q.rows||g('ktmc2Rows','4'),10)||4));
   CFG.sort=q.sort||g('ktmc2Sort','eta');
   if(['eta','route','platform'].indexOf(CFG.sort)<0)CFG.sort='eta';
-  CFG.lock=q.lock||g('ktmc2Lock','');
-  if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
+  CFG.lock=q.lock||g('ktmc2Lock','');if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
   CFG.reloadH=Math.min(24,Math.max(0,parseInt(q.reload||g('ktmc2Reload','0'),10)||0));
   PLATS.forEach(function(p){var v=q['sid_'+p.key];if(v)MAP[p.key]=v.trim();});
   if(q.ctb)CTB=q.ctb.trim();
   try{var m=JSON.parse(localStorage.getItem('ktmc2Map')||'{}');
     Object.keys(m).forEach(function(k){if(PLATBY[k]&&!MAP[k])MAP[k]=m[k];});
     if(!CTB)CTB=localStorage.getItem('ktmc2Ctb')||'';}catch(e){}
-  $('opMode').value=CFG.mode;$('opDwell').value=String(Math.round(CFG.dwell/1000));
-  $('opRows').value=String(CFG.rows);$('opSort').value=CFG.sort;$('opReload').value=String(CFG.reloadH);
-  var lk=$('opLock');clear(lk);
+  var lk=$('lockSel');clear(lk);
   var o0=document.createElement('option');o0.value='';o0.textContent='不固定（全部輪播）';lk.appendChild(o0);
   STOPS.forEach(function(g){var o=document.createElement('option');o.value=g.key;
     o.textContent=g.arrow+' '+g.name+'（'+g.dir+'）';lk.appendChild(o);});
-  lk.value=CFG.lock;
+  setTheme(q.theme||g('ktmc2Theme','dark'));
+  setAnim(q.anim!==undefined?q.anim==='1':g('ktmc2Anim','1')==='1');
+  syncCtrls();
 }
 function saveMap(){try{localStorage.setItem('ktmc2Map',JSON.stringify(MAP));localStorage.setItem('ktmc2Ctb',CTB);}catch(e){}}
-/* ============ remarks ============ */
+function openPanel(n){
+  S.open=(S.open===n)?'':n;
+  $('setPanel').className='panel'+(S.open==='set'?' show':'');
+  $('resPanel').className='panel'+(S.open==='res'?' show':'');
+  $('dbgPanel').className='panel'+(S.open==='dbg'?' show':'');
+  if(S.open==='res')buildResList();
+  if(S.open==='dbg')dbg(Date.now());
+  if(!S.open){try{$('setBtn').focus();}catch(e){}}
+}
 function rall(e){return (e.rmk||'')+' '+(e.rmkEn||'');}
 function isSched(e){return /原定|預計班次|scheduled/i.test(rall(e));}
 function isEnded(e){return (/尾班車/.test(e.rmk||'')&&/已過|已開/.test(e.rmk||''))||/last bus.*(depart|pass)/i.test(e.rmkEn||'');}
 function isLast(e){return !isEnded(e)&&/尾班車|last\s*bus/i.test(rall(e));}
 function isSrc(e){return /提供|provided by/i.test(rall(e));}
 function band(d){if(d<=CFG.band4)return ' b3';if(d<=CFG.band6)return ' b6';if(d<=CFG.band10)return ' b10';return '';}
-/* ============ resolver ============ */
-function olog(s){var n=$('opLog');n.textContent+=s+'\n';n.scrollTop=n.scrollHeight;}
+function olog(s){var n=$('resLog');n.textContent+=s+'\n';n.scrollTop=n.scrollHeight;}
 function resCount(){var n=0;PLATS.forEach(function(p){if(MAP[p.key])n++;});return n;}
 function resolve(force){
   if(S.resolving)return Promise.resolve();
-  var all=PLATS.every(function(p){return MAP[p.key];});
-  if(all&&!force)return Promise.resolve();
-  S.resolving=true;$('opLog').textContent='解析中 Resolving…\n';
+  if(PLATS.every(function(p){return MAP[p.key];})&&!force)return Promise.resolve();
+  S.resolving=true;$('resLog').textContent='解析中 Resolving…\n';
   var al={};STOPS.forEach(function(g){g.aliases.forEach(function(a){al[nname(a)]=1;});});
   return retry(function(){return fJSON(CFG.kmbStop,25000);}).then(function(j){
     var list=(j&&j.data)||[];
     CAND=list.filter(function(s){return al[nname(s.name_tc)];});
-    olog('全站 '+list.length+'，候選 '+CAND.length);
+    olog('全站 '+list.length+' 個，候選 '+CAND.length+' 個');
     return Promise.all(CAND.map(function(c){
       return retry(function(){return fJSON(CFG.kmbEta+c.stop,12000);}).then(function(j2){
         var set={},n=0;((j2&&j2.data)||[]).forEach(function(it){if(it.route&&!set[it.route]){set[it.route]=1;n++;}});
@@ -542,17 +589,15 @@ function resolve(force){
       var best=null,bs=0;
       CAND.forEach(function(c){
         if(used[c.stop])return;
-        var ok=p.stop.aliases.some(function(a){return nname(a)===nname(c.name_tc);});
-        if(!ok)return;
+        if(!p.stop.aliases.some(function(a){return nname(a)===nname(c.name_tc);}))return;
         var inter=0;Object.keys(want).forEach(function(r){if(c.routes[r])inter++;});
-        var d=(2*inter)/(wn+(c.n||0));
-        if(d>bs){bs=d;best=c;}});
+        var d=(2*inter)/(wn+(c.n||0));if(d>bs){bs=d;best=c;}});
       if(best&&bs>=0.34){MAP[p.key]=best.stop;used[best.stop]=1;
-        olog('✓ '+p.stop.name+' '+p.stop.dir+' '+p.label+' → '+best.stop+' ('+Math.round(bs*100)+'%)');}
-      else olog('✗ '+p.stop.name+' '+p.stop.dir+' '+p.label+' 未配對 ('+Math.round(bs*100)+'%)');
+        olog('✓ '+p.stop.name+' '+p.stop.dir+' 月台 '+p.label+' → '+best.stop+' ('+Math.round(bs*100)+'%)');}
+      else olog('✗ '+p.stop.name+' '+p.stop.dir+' 月台 '+p.label+' 未配對 ('+Math.round(bs*100)+'%)');
     });
-    saveMap();buildOpList();
-  }).catch(function(e){olog('清單失敗 index failed: '+(e&&e.message||e));buildOpList();})
+    saveMap();buildResList();
+  }).catch(function(e){olog('站清單下載失敗：'+(e&&e.message||e));buildResList();})
    .then(function(){S.resolving=false;refreshEtas();});
 }
 function resolveCtb(){
@@ -566,29 +611,28 @@ function resolveCtb(){
         return nname(nm).indexOf(t)>=0?sid:step();}).catch(function(){return step();});}
     return step();
   }).then(function(sid){if(sid){CTB=sid;saveMap();olog('✓ 城巴祥和苑 → '+sid);}
-    else olog('✗ 城巴祥和苑未解析（601 只顯示九巴班次）');buildOpList();return CTB;})
-   .catch(function(e){olog('✗ 城巴解析失敗 '+(e&&e.message||e));return '';});
+    else olog('✗ 城巴祥和苑未解析（601 只顯示九巴班次）');buildResList();return CTB;})
+   .catch(function(e){olog('✗ 城巴解析失敗：'+(e&&e.message||e));return '';});
 }
-function buildOpList(){
-  var box=$('opList');clear(box);
+function buildResList(){
+  var box=$('resList');clear(box);
   PLATS.forEach(function(p){
-    var r=el('div','opRow'),nm=el('div','opName');
+    var r=el('div','resRow'),nm=el('div','resName');
     nm.appendChild(el('b','',p.stop.name+' '+p.stop.dir));
-    nm.appendChild(el('i','',p.label+' · '+p.pole+' · '+p.routes.length+' 路線'));
+    nm.appendChild(el('i','','月台 '+p.label+' · '+p.routes.length+' 條路線'));
     r.appendChild(nm);
     var id=MAP[p.key]||'';
-    r.appendChild(el('div','opId'+(id?' ok':' bad'),id||'未配對 Unresolved'));
-    var inp=document.createElement('input');inp.className='opIn';inp.value=id;
-    inp.placeholder='stop ID';inp.setAttribute('data-p',p.key);r.appendChild(inp);
+    r.appendChild(el('div','resId'+(id?' ok':' bad'),id||'未配對 Unresolved'));
+    var inp=document.createElement('input');inp.className='resIn';inp.value=id;
+    inp.placeholder='九巴 stop ID';inp.setAttribute('data-p',p.key);r.appendChild(inp);
     box.appendChild(r);});
-  var cr=el('div','opRow'),cn=el('div','opName');
-  cn.appendChild(el('b','','城巴 祥和苑（南行）'));cn.appendChild(el('i','','601 / 601P · Citybus'));
+  var cr=el('div','resRow'),cn=el('div','resName');
+  cn.appendChild(el('b','','城巴 祥和苑（南行）'));cn.appendChild(el('i','','601 / 601P'));
   cr.appendChild(cn);
-  cr.appendChild(el('div','opId'+(CTB?' ok':' bad'),CTB||'未配對 Unresolved'));
-  var ci=document.createElement('input');ci.className='opIn';ci.id='opCtbIn';ci.value=CTB;ci.placeholder='城巴 stop ID';
+  cr.appendChild(el('div','resId'+(CTB?' ok':' bad'),CTB||'未配對 Unresolved'));
+  var ci=document.createElement('input');ci.className='resIn';ci.id='ctbIn';ci.value=CTB;ci.placeholder='城巴 stop ID';
   cr.appendChild(ci);box.appendChild(cr);
 }
-/* ============ eta ============ */
 function norm(it,co){return {co:co,route:it.route,destZh:it.dest_tc||'',destEn:it.dest_en||'',
   t:it.eta?Date.parse(it.eta):null,rmk:it.rmk_tc||'',rmkEn:it.rmk_en||'',st:it.service_type||1,seq:it.eta_seq||1};}
 function refreshEtas(){
@@ -607,8 +651,7 @@ function refreshEtas(){
     H.kmb.ok=okK>0;if(okK)H.kmb.t=Date.now();H.kmb.err=okK?'':eK;
     if(CTB){H.ctb.ok=okC>0;if(okC)H.ctb.t=Date.now();H.ctb.err=okC?'':eC;}
     if(okK+okC>0){S.lastEta=Date.now();S.loaded=true;}
-    etaBusy=false;buildPhases();renderAll();
-  });
+    etaBusy=false;buildPhases();renderAll();});
 }
 function entries(p){var out=(AGG[p.key]||[]).slice();
   if(p.key==='WCH-S-533')['601','601P'].forEach(function(r){(AGG['CTB|'+r]||[]).forEach(function(e){out.push(e);});});
@@ -640,7 +683,6 @@ function sortViews(v){v.sort(function(a,b){
     return ia-ib||rnum(a.c.route)-rnum(b.c.route);}
   var ta=a.etas.length?a.etas[0].t:Infinity,tb=b.etas.length?b.etas[0].t:Infinity;
   if(ta!==tb)return ta-tb;return rnum(a.c.route)-rnum(b.c.route);});return v;}
-/* ============ ribbon ============ */
 function buildRibbon(){
   var box=$('ribbon');
   STOPS.forEach(function(g){
@@ -649,11 +691,10 @@ function buildRibbon(){
     top.appendChild(el('div','chipName',g.name));
     top.appendChild(el('div','chipDir',g.arrow+g.dir));
     c.appendChild(top);
-    c.appendChild(el('div','chipMeta',g.platforms.map(function(p){return p.label;}).join(' / ')+' · '+
+    c.appendChild(el('div','chipMeta','月台 '+g.platforms.map(function(p){return p.label;}).join(' / ')+' · '+
       g.platforms.reduce(function(a,p){return a+p.routes.length;},0)+' 路線'));
     box.insertBefore(c,$('ribBar'));CHIP[g.key]=c;});
 }
-/* ============ overview ============ */
 function buildOver(){
   var box=$('over');clear(box);
   STOPS.forEach(function(g){
@@ -662,10 +703,10 @@ function buildOver(){
     h.appendChild(el('div','oName',g.name));
     h.appendChild(el('div','oDir',g.arrow+' '+g.dir));
     c.appendChild(h);
-    c.appendChild(el('div','oMeta',g.street+' '+g.streetEn+' · '+g.platforms.map(function(p){return p.label;}).join(' / ')));
+    c.appendChild(el('div','oMeta',g.street+' · 月台 '+g.platforms.map(function(p){return p.label;}).join(' / ')));
     var l=el('div','oList');c.appendChild(l);
     var f=el('div','oFoot','');c.appendChild(f);
-    box.appendChild(c);OVC[g.key]={list:l,foot:f,sig:''};});
+    box.appendChild(c);OVC[g.key]={el:c,list:l,foot:f,sig:''};});
 }
 function renderOver(now,hk){
   STOPS.forEach(function(g){
@@ -690,7 +731,6 @@ function renderOver(now,hk){
     o.foot.textContent='共 '+all.length+' 條路線 · '+live.length+' 班在途'+(live.length?' · 最快 '+hhmm(live[0].etas[0].t):'');
   });
 }
-/* ============ detail ============ */
 function makeRow(v){
   var row=el('div','row'),rc=el('div','c-route');
   rc.appendChild(el('div','badge',v.c.route));
@@ -701,10 +741,7 @@ function makeRow(v){
   var svc=v.c.peak?v.c.peak:(v.c.night?'每天通宵服務 Overnight daily':'每天服務 Daily service');
   if(v.c.note)svc+='｜'+v.c.note;
   ds.textContent=svc;dc.appendChild(dz);dc.appendChild(de);dc.appendChild(ds);row.appendChild(dc);
-  var pc=el('div','c-plat');
-  pc.appendChild(el('div','plat',v.p.label));
-  pc.appendChild(el('div','p-sub',v.p.screen?'顯示屏':(v.p.shelter?'候車亭':'站柱')));
-  row.appendChild(pc);
+  var pc=el('div','c-plat');pc.appendChild(el('div','plat',v.p.label));row.appendChild(pc);
   var ec=el('div','c-eta'),main=el('div','e-main'),min=el('span','e-min','--');
   var right=el('div','e-right'),top=el('div','e-top'),bot=el('div','e-bot');
   right.appendChild(top);right.appendChild(bot);main.appendChild(min);main.appendChild(right);
@@ -753,6 +790,7 @@ function updRow(row,v,now){
     if(tail)row.bot.appendChild(el('span','e-unit',cap(tail,40)));
   }
 }
+function detailPer(){return Math.max(1,Math.floor((($('main').clientHeight||786)-158)/ROW_H));}
 function renderDetail(now,hk){
   var ph=S.phases[S.pi];if(!ph||ph.type!=='stop')return;
   var g=STOPS[ph.si];
@@ -765,27 +803,24 @@ function renderDetail(now,hk){
   if(g.terminus)tg.appendChild(el('span','tag term','總站 Terminus'));
   var leg=$('dLegend');clear(leg);
   g.platforms.forEach(function(p){var c=el('span','lg');
-    c.appendChild(el('b','',p.label));
-    c.appendChild(el('span','',p.note+'（'+p.routes.length+' 路線'+(p.screen?'・設顯示屏':'')+'）'));
+    c.appendChild(el('b','','月台 '+p.label));
+    c.appendChild(el('span','',p.note+'（'+p.routes.length+' 路線）'));
     leg.appendChild(c);});
   var views=sortViews(stopViews(g,now,hk)),box=$('dPages');
   views.forEach(function(v){var r=ROWS[v.p.key+'|'+v.c.route];if(!r)return;updRow(r,v,now);box.appendChild(r.el);});
-  var per=Math.max(1,Math.floor($('dView').clientHeight/ROW_H));
-  DP.per=per;
+  DP.per=detailPer();
   var starts=[0],n=box.children.length,i;
-  for(i=per;i<n;i+=per)starts.push(i);
-  DP.starts=starts;DP.page=ph.page;
-  if(DP.page>=starts.length)DP.page=starts.length-1;
+  for(i=DP.per;i<n;i+=DP.per)starts.push(i);
+  DP.starts=starts;DP.page=Math.min(ph.page,starts.length-1);
   var dots=$('dDots');clear(dots);
   starts.forEach(function(_,k){var d=el('i');if(k===DP.page)d.className='on';dots.appendChild(d);});
   $('dPages').style.transform='translateY('+(-DP.starts[DP.page]*ROW_H)+'px)';
   $('dLabel').textContent=(DP.page+1)+'/'+starts.length;
 }
-/* ============ phases ============ */
 function buildPhases(){
-  var old=S.phases[S.pi],list=[],per=Math.max(1,Math.floor(($('dView').clientHeight||650)/ROW_H));
+  var old=S.phases[S.pi],list=[],per=detailPer();
   if(CFG.lock){
-    var g=STOPBY[CFG.lock],n=sortViews(stopViews(g,Date.now(),hkDate(Date.now()))).length;
+    var g=STOPBY[CFG.lock],n=g.platforms.reduce(function(a,p){return a+p.routes.length;},0);
     var pg=Math.max(1,Math.ceil(n/per));
     for(var i=0;i<pg;i++)list.push({type:'stop',si:SIDX[CFG.lock],page:i,pages:pg});
   }else{
@@ -798,11 +833,11 @@ function buildPhases(){
   if(!list.length)list.push({type:'over'});
   S.phases=list;
   var keep=0;
-  if(old)for(var k=0;k<list.length;k++){
-    if(list[k].type===old.type&&list[k].si===old.si&&list[k].page===old.page){keep=k;break;}}
+  if(old)for(var k=0;k<list.length;k++)
+    if(list[k].type===old.type&&list[k].si===old.si&&list[k].page===old.page){keep=k;break;}
   S.pi=keep;applyPhase();
   var total=0;list.forEach(function(p){total+=p.type==='over'?CFG.dwell*1.6:CFG.dwell;});
-  $('rotInfo').textContent=(CFG.lock?'固定站點':(list.length>1?'輪播 '+list.length+' 段 · '+Math.round(total/6000)/10+' 分鐘／圈':'單一畫面'));
+  $('rotInfo').textContent=CFG.lock?'固定站點':(list.length>1?'輪播 '+list.length+' 段 · '+Math.round(total/6000)/10+' 分鐘／圈':'單一畫面');
 }
 function applyPhase(){
   var ph=S.phases[S.pi];if(!ph)return;
@@ -810,12 +845,9 @@ function applyPhase(){
   $('over').className=over?'show':'';
   $('detail').className=over?'':'show';
   if(over){$('phaseVal').textContent='全站總覽';$('phaseSub').textContent=STOPS.length+' 個站 · 最快班次';}
-  else{var g=STOPS[ph.si];
-    $('phaseVal').textContent=g.name;
+  else{var g=STOPS[ph.si];$('phaseVal').textContent=g.name;
     $('phaseSub').textContent=g.arrow+' '+g.dir+' · '+(ph.page+1)+'/'+ph.pages+' 頁';}
-  STOPS.forEach(function(g,i){
-    var on=(!over&&i===ph.si);
-    CHIP[g.key].className='chip'+(on?' on':'');});
+  STOPS.forEach(function(g,i){CHIP[g.key].className='chip'+((!over&&i===ph.si)?' on':'');});
   Object.keys(OVC).forEach(function(k){OVC[k].sig='';});
   renderAll();
 }
@@ -830,14 +862,13 @@ function frame(ts){
       $('ribBar').style.width=Math.min(100,e/dur*100)+'%';
       $('dBar').style.width=(ph.type==='stop'?Math.min(100,e/dur*100):0)+'%';
     }
-    if(S.phases.length>1&&e>=dur){S.pT=ts;advance();}
+    if(S.phases.length>1&&e>=dur&&!S.open){S.pT=ts;advance();}
+    else if(S.open)S.pT=ts;
   }
   S.frameT=ts;requestAnimationFrame(frame);
 }
-function renderAll(){var now=Date.now(),hk=hkDate(now);
-  var ph=S.phases[S.pi];if(!ph)return;
+function renderAll(){var now=Date.now(),hk=hkDate(now),ph=S.phases[S.pi];if(!ph)return;
   if(ph.type==='over')renderOver(now,hk);else renderDetail(now,hk);}
-/* ============ weather / ticker ============ */
 var WMAP={TC1:{i:'t1.png',l:'一號戒備信號 T1',b:'#8f4a4c'},TC3:{i:'t3.png',l:'三號強風信號 T3',b:'#8f4a4c'},
  TC9:{i:'t9.png',l:'九號信號 T9',b:'#7d5a86'},TC10:{i:'t10.png',l:'十號颶風信號 T10',b:'#7d5a86'},
  WRAINA:{i:'yellow-rain.png',l:'黃色暴雨警告 Amber Rain',b:'#9a7d3f'},
@@ -886,7 +917,7 @@ function strip(){
   S.warns.forEach(function(w){var d=el('div','wb');d.style.backgroundColor=w.bg;
     if(w.icon){var m=document.createElement('img');m.onerror=function(){m.style.display='none';};m.src=w.icon;m.alt='';d.appendChild(m);}
     d.appendChild(el('span','',w.label));b.appendChild(d);});
-  buildPhases();
+  sizeCards();buildPhases();
 }
 function ticker(){
   var p=[];
@@ -905,7 +936,6 @@ function ticker(){
   t.style.animation='none';void t.offsetWidth;
   t.style.animation=S.anim?('tickmove '+d+'s linear infinite'):'none';
 }
-/* ============ tick ============ */
 function tick(){
   var now=Date.now(),hk=hkDate(now);
   $('ch').textContent=pad(hk.getHours());$('cm').textContent=pad(hk.getMinutes());
@@ -921,23 +951,23 @@ function tick(){
   else if(!S.lastEta){u.textContent='載入中…';u.className='';}
   else if(now-S.lastEta>CFG.staleMs){u.textContent='延遲 '+hhmm(S.lastEta);u.className='warn';}
   else {u.textContent='更新 '+hhmm(S.lastEta);u.className='';}
-  if(S.dbg)dbg(now);
+  if(S.open==='dbg')dbg(now);
   if(CFG.reloadH>0&&now-S.boot>CFG.reloadH*3600000)location.reload();
 }
 function dbg(now){
-  var ph=S.phases[S.pi]||{},L=['KTMC Multi-Stop Display — diagnostics'];
-  L.push('HK '+hhmm(now)+' | theme '+S.theme+' | anim '+(S.anim?'on':'off')+' | mode '+CFG.mode+(CFG.lock?' lock='+CFG.lock:''));
-  L.push('screen '+window.innerWidth+'x'+window.innerHeight+' scale '+S.scale.toFixed(3)+' | fs '+isFS()+' | guard '+S.guard+' | wake '+(S.wake?'yes':'no'));
-  L.push('phase '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type||'-')+(ph.type==='stop'?(' '+STOPS[ph.si].name+' p'+(ph.page+1)+'/'+ph.pages):'')+' | rows/page '+DP.per);
-  L.push('dwell '+Math.round(CFG.dwell/1000)+'s | overview rows '+CFG.rows+' | sort '+CFG.sort+' | reload '+CFG.reloadH+'h');
-  L.push('linked '+resCount()+'/'+PLATS.length+' | ctb '+(CTB||'none')+' | candidates '+CAND.length);
+  var ph=S.phases[S.pi]||{},L=[];
+  L.push('HK 時間 '+hhmm(now)+'　主題 '+S.theme+'　動畫 '+(S.anim?'開':'關'));
+  L.push('模式 '+CFG.mode+(CFG.lock?('　固定 '+STOPBY[CFG.lock].name):'')+'　排序 '+CFG.sort);
+  L.push('畫面 '+window.innerWidth+'x'+window.innerHeight+'　縮放 '+S.scale.toFixed(3)+'　全螢幕 '+(isFS()?'是':'否'));
+  L.push('防螢幕保護 '+S.guard+'　Wake Lock '+(S.wake?'有':'無')+'　音效保活 '+S.audio);
+  L.push('當前段 '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type==='over'?'總覽':(ph.type==='stop'?STOPS[ph.si].name+' 第'+(ph.page+1)+'/'+ph.pages+'頁':'—'))+'　每頁 '+detailPer()+' 行');
+  L.push('停留 '+Math.round(CFG.dwell/1000)+'s　總覽班次 '+CFG.rows+'　自動重載 '+(CFG.reloadH?CFG.reloadH+'h':'關'));
+  L.push('月台已連結 '+resCount()+'/'+PLATS.length+'　城巴站 '+(CTB||'未解析')+'　候選站 '+CAND.length);
   ['kmb','ctb','hko'].forEach(function(k){var h=H[k];
-    L.push(k.toUpperCase()+': '+(h.ok?'OK':'FAIL')+(h.t?' @'+hhmm(h.t):'')+(h.err?' err='+h.err:''));});
-  L.push('operator keys: H console · D diag · F fullscreen · R refresh · T theme · A anim · ←/→ phase · Esc close');
-  if(S.errs.length){L.push('errors:');S.errs.slice(-5).forEach(function(e){L.push('  '+e);});}
+    L.push(k.toUpperCase()+'：'+(h.ok?'正常':'失敗')+(h.t?(' @'+hhmm(h.t)):'')+(h.err?('　'+h.err):''));});
+  if(S.errs.length){L.push('錯誤：');S.errs.slice(-6).forEach(function(e){L.push('  '+e);});}
   $('dbg').textContent=L.join('\n');
 }
-/* ============ fullscreen / guard ============ */
 function isFS(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
 function reqFS(){var e=document.documentElement,
   f=e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen||e.msRequestFullscreen;
@@ -974,65 +1004,62 @@ function startGuard(){
   }catch(e){S.guard='error';}
 }
 function playGuard(){if(!gv)return;if(gv.paused){try{var p=gv.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}}
+function sizeCards(){
+  var h=Math.max(180,Math.floor((($('main').clientHeight||786)-28)/3));
+  STOPS.forEach(function(g){if(OVC[g.key])OVC[g.key].el.style.height=h+'px';});
+}
 function layout(){
   var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/SW,h/SH);S.scale=s;
   var sh=SHIFT[sIdx];
   $('stage').style.transform='translate('+((w-SW*s)/2+sh[0]*s)+'px,'+((h-SH*s)/2+sh[1]*s)+'px) scale('+s+')';
-  buildPhases();
+  sizeCards();buildPhases();
 }
-/* ============ operator console ============ */
-function toggleOp(v){S.opOpen=(v===undefined)?!S.opOpen:v;
-  $('op').className=S.opOpen?'show':'';if(S.opOpen)buildOpList();}
-function bindOp(){
-  $('opMode').addEventListener('change',function(){CFG.mode=this.value;persist('ktmc2Mode',CFG.mode);S.pT=0;buildPhases();});
-  $('opLock').addEventListener('change',function(){CFG.lock=this.value;persist('ktmc2Lock',CFG.lock);S.pT=0;buildPhases();});
-  $('opDwell').addEventListener('change',function(){
-    CFG.dwell=Math.min(60000,Math.max(4000,(parseInt(this.value,10)||10)*1000));
-    this.value=String(Math.round(CFG.dwell/1000));persist('ktmc2Dwell',Math.round(CFG.dwell/1000));S.pT=0;buildPhases();});
-  $('opRows').addEventListener('change',function(){
-    CFG.rows=Math.min(4,Math.max(2,parseInt(this.value,10)||4));this.value=String(CFG.rows);
-    persist('ktmc2Rows',CFG.rows);Object.keys(OVC).forEach(function(k){OVC[k].sig='';});renderAll();});
-  $('opSort').addEventListener('change',function(){CFG.sort=this.value;persist('ktmc2Sort',CFG.sort);
+function bindUI(){
+  $('setBtn').addEventListener('click',function(){openPanel('set');});
+  $('setClose').addEventListener('click',function(){openPanel('');});
+  $('resClose').addEventListener('click',function(){openPanel('');});
+  $('dbgClose').addEventListener('click',function(){openPanel('');});
+  $('thDark').addEventListener('click',function(){setTheme('dark');});
+  $('thLight').addEventListener('click',function(){setTheme('light');});
+  $('animBtn').addEventListener('click',function(){setAnim(!S.anim);});
+  $('modeSel').addEventListener('change',function(){CFG.mode=this.value;persist('ktmc2Mode',CFG.mode);S.pT=0;buildPhases();});
+  $('lockSel').addEventListener('change',function(){CFG.lock=this.value;persist('ktmc2Lock',CFG.lock);S.pT=0;buildPhases();});
+  $('sortSel').addEventListener('change',function(){CFG.sort=this.value;persist('ktmc2Sort',CFG.sort);
     Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});buildPhases();});
-  $('opTheme').addEventListener('click',function(){setTheme(S.theme==='dark'?'light':'dark');});
-  $('opAnim').addEventListener('click',function(){setAnim(!S.anim);});
-  $('opReload').addEventListener('change',function(){
-    CFG.reloadH=Math.min(24,Math.max(0,parseInt(this.value,10)||0));this.value=String(CFG.reloadH);
-    persist('ktmc2Reload',CFG.reloadH);});
-  $('opResolve').addEventListener('click',function(){resolve(true).then(function(){return resolveCtb();}).then(refreshEtas);});
-  $('opSave').addEventListener('click',function(){
-    var ins=$('opList').getElementsByTagName('input'),i;
+  $('dwM').addEventListener('click',function(){CFG.dwell=Math.max(4000,CFG.dwell-1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
+  $('dwP').addEventListener('click',function(){CFG.dwell=Math.min(60000,CFG.dwell+1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
+  $('rwM').addEventListener('click',function(){CFG.rows=Math.max(2,CFG.rows-1);persist('ktmc2Rows',CFG.rows);syncCtrls();
+    Object.keys(OVC).forEach(function(k){OVC[k].sig='';});renderAll();});
+  $('rwP').addEventListener('click',function(){CFG.rows=Math.min(4,CFG.rows+1);persist('ktmc2Rows',CFG.rows);syncCtrls();
+    Object.keys(OVC).forEach(function(k){OVC[k].sig='';});renderAll();});
+  $('rlM').addEventListener('click',function(){CFG.reloadH=Math.max(0,CFG.reloadH-1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
+  $('rlP').addEventListener('click',function(){CFG.reloadH=Math.min(24,CFG.reloadH+1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
+  $('resBtn').addEventListener('click',function(){openPanel('res');});
+  $('dbgBtn').addEventListener('click',function(){openPanel('dbg');});
+  $('refBtn').addEventListener('click',function(){refreshEtas();refreshWx();});
+  $('fsBtn2').addEventListener('click',tryFS);
+  $('resRun').addEventListener('click',function(){resolve(true).then(function(){return resolveCtb();}).then(refreshEtas);});
+  $('resSave').addEventListener('click',function(){
+    var ins=$('resList').getElementsByTagName('input'),i;
     for(i=0;i<ins.length;i++){var pk=ins[i].getAttribute('data-p'),v=ins[i].value.trim();
-      if(pk){if(v)MAP[pk]=v;else delete MAP[pk];}else if(ins[i].id==='opCtbIn')CTB=v;}
-    saveMap();buildOpList();Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
+      if(pk){if(v)MAP[pk]=v;else delete MAP[pk];}else if(ins[i].id==='ctbIn')CTB=v;}
+    saveMap();buildResList();Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
     refreshEtas();olog('已儲存覆寫 Overrides saved.');});
-  $('opClear').addEventListener('click',function(){MAP={};CTB='';CAND=[];saveMap();buildOpList();olog('已清除快取 Cache cleared.');});
-  $('opRefresh').addEventListener('click',function(){refreshEtas();refreshWx();});
-  $('opFs').addEventListener('click',tryFS);
+  $('resClear').addEventListener('click',function(){MAP={};CTB='';CAND=[];saveMap();buildResList();olog('已清除快取 Cache cleared.');});
+  window.addEventListener('pointerdown',function(e){
+    var t=e.target,inPanel=t&&t.closest&&(t.closest('.panel')||t.closest('#setBtn'));
+    if(S.open&&!inPanel)openPanel('');
+    startAudio();playGuard();tryFS();});
+  var ct=null;
+  window.addEventListener('mousemove',function(){
+    document.body.classList.add('cursor');
+    if(ct)clearTimeout(ct);
+    ct=setTimeout(function(){document.body.classList.remove('cursor');},2500);});
 }
-function bindKeys(){
-  window.addEventListener('keydown',function(e){
-    var k=e.key||'',tag=document.activeElement?document.activeElement.tagName:'';
-    var field=tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA';
-    if(k==='Escape'){if(S.opOpen)toggleOp(false);if(S.dbg){S.dbg=false;$('dbg').className='';}return;}
-    if(field)return;
-    if(k==='h'||k==='H')toggleOp();
-    else if(k==='d'||k==='D'){S.dbg=!S.dbg;$('dbg').className=S.dbg?'show':'';}
-    else if(k==='f'||k==='F')tryFS();
-    else if(k==='r'||k==='R'){refreshEtas();refreshWx();}
-    else if(k==='t'||k==='T')setTheme(S.theme==='dark'?'light':'dark');
-    else if(k==='a'||k==='A')setAnim(!S.anim);
-    else if(k==='ArrowRight'){S.pT=0;advance();}
-    else if(k==='ArrowLeft'){S.pT=0;S.pi=(S.pi-1+S.phases.length)%S.phases.length;applyPhase();}
-    else tryFS();
-  });
-  window.addEventListener('pointerdown',function(){startAudio();playGuard();tryFS();});
-}
-/* ============ boot ============ */
 function init(){
   loadSettings();
-  buildRibbon();buildOver();ensureRows();buildOpList();
-  layout();startGuard();bindOp();bindKeys();
+  buildRibbon();buildOver();ensureRows();buildResList();
+  layout();startGuard();bindUI();
   buildPhases();tick();refreshWx();
   resolve(false).then(function(){return resolveCtb();}).then(function(){refreshEtas();});
   setInterval(tick,1000);
