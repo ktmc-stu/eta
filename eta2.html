@@ -43,6 +43,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 #bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
        padding:24px;display:flex;flex-direction:column}
+/* header */
 #header{height:100px;flex-shrink:0;display:flex;align-items:center;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;padding:0 22px}
 #logo{height:60px;width:auto;margin-right:20px;flex-shrink:0}
@@ -50,6 +51,14 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 #tZh{font-size:27px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #tEn{font-size:13px;color:var(--sub);margin-top:2px;letter-spacing:.4px}
 #tSub{font-size:12px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* warnings live inline in the header — no dedicated band */
+#warnBox{flex:0 1 560px;min-width:0;display:flex;flex-wrap:wrap;align-content:center;
+         justify-content:flex-end;margin-left:14px}
+#warnBox:empty{display:none;margin-left:0}
+.wb{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:4px;
+    margin:2px 0 2px 6px;line-height:1.25;color:#f2f5f8;max-width:100%}
+.wb img{width:18px;height:18px;margin-right:5px;flex-shrink:0}
+.wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #phaseCard{flex-shrink:0;margin-left:16px;background:var(--panel2);border:1px solid var(--line);
            border-radius:6px;padding:8px 16px;text-align:right;min-width:186px}
 #phaseLab{font-size:11px;color:var(--dim);letter-spacing:1px}
@@ -67,6 +76,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 #setBtn{width:46px;height:46px;flex-shrink:0;margin-left:14px;display:flex;align-items:center;justify-content:center;
         background:var(--btn-bg);border:1px solid var(--btn-line);border-radius:6px;color:var(--sub);cursor:pointer}
 #setBtn:hover{color:var(--txt);border-color:var(--sub)}
+/* ribbon */
 #ribbon{height:72px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;position:relative;
         background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px;overflow:hidden}
 .chip{width:181px;flex-shrink:0;margin-right:5px;padding:6px 10px;border-radius:5px;background:var(--panel2);
@@ -81,12 +91,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .chipMeta{font-size:11px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chip.on .chipMeta{color:var(--sub)}
 #ribBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
-#warnStrip{flex-shrink:0;display:flex;flex-wrap:wrap;margin-top:8px}
-#warnStrip:empty{display:none;margin-top:0}
-.wb{display:inline-flex;align-items:center;font-size:14px;padding:4px 10px;border-radius:4px;
-    margin:0 8px 6px 0;line-height:1.25;color:#f2f5f8;max-width:100%}
-.wb img{width:20px;height:20px;margin-right:6px;flex-shrink:0}
-.wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* main */
 #main{flex:1;min-height:0;margin-top:10px;position:relative}
 #over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
 #over.show{display:flex}
@@ -111,6 +116,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .oUnit{flex-shrink:0;font-size:12px;color:var(--sub);margin-left:5px;width:26px}
 .oFoot{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oEmpty{font-size:15px;color:var(--dim);padding-top:14px}
+/* detail */
 #detail{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-direction:column;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;overflow:hidden}
 #detail.show{display:flex}
@@ -189,6 +195,7 @@ body.no-anim #dPages{transition:none}
 body.no-anim #dBar,body.no-anim #ribBar{display:none}
 body.no-anim #tickTrack{animation:none}
 body.no-anim .e-min,body.no-anim .oMin{animation:none}
+/* footer */
 #footer{height:46px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;background:var(--panel);
         border:1px solid var(--line);border-radius:6px;overflow:hidden}
 #tickTag{width:92px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--panel2);
@@ -208,6 +215,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
 #upd{font-size:13px;color:var(--sub);margin-left:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
 #upd.warn{color:var(--amber)}
 #upd.bad{color:var(--red)}
+/* panels */
 .panel{position:absolute;top:134px;right:24px;width:360px;max-height:900px;z-index:40;display:none;
        flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow:auto}
 .panel.show{display:flex}
@@ -281,6 +289,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
       <div id="tEn">TSUI PING &amp; HIP WO MULTI-STOP BUS ETA DISPLAY</div>
       <div id="tSub">祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站</div>
     </div>
+    <div id="warnBox"></div>
     <div id="phaseCard">
       <div id="phaseLab">現正顯示 NOW SHOWING</div>
       <div id="phaseVal">全站總覽</div>
@@ -301,7 +310,6 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
   </div>
 
   <div id="ribbon"><div id="ribBar"></div></div>
-  <div id="warnStrip"></div>
 
   <div id="main">
     <div id="over" class="show"></div>
@@ -544,7 +552,6 @@ function loadSettings(){
   if(['eta','route','platform'].indexOf(CFG.sort)<0)CFG.sort='eta';
   CFG.lock=q.lock||g('ktmc2Lock','');if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
   CFG.reloadH=Math.min(24,Math.max(0,parseInt(q.reload||g('ktmc2Reload','0'),10)||0));
-  /* 內建預設 → 本機覆寫 → 網址覆寫 */
   Object.keys(DEFAULT_MAP).forEach(function(k){MAP[k]=DEFAULT_MAP[k];});
   CTB=DEFAULT_CTB;
   try{var m=JSON.parse(localStorage.getItem('ktmc2Map')||'{}');
@@ -868,21 +875,21 @@ function renderAll(){var now=Date.now(),hk=hkDate(now),ph=S.phases[S.pi];if(!ph)
   if(ph.type==='over')renderOver(now,hk);else renderDetail(now,hk);}
 var WMAP={TC1:{i:'t1.png',l:'一號戒備信號 T1',b:'#8f4a4c'},TC3:{i:'t3.png',l:'三號強風信號 T3',b:'#8f4a4c'},
  TC9:{i:'t9.png',l:'九號信號 T9',b:'#7d5a86'},TC10:{i:'t10.png',l:'十號颶風信號 T10',b:'#7d5a86'},
- WRAINA:{i:'yellow-rain.png',l:'黃色暴雨警告 Amber Rain',b:'#9a7d3f'},
- WRAINR:{i:'red-rain.png',l:'紅色暴雨警告 Red Rain',b:'#96473f'},
- WRAINB:{i:'black-rain.png',l:'黑色暴雨警告 Black Rain',b:'#1c1f26'},
- WL:{i:'landslip.png',l:'山泥傾瀉警告 Landslip',b:'#8a6a3f'},
- WTS:{i:'thunder.png',l:'雷暴警告 Thunderstorm',b:'#96703f'},
- WFNTSA:{i:'nt-flood.png',l:'新界北部水浸報告 NT Flooding',b:'#4a6a8a'},
- WCOLD:{i:'cold.png',l:'寒冷天氣警告 Cold Weather',b:'#4a6a8a'},
- WHOT:{i:'hot.png',l:'酷熱天氣警告 Very Hot Weather',b:'#96703f'},
- WMSGNL:{i:'monsoon.png',l:'強烈季候風信號 Monsoon',b:'#4f7a5f'},
- WFIREY:{i:null,l:'黃色火災危險警告 Fire Danger (Yellow)',b:'#9a7d3f'},
- WFIRER:{i:null,l:'紅色火災危險警告 Fire Danger (Red)',b:'#96473f'},
- WTMW:{i:null,l:'海嘯警告 Tsunami Warning',b:'#7d5a86'},WFRNT:{i:null,l:'霜凍警告 Frost Warning',b:'#4a6a8a'}};
+ WRAINA:{i:'yellow-rain.png',l:'黃色暴雨警告',b:'#9a7d3f'},
+ WRAINR:{i:'red-rain.png',l:'紅色暴雨警告',b:'#96473f'},
+ WRAINB:{i:'black-rain.png',l:'黑色暴雨警告',b:'#1c1f26'},
+ WL:{i:'landslip.png',l:'山泥傾瀉警告',b:'#8a6a3f'},
+ WTS:{i:'thunder.png',l:'雷暴警告',b:'#96703f'},
+ WFNTSA:{i:'nt-flood.png',l:'新界北部水浸報告',b:'#4a6a8a'},
+ WCOLD:{i:'cold.png',l:'寒冷天氣警告',b:'#4a6a8a'},
+ WHOT:{i:'hot.png',l:'酷熱天氣警告',b:'#96703f'},
+ WMSGNL:{i:'monsoon.png',l:'強烈季候風信號',b:'#4f7a5f'},
+ WFIREY:{i:null,l:'黃色火災危險警告',b:'#9a7d3f'},
+ WFIRER:{i:null,l:'紅色火災危險警告',b:'#96473f'},
+ WTMW:{i:null,l:'海嘯警告',b:'#7d5a86'},WFRNT:{i:null,l:'霜凍警告',b:'#4a6a8a'}};
 var TC8={NE:'東北',SE:'東南',SW:'西南',NW:'西北'};
 function winfo(w){var c=w.code||'';
-  if(c.indexOf('TC8')===0)return {i:'t8.png',l:'八號'+(TC8[c.slice(3)]||'')+'信號 T8',b:'#7d5a86'};
+  if(c.indexOf('TC8')===0)return {i:'t8.png',l:'八號'+(TC8[c.slice(3)]||'')+'信號',b:'#7d5a86'};
   return WMAP[c]||{i:null,l:(w.name||'Warning')+(w.type?' '+w.type:''),b:'#8a6a3f'};}
 function refreshWx(){
   retry(function(){return fJSON(CFG.wx,12000);}).then(function(j){
@@ -905,16 +912,16 @@ function refreshWx(){
       if(w.expireTime&&Date.parse(w.expireTime)&&Date.parse(w.expireTime)<now)continue;
       var f=winfo(w);l.push({code:w.code,icon:f.i,label:f.l,bg:f.b});}
     S.warns=l;}).catch(function(){
-      S.warns=S.wxMsgs.map(function(m){return {code:'MSG',icon:null,label:cap(m,60),bg:'#96473f'};});});
+      S.warns=S.wxMsgs.map(function(m){return {code:'MSG',icon:null,label:cap(m,24),bg:'#96473f'};});});
 }
+/* warnings render inline inside the header — no dedicated band, no layout shift */
 function strip(){
   var sig=S.warns.map(function(w){return w.code;}).join(',');
   if(sig===lastStrip)return;lastStrip=sig;
-  var b=$('warnStrip');clear(b);
+  var b=$('warnBox');clear(b);
   S.warns.forEach(function(w){var d=el('div','wb');d.style.backgroundColor=w.bg;
     if(w.icon){var m=document.createElement('img');m.onerror=function(){m.style.display='none';};m.src=w.icon;m.alt='';d.appendChild(m);}
     d.appendChild(el('span','',w.label));b.appendChild(d);});
-  sizeCards();buildPhases();
 }
 function ticker(){
   var p=[];
@@ -960,6 +967,7 @@ function dbg(now){
   L.push('當前段 '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type==='over'?'總覽':(ph.type==='stop'?STOPS[ph.si].name+' 第'+(ph.page+1)+'/'+ph.pages+'頁':'—'))+'　每頁 '+detailPer()+' 行');
   L.push('停留 '+Math.round(CFG.dwell/1000)+'s　總覽班次 '+CFG.rows+'　自動重載 '+(CFG.reloadH?CFG.reloadH+'h':'關'));
   L.push('九巴月台已連結 '+resCount()+'/'+PLATS.length+'（內建預設 '+Object.keys(DEFAULT_MAP).length+' 個）　城巴站 '+(CTB||'未設定')+'（內建預設 '+DEFAULT_CTB+'）');
+  L.push('生效中天氣警告 '+(S.warns.length?S.warns.map(function(w){return w.code;}).join(','):'無'));
   ['kmb','ctb','hko'].forEach(function(k){var h=H[k];
     L.push(k.toUpperCase()+'：'+(h.ok?'正常':'失敗')+(h.t?(' @'+hhmm(h.t)):'')+(h.err?('　'+h.err):''));});
   if(S.errs.length){L.push('錯誤：');S.errs.slice(-6).forEach(function(e){L.push('  '+e);});}
