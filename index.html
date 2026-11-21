@@ -1,430 +1,1237 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <title>KTMC 和樂邨巴士預計到達時間顯示系統</title>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 0.6vw; background-color: #020408; color: #ffffff;
-      font-family: "M PLUS 1p", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-weight: 400;
-      height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#04070d">
+<title>和樂邨巴士到站時間顯示 | KTMC Wo Lok Estate Bus ETA Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+HK:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   KTMC Wo Lok Estate ETA Board v2  —  fixed 1920x1080 stage,
+   auto-scaled to ANY screen. No CSS grid / flex-gap / clamp(),
+   no async-await / optional-chaining in JS  →  works on old
+   LG webOS browsers (Chromium 53+) as well as modern ones.
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#04070d}
+body{font-family:'Noto Sans HK','Noto Sans TC','Microsoft JhengHei','PingFang HK','Heiti TC',sans-serif;
+     color:#e8eef7;-webkit-user-select:none;user-select:none;cursor:none;touch-action:none}
+body.cursor{cursor:default}
 
-    .lcd-header {
-      display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; gap: 1vw;
-      background: linear-gradient(180deg, #161f2e, #0b1017);
-      border: 2px solid #2d3b4e; border-radius: 4px; padding: 0.5vw 1.2vw; margin-bottom: 0.6vw; flex-shrink: 0;
-    }
-    .logo-box { height: 2.8vw; width: auto; object-fit: contain; background: transparent; border: none; display: block; }
-    /* ★ min-width:0 讓 1fr 欄可收縮，不會被內容撐開去擠壓右側格子 */
-    .header-title-box { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-    .header-main-title { font-size: 1.4vw; font-weight: 500; color: #ffffff; }
-    .header-sub-title { font-size: 0.78vw; color: #8a99ad; letter-spacing: 0.05vw; }
+/* live canvas-video background = anti-screensaver "video playback" */
+#bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;opacity:.6;z-index:0;pointer-events:none}
 
-    .header-info-box { background: #000; border: 1px solid #3a4859; padding: 0.2vw 0.8vw; border-radius: 3px; text-align: center; }
-    .header-info-label { font-size: 0.62vw; color: #8a99ad; text-transform: uppercase; }
-    .header-info-val { font-size: 1vw; font-weight: 500; color: #f59e0b; }
-    .header-time-box { background: #000; border: 1px solid #3a4859; padding: 0.2vw 1vw; border-radius: 3px; text-align: right; min-width: 7vw; }
-    .header-time-val { font-size: 1.6vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
+       padding:22px;display:flex;flex-direction:column}
 
-    /* ★ 警告 badge 獨立一行：可換行、可折行，不再與系統名爭奪空間 */
-    .warning-badges { display: flex; flex-wrap: wrap; gap: 0.4vw; align-items: stretch; margin-top: 0.35vw; max-width: 100%; min-width: 0; }
-    .warning-badges:empty { display: none; margin-top: 0; }
-    /* ★ white-space: normal → 文字過長時自動換行 */
-    .warn-badge {
-      font-size: 0.78vw; font-weight: 500; padding: 0.25vw 0.6vw; border-radius: 3px;
-      display: inline-flex; align-items: center; gap: 0.4vw;
-      white-space: normal; line-height: 1.3; min-width: 0; max-width: 100%;
-      animation: pulse-warn 1.5s infinite; border: 1px solid rgba(255,255,255,0.3);
-    }
-    .warn-badge img { width: 1.6vw; height: 1.6vw; object-fit: contain; background: rgba(0,0,0,0.2); padding: 0.1vw; border-radius: 2px; flex-shrink: 0; }
-    @keyframes pulse-warn { 0%{opacity:1} 50%{opacity:.6} 100%{opacity:1} }
+/* ---------- header ---------- */
+#header{height:104px;flex-shrink:0;display:flex;align-items:center;background:rgba(10,17,28,.9);
+        border:1px solid #1c2940;border-radius:12px;padding:0 20px}
+#logo{height:72px;width:auto;margin-right:18px;flex-shrink:0}
+#titleBox{flex:1;min-width:0}
+#tZh{font-size:31px;font-weight:900;letter-spacing:1px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tEn{font-size:15px;font-weight:600;color:#38bdf8;letter-spacing:2.5px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
+#tSub{font-size:12.5px;color:#8fa1b8;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#testTag{display:inline-block;font-size:10.5px;color:#fbbf24;border:1px solid rgba(251,191,36,.5);
+         border-radius:3px;padding:0 6px;margin-left:8px}
+#wxCard{display:flex;align-items:center;background:rgba(4,8,14,.7);border:1px solid #22304a;
+        border-radius:10px;padding:8px 14px;margin-left:14px;flex-shrink:0}
+#wxIcon{width:46px;height:46px;margin-right:10px;display:none}
+#wxTemp{font-size:32px;font-weight:700;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;line-height:1}
+#wxHum{font-size:11px;color:#8fa1b8;margin-top:2px;white-space:nowrap}
+#wxLabel{font-size:10.5px;color:#64748b;margin-left:10px;line-height:1.35;text-align:right}
+#clockCard{background:rgba(4,8,14,.7);border:1px solid #22304a;border-radius:10px;padding:6px 16px;
+           margin-left:14px;text-align:right;flex-shrink:0}
+#clock{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:54px;font-weight:600;color:#38bdf8;
+       line-height:.95;font-variant-numeric:tabular-nums}
+#colon{animation:blink 2s steps(1) infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+#dateZh{font-size:14px;color:#cbd5e1;margin-top:2px;white-space:nowrap}
+#dateEn{font-size:11px;color:#64748b;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:1.5px}
 
-    .board-container { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6vw; flex-grow: 1; overflow: hidden; }
-    .column-pane { border: 2px solid #232d3b; border-radius: 4px; background: #05080f; display: flex; flex-direction: column; overflow: hidden; }
-    .column-title { background: #141c28; padding: 0.4vw 0.8vw; font-size: 0.88vw; font-weight: 500; color: #38bdf8; border-bottom: 2px solid #283548; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+/* ---------- warning / traffic strip ---------- */
+#warnStrip{flex-shrink:0;display:flex;flex-wrap:wrap;margin-top:10px}
+#warnStrip:empty{display:none;margin-top:0}
+.wb{display:inline-flex;align-items:center;font-size:14.5px;font-weight:700;padding:4px 10px;border-radius:6px;
+    margin:0 8px 6px 0;border:1px solid rgba(255,255,255,.25);line-height:1.25;color:#fff;
+    animation:pulse 1.6s ease-in-out infinite;max-width:100%}
+.wb img{width:22px;height:22px;margin-right:6px;flex-shrink:0}
+.wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
 
-    .table-head { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; background: #101722; padding: 0.35vw 0.6vw; font-size: 0.72vw; color: #cbd5e1; align-items: center; border-bottom: 1px solid #283548; flex-shrink: 0; text-transform: uppercase; }
-    .table-head div { display: flex; flex-direction: column; }
-    .table-head span { font-size: 0.58vw; color: #718096; }
+/* ---------- boards ---------- */
+#boards{flex:1;display:flex;margin-top:12px;min-height:0}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;background:rgba(8,13,22,.93);
+     border:1px solid #1c2940;border-radius:12px;overflow:hidden;position:relative}
+#colSouth{margin-right:18px}
+.colHead{height:52px;flex-shrink:0;display:flex;align-items:center;padding:0 14px;
+         background:rgba(16,24,38,.9);border-bottom:1px solid #22304a;position:relative}
+.dirIcon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+         font-size:14px;margin-right:10px;flex-shrink:0;color:#04070d;font-weight:900}
+#colSouth .dirIcon{background:#38bdf8}
+#colNorth .dirIcon{background:#fb923c}
+.dirTitle{flex-shrink:0;white-space:nowrap}
+.dZh{font-size:21px;font-weight:900;margin-right:8px}
+.dEn{font-size:13px;font-weight:700;letter-spacing:2px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
+#colSouth .dEn{color:#38bdf8}
+#colNorth .dEn{color:#fb923c}
+.dirSub{flex:1;min-width:0;font-size:11px;color:#8fa1b8;line-height:1.3;margin-left:14px;
+        overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pager{flex-shrink:0;display:flex;align-items:center;margin-left:10px}
+.dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#334155;margin-left:5px}
+#colSouth .dots i.on{background:#38bdf8}
+#colNorth .dots i.on{background:#fb923c}
+.plabel{font-size:12px;color:#64748b;margin-left:8px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
+.pbar{position:absolute;left:0;bottom:0;height:2px;width:0;background:#38bdf8;opacity:.7}
+#colNorth .pbar{background:#fb923c}
+.legend{height:32px;flex-shrink:0;display:flex;align-items:center;padding:0 14px;
+        border-bottom:1px solid #16202f;overflow:hidden;white-space:nowrap}
+.lg{display:inline-flex;align-items:center;font-size:11.5px;color:#8fa1b8;margin-right:16px;flex-shrink:0}
+.lg i{width:8px;height:8px;border-radius:2px;margin-right:5px}
+.lg b{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:13px;color:#cbd5e1;margin-right:5px;letter-spacing:.5px}
+.thead{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 12px 0 16px;
+       font-size:11px;color:#64748b;letter-spacing:1px;border-bottom:1px solid #16202f}
+.hRoute{width:150px;flex-shrink:0}
+.hDest{flex:1;min-width:0}
+.hPlat{width:92px;flex-shrink:0;text-align:center}
+.hEta{width:252px;flex-shrink:0;text-align:right}
+.view{flex:1;min-height:0;overflow:hidden;position:relative}
+.pages{position:absolute;left:0;top:0;width:100%;transition:transform .8s cubic-bezier(.45,0,.2,1);will-change:transform}
 
-    .board-scroll-wrapper { flex-grow: 1; overflow: hidden; position: relative; }
-    .board-body { position: absolute; width: 100%; top: 0; padding: 4px; will-change: transform; }
-    .copy { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+/* ---------- route row ---------- */
+.row{height:84px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #101827;border-left:4px solid #334155}
+.row:nth-child(even){background:rgba(15,22,36,.55)}
+.row.dim{opacity:.6}
+.c-route{width:150px;flex-shrink:0;display:flex;align-items:center}
+.badge{width:94px;height:46px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+       font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:30px;font-weight:700;color:#fff;
+       letter-spacing:.5px;flex-shrink:0;box-shadow:inset 0 -3px 6px rgba(0,0,0,.35)}
+.badge.kmb{background:linear-gradient(180deg,#e0242e,#b91c25)}
+.badge.ctb{background:linear-gradient(180deg,#0a63c9,#004a9e)}
+.badge.joint{background:linear-gradient(135deg,#e0242e 50%,#0a63c9 50%)}
+.badge.night{background:linear-gradient(180deg,#3730a3,#1e1b4b)}
+.cos{margin-left:7px;display:flex;flex-direction:column}
+.co{font-size:9.5px;font-weight:700;border-radius:3px;padding:1px 4px;margin:1px 0;white-space:nowrap}
+.co.kmb{background:rgba(224,36,46,.18);color:#fca5a5;border:1px solid rgba(224,36,46,.5)}
+.co.ctb{background:rgba(10,99,201,.18);color:#93c5fd;border:1px solid rgba(10,99,201,.55)}
+.c-dest{flex:1;min-width:0;margin:0 10px;display:flex;flex-direction:column;justify-content:center}
+.d-zh{font-size:23px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-en{font-size:12.5px;color:#94a3b8;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:.8px;
+      line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.d-svc{font-size:11px;color:#64748b;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-plat{width:92px;flex-shrink:0;text-align:center}
+.plat{display:inline-block;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:19px;font-weight:700;
+      letter-spacing:.5px;border:1.5px solid;border-radius:6px;padding:1px 8px}
+.p-type{font-size:10px;color:#64748b;margin-top:2px}
+.c-eta{width:252px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
+.e-main{display:flex;align-items:baseline;justify-content:flex-end;line-height:1;max-width:100%}
+.e-min{font-family:'Barlow Condensed','Noto Sans HK',sans-serif;font-size:40px;font-weight:700;font-variant-numeric:tabular-nums}
+.e-unit{font-size:13px;color:#8fa1b8;margin-left:4px;white-space:nowrap}
+.e-abs{font-size:15px;color:#8fa1b8;margin-left:9px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif;
+       font-weight:600;font-variant-numeric:tabular-nums}
+.e-sub{margin-top:3px;height:19px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden}
+.e-next{margin-top:2px;font-size:12.5px;color:#64748b;font-variant-numeric:tabular-nums;
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.chip{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;margin-left:5px;border:1px solid;white-space:nowrap}
+.chip.sched{color:#fbbf24;border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.1)}
+.chip.last{color:#f87171;border-color:rgba(248,113,113,.55);background:rgba(248,113,113,.1)}
+.chip.traf{color:#fb923c;border-color:rgba(251,146,60,.55);background:rgba(251,146,60,.1)}
+.st-live .e-min{color:#4ade80}
+.st-sched .e-min{color:#fbbf24}
+.st-arriving .e-min{color:#4ade80;font-family:'Noto Sans HK',sans-serif;font-size:25px;font-weight:900;animation:pulse 1.2s infinite}
+.st-arriving .e-abs{color:#4ade80}
+.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:#475569;font-size:32px}
+.stat{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
+.stat.ended{color:#f87171}
+.stat.rmk{color:#fbbf24}
+.stat.off,.stat.none{color:#64748b}
+.stat.load{color:#38bdf8}
+.nx-sched{color:#d9a514}
 
-    .train-row { display: grid; grid-template-columns: 1.3fr 1.1fr 2.2fr 1.1fr 1.3fr; align-items: center; padding: 0.35vw 0.6vw; background: #0a0f18; border-radius: 3px; height: 3.8vw; border-bottom: 1px solid #131b26; }
+/* ---------- footer ---------- */
+#footer{height:52px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;
+        background:rgba(8,13,22,.93);border:1px solid #1c2940;border-radius:10px;overflow:hidden}
+#tickTag{width:96px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+         background:linear-gradient(180deg,#dc2626,#991b1b);font-size:13px;font-weight:900;letter-spacing:2px}
+#tickWrap{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center;position:relative}
+#tickTrack{display:inline-block;white-space:nowrap;will-change:transform;animation:tickmove 60s linear infinite}
+#tickTrack span{font-size:16px;color:#dbe4f0;padding-right:70px}
+@keyframes tickmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+#statusBox{width:352px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;
+           padding:0 14px;border-left:1px solid #1c2940;background:rgba(4,8,14,.6)}
+.src{display:inline-flex;align-items:center;font-size:12px;color:#8fa1b8;margin-left:10px;
+     font-family:'Barlow Condensed','Noto Sans HK',sans-serif;letter-spacing:1px}
+.src i{width:8px;height:8px;border-radius:50%;background:#475569;margin-right:4px}
+.src i.ok{background:#34d399}
+.src i.warn{background:#fbbf24}
+.src i.bad{background:#f87171}
+#upd{font-size:13px;color:#8fa1b8;margin-left:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#upd.warn{color:#fbbf24}
+#upd.bad{color:#f87171}
 
-    .route-cell { display: flex; align-items: center; gap: 0.35vw; min-width: 0; }
-
-    .train-badge {
-      font-size: 1.5vw; font-weight: 700;
-      width: 4.6vw; height: 2.6vw; padding: 0 0.5vw;
-      border-radius: 4px; color: #fff;
-      display: flex; align-items: center; justify-content: center; text-align: center;
-      box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.4);
-      white-space: nowrap; overflow: hidden; flex-shrink: 0;
-    }
-    .type-nozomi { background: #16a34a; } .type-hikari { background: #e11d48; }
-    .type-kodama { background: #0284c7; } .type-local { background: #475569; }
-
-    .co-tag { font-size: 0.62vw; font-weight: 700; border-radius: 2px; padding: 0.08vw 0.3vw; white-space: nowrap; }
-    .co-kmb { background: #dc2626; color: #fff; }
-    .co-ctb { background: #0057b8; color: #fff; }
-    .co-stack { display: flex; flex-direction: column; gap: 0.15vw; flex-shrink: 0; }
-
-    .time-col { display: flex; flex-direction: column; }
-    .time-main { font-size: 1.25vw; font-weight: 500; color: #38bdf8; line-height: 1.1; }
-    .time-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
-
-    .dest-col { overflow: hidden; padding-right: 0.4vw; }
-    .dest-main { font-size: 1.05vw; color: #fff; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
-    .dest-sub { font-size: 0.62vw; color: #94a3b8; white-space: nowrap; }
-
-    .track-col { display: flex; justify-content: center; }
-    .track-box { background: #fff; color: #000; font-weight: 500; font-size: 0.95vw; padding: 0.1vw 0.4vw; border-radius: 3px; text-align: center; min-width: 3.2vw; box-shadow: 0 2px 4px rgba(0,0,0,0.5); white-space: nowrap; }
-
-    .status-col { text-align: right; }
-    .status-main { font-size: 1.02vw; color: #facc15; }
-    .status-num { font-size: 1.35vw; font-weight: 500; }
-    .status-sub { font-size: 0.62vw; color: #94a3b8; text-transform: uppercase; }
-    .status-none { color: #64748b !important; }
-
-    .lcd-ticker { height: 2.2vw; background: #000; border: 2px solid #232d3b; border-radius: 4px; margin-top: 0.5vw; display: flex; overflow: hidden; flex-shrink: 0; }
-    .ticker-tag { background: #dc2626; color: #fff; font-size: 0.68vw; padding: 0.2vw 1vw; height: 100%; display: flex; align-items: center; z-index: 10; letter-spacing: 0.1vw; text-transform: uppercase; }
-    .ticker-text-wrapper { flex: 1; height: 100%; overflow: hidden; position: relative; display: flex; align-items: center; }
-    .ticker-text {
-      display: inline-block; white-space: nowrap; padding-left: 100%;
-      font-size: 0.88vw; color: #f1f5f9; animation: ticker 40s linear infinite;
-    }
-    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-  </style>
+/* ---------- overlays ---------- */
+#fsPrompt{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:rgba(2,4,8,.72);
+          display:flex;align-items:center;justify-content:center}
+#fsPrompt.hide{display:none}
+#fsCard{background:#0b1424;border:1px solid #2b3b58;border-radius:16px;padding:38px 52px;text-align:center;max-width:880px}
+#fsTitle{font-size:34px;font-weight:900}
+#fsSub{font-size:17px;color:#38bdf8;letter-spacing:2px;margin-top:4px;font-family:'Barlow Condensed','Noto Sans HK',sans-serif}
+#fsBtn{margin-top:24px;font-size:21px;font-weight:700;font-family:inherit;color:#04070d;background:#38bdf8;
+       border:none;border-radius:10px;padding:14px 34px;cursor:pointer}
+#fsBtn:focus{outline:3px solid #fbbf24}
+#fsTip{margin-top:20px;font-size:12.5px;color:#8fa1b8;line-height:1.7}
+#fsPill{position:fixed;right:18px;bottom:18px;z-index:55;background:rgba(11,20,36,.92);border:1px solid #2b3b58;
+        color:#38bdf8;font-size:14px;font-weight:700;border-radius:24px;padding:9px 18px;display:none;cursor:pointer}
+#fsPill.show{display:block}
+#dbg{position:fixed;left:14px;top:14px;z-index:70;display:none;background:rgba(0,0,0,.88);border:1px solid #334155;
+     border-radius:8px;color:#a5f3fc;font:12px/1.55 monospace;padding:12px 14px;max-width:660px;max-height:92%;
+     overflow:auto;white-space:pre-wrap}
+#dbg.show{display:block}
+</style>
 </head>
 <body>
 
-  <div class="lcd-header">
-    <img class="logo-box" src="ktmc.png" alt="KTMC">
-    <div class="header-title-box">
-      <!-- ★ 系統名獨立一行，不再與 badge 擠在一起 -->
-      <div class="header-main-title">Wo Lok Estate Bus Estimated Arrival Time Display System</div>
-      <div class="header-sub-title">觀塘瑪利諾書院 和樂邨巴士路綫預計到達時間顯示系統</div>
-      <!-- ★ 警告 badge 移至此处：獨立一行、自動換行 -->
-      <div class="warning-badges" id="warning-container"></div>
-    </div>
-    <div class="header-info-box"><div class="header-info-label">Date</div><div class="header-info-val" id="date-text">----/--/--</div></div>
-    <div class="header-info-box"><div class="header-info-label" id="weather-desc">Weather</div><div class="header-info-val" id="temp-text">--°C</div></div>
-    <div class="header-time-box"><div class="header-info-label">Time</div><div class="header-time-val" id="clock">00:00</div></div>
-  </div>
+<video id="bgvid" autoplay muted playsinline loop></video>
 
-  <div class="board-container">
-    <div class="column-pane">
-      <div class="column-title"><span>Southbound (Wo Lok Estate)</span><span style="font-size:0.72vw;color:#94a3b8;">和樂邨南行 (往觀塘市中心/九龍/港島方向)</span></div>
-      <div class="table-head">
-        <div>Route <span>路線／公司</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>實時狀態</span></div>
-      </div>
-      <div class="board-scroll-wrapper" id="south-wrap"><div class="board-body" id="south-body"></div></div>
+<div id="stage">
+  <div id="header">
+    <img id="logo" src="ktmc.png" alt="KTMC" onerror="this.style.display='none'">
+    <div id="titleBox">
+      <div id="tZh">和樂邨・巴士到站時間顯示</div>
+      <div id="tEn">WO LOK ESTATE BUS ETA DISPLAY SYSTEM</div>
+      <div id="tSub">協和街 Hip Wo Street ｜ 觀塘瑪利諾書院 Kwun Tong Maryknoll College<span id="testTag">測試中 TESTING</span></div>
     </div>
-    <div class="column-pane">
-      <div class="column-title"><span>Northbound (Wo Lok Estate)</span><span style="font-size:0.72vw;color:#94a3b8;">和樂邨北行 (往順天/順利/秀茂坪/寶林方向)</span></div>
-      <div class="table-head">
-        <div>Route <span>路線／公司</span></div><div>Time <span>時間</span></div><div>Destination <span>目的地</span></div><div>Platform <span>月台</span></div><div style="text-align:right;">Status <span>實時狀態</span></div>
-      </div>
-      <div class="board-scroll-wrapper" id="north-wrap"><div class="board-body" id="north-body"></div></div>
+    <div id="wxCard">
+      <img id="wxIcon" alt="">
+      <div><div id="wxTemp">--°C</div><div id="wxHum">濕度 --%</div></div>
+      <div id="wxLabel">天文台<br>HKO</div>
+    </div>
+    <div id="clockCard">
+      <div id="clock"><span id="ch">--</span><span id="colon">:</span><span id="cm">--</span></div>
+      <div id="dateZh">----年--月--日</div>
+      <div id="dateEn">---</div>
     </div>
   </div>
 
-  <div class="lcd-ticker">
-    <div class="ticker-tag">Info</div>
-    <div class="ticker-text-wrapper"><div class="ticker-text">測試中 僅供參考 | TESTING IN PROGRESS | FOR REFERENCE ONLY | 601/601P 為九巴／城巴聯營線，班次來源：KMB & Citybus Open Data | Thank you for using the KTMC Bus ETA Display System!</div></div>
+  <div id="warnStrip"></div>
+
+  <div id="boards">
+    <div class="col" id="colSouth">
+      <div class="colHead">
+        <div class="dirIcon">▼</div>
+        <div class="dirTitle"><span class="dZh">南行</span><span class="dEn">SOUTHBOUND</span></div>
+        <div class="dirSub">往觀塘市中心・九龍・港島 To Kwun Tong / Kowloon / HK Island</div>
+        <div class="pager"><span class="dots" id="dotsSouth"></span><span class="plabel" id="plSouth">1/1</span></div>
+        <div class="pbar" id="barSouth"></div>
+      </div>
+      <div class="legend" id="legSouth"></div>
+      <div class="thead"><span class="hRoute">路線 ROUTE</span><span class="hDest">目的地 DESTINATION</span><span class="hPlat">月台 STOP</span><span class="hEta">到站時間 ARRIVALS</span></div>
+      <div class="view" id="viewSouth"><div class="pages" id="pagesSouth"></div></div>
+    </div>
+    <div class="col" id="colNorth">
+      <div class="colHead">
+        <div class="dirIcon">▲</div>
+        <div class="dirTitle"><span class="dZh">北行</span><span class="dEn">NORTHBOUND</span></div>
+        <div class="dirSub">往寶林・翠林・四順・秀茂坪・寶達 To Po Lam / Tsui Lam / Shun Lee / Sau Mau Ping / Po Tat</div>
+        <div class="pager"><span class="dots" id="dotsNorth"></span><span class="plabel" id="plNorth">1/1</span></div>
+        <div class="pbar" id="barNorth"></div>
+      </div>
+      <div class="legend" id="legNorth"></div>
+      <div class="thead"><span class="hRoute">路線 ROUTE</span><span class="hDest">目的地 DESTINATION</span><span class="hPlat">月台 STOP</span><span class="hEta">到站時間 ARRIVALS</span></div>
+      <div class="view" id="viewNorth"><div class="pages" id="pagesNorth"></div></div>
+    </div>
   </div>
+
+  <div id="footer">
+    <div id="tickTag">資訊 INFO</div>
+    <div id="tickWrap"><div id="tickTrack"><span id="tickA"></span><span id="tickB"></span></div></div>
+    <div id="statusBox">
+      <span class="src"><i id="dotKmb"></i>KMB</span>
+      <span class="src"><i id="dotCtb"></i>CTB</span>
+      <span class="src"><i id="dotHko"></i>HKO</span>
+      <span class="src" id="srcTd"><i id="dotTd"></i>TD</span>
+      <span id="upd">載入中…</span>
+    </div>
+  </div>
+</div>
+
+<div id="fsPrompt">
+  <div id="fsCard">
+    <div id="fsTitle">進入全螢幕顯示模式</div>
+    <div id="fsSub">ENTER FULLSCREEN DISPLAY MODE</div>
+    <button id="fsBtn" autofocus>按遙控器 OK ／ 點擊此處&nbsp;&nbsp;Press OK / Click</button>
+    <div id="fsTip">如電視閒置後畫面變黑：設定 → 一般 → 系統 → 附加設定 → 關閉「螢幕保護」及「自動關機」<br>
+    If the TV blanks when idle: Settings → General → System → Additional Settings → turn off Screen Saver &amp; Auto Power Off</div>
+  </div>
+</div>
+<div id="fsPill">全螢幕 Fullscreen</div>
+<pre id="dbg"></pre>
+<noscript><div style="color:#fff;padding:40px;font-size:24px">此顯示系統需要 JavaScript。This display requires JavaScript.</div></noscript>
 
 <script>
-  const SOUTH_ROUTES = [
-    { route: "1A", dest: "Star Ferry", destZh: "尖沙咀碼頭", track: "KT537" },
-    { route: "11X", dest: "Hung Hom Station", destZh: "紅磡站", track: "KT535" },
-    { route: "13D", dest: "Metropark / Olympic", destZh: "維港灣", track: "KT537" },
-    { route: "13M", dest: "Kwun Tong (Elegance Lane)", destZh: "觀塘（雅麗道）", track: "KT535" },
-    { route: "13P", dest: "Cheung Sha Wan", destZh: "長沙灣（麗閣邨）", track: "KT537" },
-    { route: "23", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
-    { route: "23M", dest: "Lok Wah", destZh: "樂華", track: "KT535" },
-    { route: "26M", dest: "Kwun Tong ↺", destZh: "觀塘 ↺", track: "KT535" },
-    { route: "28B", dest: "Kai Tak (Kai Ching Est)", destZh: "啟德（啟晴邨）", track: "KT536" },
-    { route: "601", dest: "Admiralty (East)", destZh: "金鐘（東）", track: "KT536" },
-    { route: "601P", dest: "Sheung Wan", destZh: "上環", track: "KT536" },
-    { route: "89", dest: "Lek Yuen", destZh: "瀝源", track: "KT535" },
-    { route: "89X", dest: "Sha Tin Station", destZh: "沙田站", track: "KT535" },
-    { route: "93A", dest: "Kwun Tong Ferry", destZh: "觀塘碼頭", track: "KT535" },
-    { route: "93K", dest: "Mong Kok East Station", destZh: "旺角東站", track: "KT537" },
-    { route: "N293", dest: "Mong Kok (Park Central)", destZh: "旺角（柏景灣）", track: "KT536" }
-  ];
-  const NORTH_ROUTES = [
-    { route: "1A", dest: "Central Sau Mau Ping", destZh: "中秀茂坪", track: "KT256" },
-    { route: "11X", dest: "On Tat (North)", destZh: "安泰（北）", track: "KT255" },
-    { route: "13D", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-    { route: "14H", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-    { route: "23", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-    { route: "23M", dest: "Shun Lee ↺", destZh: "順利 ↺", track: "KT258" },
-    { route: "26M", dest: "Choi Hung", destZh: "彩虹", track: "KT258" },
-    { route: "28B", dest: "Choi Fuk", destZh: "彩福", track: "KT257" },
-    { route: "601", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-    { route: "601P", dest: "Po Tat", destZh: "寶達", track: "KT255" },
-    { route: "93A", dest: "Po Lam", destZh: "寶林", track: "KT260" },
-    { route: "93K", dest: "Tsui Lam", destZh: "翠林", track: "KT259" },
-    { route: "N293", dest: "Sheung Tak", destZh: "尚德", track: "KT259" }
-  ];
+'use strict';
+/* ================================================================
+   CONFIG — everything tunable lives here
+   ================================================================ */
+var CFG = {
+  etaMs: 30000,          // bus ETA refresh
+  wxMs: 300000,          // weather refresh
+  stnMs: 180000,         // TD traffic news refresh
+  pageMs: 10000,         // dwell time per board page
+  staleMs: 120000,       // data older than this = "stale"
+  arriveMs: 60000,       // <= 60s  → 即將到站 Arriving
+  graceMs: 45000,        // keep a passed ETA for 45s (API lag)
+  sort: 'platform',      // 'platform' | 'route' | 'eta'
+  stn: true,             // TD Special Traffic News feed (traffic incident locations)
+  stnUrl: 'https://www.td.gov.hk/en/special_news/trafficnews.xml',
+  stnProxy: 'https://api.allorigins.win/raw?url=',   // CORS fallback, set '' to disable
+  kmb: 'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
+  ctb: 'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
+  wx: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
+  warn: 'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
+  wxIcon: 'https://rss.weather.gov.hk/img/pic'
+};
+var ROW_H = 84, STAGE_W = 1920, STAGE_H = 1080;
 
-  const SOUTH_STOP_IDS = ["073C44CE5FF431BC", "6CEE063506576EDB", "AE2A9F719AB5E353"];
-  const NORTH_STOP_IDS = ["6530130BE25E909C", "17A8BC1197F76422", "55AE88BFD351F56D",
-                          "B314CF2831F9C5F1", "072046BF00257739", "11EC0BEF4F8781A9"];
+/* Stop-ID ↔ platform mapping — verified live against the KMB API
+   (route sets returned per stop). NOTE: both original ID arrays were
+   in REVERSE platform order; the mapping below is the corrected one. */
+var PLATFORMS = {
+  south: [
+    { kt:'KT537', stop:'AE2A9F719AB5E353', color:'#fbbf24', shelter:true,  label:'油尖旺・深水埗' },
+    { kt:'KT536', stop:'6CEE063506576EDB', color:'#38bdf8', shelter:true,  label:'啟德・港島・通宵' },
+    { kt:'KT535', stop:'073C44CE5FF431BC', color:'#a78bfa', shelter:true,  label:'觀塘・紅磡・沙田' }
+  ],
+  north: [
+    { kt:'KT260', stop:'11EC0BEF4F8781A9', color:'#34d399', shelter:true,  label:'寶林' },
+    { kt:'KT259', stop:'072046BF00257739', color:'#f472b6', shelter:true,  label:'翠林・通宵' },
+    { kt:'KT258', stop:'B314CF2831F9C5F1', color:'#fbbf24', shelter:true,  label:'四順・聯合醫院' },
+    { kt:'KT257', stop:'55AE88BFD351F56D', color:'#38bdf8', shelter:false, label:'彩福' },
+    { kt:'KT256', stop:'17A8BC1197F76422', color:'#a3e635', shelter:false, label:'中秀茂坪' },
+    { kt:'KT255', stop:'6530130BE25E909C', color:'#a78bfa', shelter:false, label:'寶達・安泰' }
+  ]
+};
+var CTBCFG = {
+  south: { stop:'003040', kt:'KT536', routes:['601','601P'] },
+  north: { stop:'003041', kt:'KT255', routes:['601','601P'] }
+};
 
-  /* ★ 城巴（聯營線 601/601P）和樂邨站 ID */
-  const CTB_JOINT_ROUTES = ["601", "601P"];
-  const CTB_SOUTH_STOP_IDS = ["003040"];
-  const CTB_NORTH_STOP_IDS = ["003041"];
+/* service windows (minutes from midnight, HK time). Generous on purpose:
+   they only label "非服務時段" when the API gives no ETA and no remark. */
+var W = {
+  wkAM:  { d:[1,2,3,4,5],   from:360,  to:660  },
+  satAM: { d:[1,2,3,4,5,6], from:360,  to:660  },
+  wkPM:  { d:[1,2,3,4,5],   from:960,  to:1260 },
+  night: { d:[0,1,2,3,4,5,6], from:1380, to:400 },
+  day:   { d:[0,1,2,3,4,5,6], from:300,  to:1439 }
+};
+function r(route, dest, destEn, kt, cos, extra){
+  var o = { route:route, dest:dest, destEn:destEn, kt:kt, cos:cos };
+  if (extra){ for (var k in extra){ if (extra.hasOwnProperty(k)) o[k] = extra[k]; } }
+  return o;
+}
+var ROWCFG = {
+  south: [
+    r('1A','尖沙咀碼頭','STAR FERRY','KT537',['KMB']),
+    r('13D','維港灣','ISLAND HARBOURVIEW','KT537',['KMB']),
+    r('13P','長沙灣（麗閣邨）','CHEUNG SHA WAN (LAI KOK ESTATE)','KT537',['KMB'],{peak:'週一至五上午繁忙時間服務',win:W.wkAM}),
+    r('93K','旺角東站','MONG KOK EAST STATION','KT537',['KMB']),
+    r('28B','啟德（啟晴邨）','KAI TAK (KAI CHING ESTATE)','KT536',['KMB']),
+    r('601','金鐘（東）','ADMIRALTY (EAST)','KT536',['KMB','CTB']),
+    r('601P','上環','SHEUNG WAN','KT536',['KMB','CTB'],{peak:'週一至六上午繁忙時間服務',win:W.satAM}),
+    r('N293','旺角（柏景灣）','MONG KOK (PARK AVENUE)','KT536',['KMB'],{night:true,win:W.night}),
+    r('11X','紅磡站','HUNG HOM STATION','KT535',['KMB']),
+    r('13M','觀塘（雅麗道）','KWUN TONG (ELEGANCE ROAD)','KT535',['KMB'],{circ:true}),
+    r('23','觀塘碼頭','KWUN TONG FERRY','KT535',['KMB'],{circ:true}),
+    r('23M','樂華','LOK WAH','KT535',['KMB'],{circ:true,note:'設特別班次經九龍灣商貿區（週一至五上午）'}),
+    r('26M','觀塘（循環）','KWUN TONG (CIRCULAR)','KT535',['KMB'],{circ:true}),
+    r('89','瀝源','LEK YUEN','KT535',['KMB']),
+    r('89X','沙田站','SHA TIN STATION','KT535',['KMB']),
+    r('93A','觀塘碼頭','KWUN TONG FERRY','KT535',['KMB'])
+  ],
+  north: [
+    r('93A','寶林','PO LAM','KT260',['KMB']),
+    r('93K','翠林','TSUI LAM','KT259',['KMB']),
+    r('N293','尚德','SHEUNG TAK','KT259',['KMB'],{night:true,win:W.night}),
+    r('14H','順利（循環）','SHUN LEE (CIRCULAR)','KT258',['KMB'],{circ:true,note:'經聯合醫院',win:W.day}),
+    r('23','順利（循環）','SHUN LEE (CIRCULAR)','KT258',['KMB'],{circ:true}),
+    r('23M','順利（循環）','SHUN LEE (CIRCULAR)','KT258',['KMB'],{circ:true}),
+    r('26M','彩虹','CHOI HUNG','KT258',['KMB']),
+    r('28B','彩福','CHOI FOOK','KT257',['KMB']),
+    r('1A','中秀茂坪','SAU MAU PING (CENTRAL)','KT256',['KMB']),
+    r('11X','安泰（北）','ON TAI (NORTH)','KT255',['KMB']),
+    r('13D','寶達','PO TAT','KT255',['KMB']),
+    r('601','寶達','PO TAT','KT255',['KMB','CTB'],{section:true}),
+    r('601P','寶達','PO TAT','KT255',['KMB','CTB'],{section:true,peak:'週一至五下午繁忙時間服務',win:W.wkPM})
+  ]
+};
 
-  let southDepartures = [], northDepartures = [];
-  let isDataLoaded = false;
-  const scrollState = { south: 0, north: 0 };
-  let lastTs = null;
-
-  function getBadgeClass(route) {
-    if (route.includes("A") || route.includes("X")) return "type-nozomi";
-    if (route.startsWith("8") || route.startsWith("2")) return "type-hikari";
-    if (route.startsWith("14") || route.startsWith("11") || route.startsWith("13")) return "type-kodama";
-    return "type-local";
-  }
-
-  /* ★ 修正：API 返回英文訊息，必須同時匹配中英文關鍵字；
-     ★ 風球用 regex 提取編號；badge 只顯示短標籤（完整訊息在 title tooltip） */
-  function getCustomWarningStyle(message) {
-    const msg = message || "";
-    const m = msg.toLowerCase();
-
-    // 熱帶氣旋警告：英文 "Signal No. X" / 中文 "X號"
-    const tcEn = m.match(/signal no\.?\s*([0-9]+)/);
-    const zhMap = { "一": 1, "三": 3, "八": 8, "九": 9, "十": 10 };
-    const tcZh = msg.match(/([一三八九十]+)號/);
-    const n = tcEn ? parseInt(tcEn[1], 10) : (tcZh ? zhMap[tcZh[1]] : undefined);
-    if (n === 1) return { icon: "t1.png", text: "T1 一號信號", bg: "#e11d48" };
-    if (n === 3) return { icon: "t3.png", text: "T3 三號信號", bg: "#e11d48" };
-    if (n)       return { icon: null,    text: `T${n} 熱帶氣旋警告`, bg: "#7c3aed" };
-
-    if (m.includes("monsoon") || msg.includes("季候風")) return { icon: "monsoon.png", text: "Monsoon 季候風", bg: "#059669" };
-    if (m.includes("black rainstorm") || msg.includes("黑色暴雨")) return { icon: "black-rain.png", text: "Black Rainstorm 黑色暴雨", bg: "#111827" };
-    if (m.includes("red rainstorm") || msg.includes("紅色暴雨")) return { icon: "red-rain.png", text: "Red Rainstorm 紅色暴雨", bg: "#dc2626" };
-    if (m.includes("amber rainstorm") || msg.includes("黃色暴雨")) return { icon: "yellow-rain.png", text: "Amber Rainstorm 黃色暴雨", bg: "#ca8a04" };
-    if (m.includes("landslip") || msg.includes("山泥傾瀉")) return { icon: "landslip.png", text: "Landslip 山泥傾瀉", bg: "#b45309" };
-    if (m.includes("thunderstorm") || msg.includes("雷暴")) return { icon: "thunder.png", text: "Thunderstorm 雷暴", bg: "#d97706" };
-    if (m.includes("cold weather") || msg.includes("寒冷")) return { icon: "cold.png", text: "Cold Weather 寒冷天氣", bg: "#2563eb" };
-    if (m.includes("very hot") || msg.includes("酷熱")) return { icon: "hot.png", text: "Very Hot Weather 酷熱天氣", bg: "#d97706" };
-    if (m.includes("flood") || msg.includes("水浸")) return { icon: "nt-flood.png", text: "Flooding 水浸", bg: "#2563eb" };
-
-    // ★ fallback：不再亂套 t1 圖標，純文字顯示並自動換行
-    return { icon: null, text: msg, bg: "#dc2626" };
-  }
-
-  async function fetchWeatherData() {
-    try {
-      const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=en');
-      if (res.ok) {
-        const data = await res.json();
-        const tempEl = document.getElementById('temp-text');
-        const descEl = document.getElementById('weather-desc');
-        const warnEl = document.getElementById('warning-container');
-        if (data.temperature && data.temperature.data) {
-          const t = data.temperature.data.find(x => x.place === "Hong Kong Observatory");
-          if (t && tempEl) tempEl.innerText = `${t.value}°C`;
-        }
-        if (descEl) descEl.innerText = "HKO Weather";
-        if (warnEl) {
-          warnEl.innerHTML = '';
-          if (data.warningMessage && data.warningMessage.length) {
-            data.warningMessage.forEach(msg => {
-              const c = getCustomWarningStyle(msg);
-              const b = document.createElement('div');
-              b.className = 'warn-badge'; b.style.backgroundColor = c.bg;
-              b.innerHTML = `${c.icon ? `<img src="${c.icon}" alt="icon">` : ''}<span>${c.text}</span>`;
-              b.title = msg;
-              warnEl.appendChild(b);
-            });
-          }
-        }
-      }
-    } catch (e) {
-      const d = document.getElementById('weather-desc');
-      if (d) d.innerText = "Weather Offline";
-    }
-  }
-
-  async function fetchDirectionEtas(stopIds, co) {
-    const results = await Promise.all(stopIds.map(id =>
-      fetch(`https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/${id}`)
-        .then(res => res.ok ? res.json() : null).catch(() => null)
-    ));
-    const etas = []; const seenRoutes = new Set();
-    results.forEach(json => {
-      if (!json || !Array.isArray(json.data)) return;
-      json.data.forEach(item => {
-        if (!item.route) return;
-        seenRoutes.add(item.route);
-        if (item.eta) {
-          const t = new Date(item.eta);
-          if (!isNaN(t.getTime())) etas.push({ route: item.route, etaTime: t, co });
-        }
-      });
+/* ================================================================
+   utils
+   ================================================================ */
+function $(id){ return document.getElementById(id); }
+function el(tag, cls, text){
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function cap(s, n){ s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; }
+/* HK time regardless of the TV's own timezone (UTC+8, no DST) */
+function hkDate(ms){ var d = new Date(ms); return new Date(ms + (d.getTimezoneOffset() + 480) * 60000); }
+function hhmm(ms){ var d = hkDate(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function inWin(win, hk){
+  if (win.d.indexOf(hk.getDay()) < 0) return false;
+  var m = hk.getHours() * 60 + hk.getMinutes();
+  return win.from <= win.to ? (m >= win.from && m <= win.to) : (m >= win.from || m <= win.to);
+}
+function routeNum(rt){
+  var n = parseInt(rt, 10); if (isNaN(n)) n = 9999;
+  if (rt.charAt(0) === 'N') n += 10000;
+  return n;
+}
+/* naive "2026-11-21T16:25:00" (TD XML) → epoch, treated as HK local */
+function parseHkLocal(s){
+  var m = /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(s || ''));
+  if (!m) return 0;
+  return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)) - 480 * 60000;
+}
+function fetchText(url, ms){
+  return new Promise(function(res, rej){
+    var done = false;
+    var to = setTimeout(function(){ if (!done){ done = true; rej(new Error('timeout')); } }, ms || 12000);
+    fetch(url, { cache:'no-store' }).then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function(t){
+      if (!done){ done = true; clearTimeout(to); res(t); }
+    }).catch(function(e){
+      if (!done){ done = true; clearTimeout(to); rej(e); }
     });
-    return { etas, seenRoutes };
-  }
-
-  async function fetchCitybusEtas(stopIds, routes) {
-    const pairs = [];
-    stopIds.forEach(sid => routes.forEach(rt => pairs.push({ sid, rt })));
-    const results = await Promise.all(pairs.map(({ sid, rt }) =>
-      fetch(`https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/${sid}/${rt}`)
-        .then(r => r.ok ? r.json() : null).catch(() => null)
-    ));
-    const etas = []; const seenRoutes = new Set();
-    results.forEach(json => {
-      if (!json || !Array.isArray(json.data)) return;
-      json.data.forEach(it => {
-        const route = it.route; if (!route) return;
-        seenRoutes.add(route);
-        if (it.eta) {
-          const t = new Date(it.eta);
-          if (!isNaN(t.getTime())) etas.push({ route, etaTime: t, co: 'CTB' });
-        }
-      });
-    });
-    return { etas, seenRoutes };
-  }
-
-  function mergeSources(a, b) {
-    return { etas: a.etas.concat(b.etas), seenRoutes: new Set([...a.seenRoutes, ...b.seenRoutes]) };
-  }
-
-  async function fetchAPIData() {
-    try {
-      const [kmbS, kmbN, ctbS, ctbN] = await Promise.all([
-        fetchDirectionEtas(SOUTH_STOP_IDS, 'KMB'),
-        fetchDirectionEtas(NORTH_STOP_IDS, 'KMB'),
-        fetchCitybusEtas(CTB_SOUTH_STOP_IDS, CTB_JOINT_ROUTES),
-        fetchCitybusEtas(CTB_NORTH_STOP_IDS, CTB_JOINT_ROUTES)
-      ]);
-      southDepartures = buildNormalizedList(SOUTH_ROUTES, mergeSources(kmbS, ctbS));
-      northDepartures = buildNormalizedList(NORTH_ROUTES, mergeSources(kmbN, ctbN));
-      isDataLoaded = true;
-      renderBoards();
-    } catch (e) { console.error("API Fetch Error:", e); }
-  }
-
-  function buildNormalizedList(routeConfig, { etas, seenRoutes }) {
-    const now = Date.now();
-    return routeConfig.map(cfg => {
-      const upcoming = etas
-        .filter(e => e.route === cfg.route && e.etaTime.getTime() >= now - 10000)
-        .sort((a, b) => a.etaTime - b.etaTime);
-      const best = upcoming.length ? upcoming[0] : null;
-      return {
-        route: cfg.route, dest: cfg.dest, destZh: cfg.destZh, track: cfg.track,
-        etaTime: best ? best.etaTime : null,
-        co: best ? best.co : null,
-        servesStop: seenRoutes.has(cfg.route)
-      };
-    }).sort((a, b) => a.route.localeCompare(b.route, 'en', { numeric: true }));
-  }
-
-  function renderBoardHTML(departures) {
-    if (!isDataLoaded) return `<div style="text-align:center; padding: 2vw; color: #64748b;">Loading...</div>`;
-    if (!departures.length) return `<div style="text-align:center; padding: 3vw; color: #94a3b8; font-size:0.9vw;">No Data Available</div>`;
-    const now = new Date();
-    let html = '';
-    departures.forEach(item => {
-      let timeStr = "--:--", statusMain = "No Info", statusSub = "N/A", statusClass = "status-none";
-      if (item.etaTime) {
-        const diffSecs = Math.floor((item.etaTime - now) / 1000);
-        const diffMins = Math.floor(diffSecs / 60);
-        timeStr = item.etaTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-        statusClass = "";
-        if (diffSecs <= 30 && diffSecs >= -10) { statusMain = "Arriving"; statusSub = "ARRIVING"; }
-        else {
-          const dm = Math.max(0, diffMins);
-          statusMain = `<span class="status-num">${dm}</span> min${dm === 1 ? '' : 's'}`;
-          statusSub = `${Math.max(0, diffSecs % 60)} sec`;
-        }
-      } else if (item.servesStop) { statusMain = "No Departure"; statusSub = "NO SCHEDULED BUS"; }
-
-      let coTag = '';
-      if (item.co) {
-        coTag = `<span class="co-tag ${item.co === 'CTB' ? 'co-ctb' : 'co-kmb'}">${item.co === 'CTB' ? 'CTB 城巴' : 'KMB 九巴'}</span>`;
-      } else if (CTB_JOINT_ROUTES.includes(item.route)) {
-        coTag = `<div class="co-stack"><span class="co-tag co-kmb">KMB 九巴</span><span class="co-tag co-ctb">CTB 城巴</span></div>`;
-      }
-
-      html += `
-        <div class="train-row">
-          <div class="route-cell"><div class="train-badge ${getBadgeClass(item.route)}">${item.route}</div>${coTag}</div>
-          <div class="time-col"><div class="time-main">${timeStr}</div><div class="time-sub">${item.etaTime ? 'Scheduled' : '--'}</div></div>
-          <div class="dest-col"><div class="dest-main">${item.dest}</div><div class="dest-sub">${item.destZh}</div></div>
-          <div class="track-col"><div class="track-box">${item.track}</div></div>
-          <div class="status-col"><div class="status-main ${statusClass}">${statusMain}</div><div class="status-sub">${statusSub}</div></div>
-        </div>`;
-    });
-    return html;
-  }
-
-  function renderBoards() {
-    const s = document.getElementById('south-body');
-    const n = document.getElementById('north-body');
-    const sHtml = renderBoardHTML(southDepartures);
-    const nHtml = renderBoardHTML(northDepartures);
-    if (s) s.innerHTML = isDataLoaded ? `<div class="copy">${sHtml}</div><div class="copy">${sHtml}</div>` : sHtml;
-    if (n) n.innerHTML = isDataLoaded ? `<div class="copy">${nHtml}</div><div class="copy">${nHtml}</div>` : nHtml;
-  }
-
-  function tickRealtime() {
-    const now = new Date();
-    const c = document.getElementById('clock'), d = document.getElementById('date-text');
-    if (c) c.innerText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-    if (d) d.innerText = now.toLocaleDateString('en-GB', { month: 'numeric', day: 'numeric', weekday: 'short' });
-    if (isDataLoaded) renderBoards();
-  }
-
-  function continuousScroll(key, wrapId, bodyId, dt) {
-    const wrap = document.getElementById(wrapId);
-    const body = document.getElementById(bodyId);
-    if (!wrap || !body || !body.children.length) return;
-    const copyEl = body.children[0];
-    const loopH = copyEl.offsetHeight + 4;
-    if (loopH <= wrap.clientHeight) {
-      if (scrollState[key] !== 0) { scrollState[key] = 0; body.style.transform = 'translateY(0)'; }
-      return;
-    }
-    const speed = Math.max(24, window.innerWidth * 0.015);
-    let off = scrollState[key] + speed * dt;
-    while (off >= loopH) off -= loopH;
-    scrollState[key] = off;
-    body.style.transform = `translateY(-${off}px)`;
-  }
-
-  function scrollLoop(ts) {
-    if (lastTs === null) lastTs = ts;
-    const dt = Math.min(0.1, (ts - lastTs) / 1000);
-    lastTs = ts;
-    continuousScroll('south', 'south-wrap', 'south-body', dt);
-    continuousScroll('north', 'north-wrap', 'north-body', dt);
-    requestAnimationFrame(scrollLoop);
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    fetchAPIData();
-    fetchWeatherData();
-    requestAnimationFrame(scrollLoop);
-    setInterval(tickRealtime, 1000);
-    setInterval(fetchAPIData, 15000);
-    setInterval(fetchWeatherData, 60000);
   });
+}
+function fetchJSON(url){ return fetchText(url).then(function(t){ return JSON.parse(t); }); }
+function retryP(fn){ return fn().catch(function(){ return fn(); }); }
+
+/* ================================================================
+   state
+   ================================================================ */
+var S = {
+  scale:1, fs:false, wake:null, guard:'init', audio:'off', loaded:false, lastEta:0,
+  wx:{ temp:null, hum:null, icon:null }, wxMsgs:[], warns:[], stn:[], trafRmk:[],
+  dbg:false, errs:[], frameT:0
+};
+var H = {
+  kmb:{ ok:false, t:0, err:'' }, ctb:{ ok:false, t:0, err:'' },
+  hko:{ ok:false, t:0, err:'' }, td:{ ok:false, t:0, err:'' }
+};
+/* per-stop slices so a single failed request never wipes good data */
+var AGG = { kmb:{ south:{}, north:{} }, ctb:{ south:{}, north:{} } };
+var DYN = { south:{}, north:{} };            // routes discovered from the API (e.g. SP1)
+var ROWS = { south:{}, north:{} };
+var PLATIDX = { south:{}, north:{} }, PLATBYKT = { south:{}, north:{} };
+var P = {};                                   // pagers
+var SHIFT = [[0,0],[2,1],[3,3],[1,2]], shiftIdx = 0;
+var WZH = ['日','一','二','三','四','五','六'];
+var WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+var MEN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+var lastTickStr = '', lastStripSig = '', etaBusy = false;
+
+/* ================================================================
+   remark classification (KMB / Citybus rmk_tc / rmk_en)
+   ================================================================ */
+function rmkAll(e){ return (e.rmk || '') + ' ' + (e.rmkEn || ''); }
+function isSched(e){ return /原定|預計班次|scheduled/i.test(rmkAll(e)); }
+function isEnded(e){
+  return (/尾班車/.test(e.rmk || '') && /已過|已開/.test(e.rmk || '')) ||
+         /last bus.*(depart|pass)/i.test(e.rmkEn || '');
+}
+function isLast(e){ return !isEnded(e) && /尾班車|last\s*bus/i.test(rmkAll(e)); }
+function isSourceRmk(e){ return /提供|provided by/i.test(rmkAll(e)); }
+function isTrafficRmk(e){ return /擠塞|塞車|交通阻塞|交通意外|交通情況|congestion|traffic accident|traffic condition/i.test(rmkAll(e)); }
+
+/* ================================================================
+   data fetching
+   ================================================================ */
+function norm(it, kt, co){
+  return {
+    co: co, route: it.route, kt: kt,
+    destZh: it.dest_tc || '', destEn: it.dest_en || '',
+    t: it.eta ? Date.parse(it.eta) : null,
+    rmk: it.rmk_tc || '', rmkEn: it.rmk_en || '',
+    st: it.service_type || 1, seq: it.eta_seq || 1
+  };
+}
+function refreshEtas(){
+  if (etaBusy) return;
+  etaBusy = true;
+  var jobs = [];
+  ['south','north'].forEach(function(dir){
+    PLATFORMS[dir].forEach(function(p){
+      jobs.push(retryP(function(){ return fetchJSON(CFG.kmb + p.stop); }).then(function(j){
+        return { co:'kmb', dir:dir, key:p.kt, data:(j && j.data) || [] };
+      }).catch(function(e){ return { co:'kmb', fail:String(e && e.message || e) }; }));
+    });
+    var c = CTBCFG[dir];
+    c.routes.forEach(function(rt){
+      jobs.push(retryP(function(){ return fetchJSON(CFG.ctb + c.stop + '/' + rt); }).then(function(j){
+        return { co:'ctb', dir:dir, key:rt, kt:c.kt, data:(j && j.data) || [] };
+      }).catch(function(e){ return { co:'ctb', fail:String(e && e.message || e) }; }));
+    });
+  });
+  Promise.all(jobs).then(function(results){
+    try {
+    var okCount = { kmb:0, ctb:0 }, failMsg = { kmb:'', ctb:'' };
+    results.forEach(function(res){
+      if (!res) return;
+      if (res.fail){ failMsg[res.co] = res.fail; return; }
+      okCount[res.co]++;
+      var entries = [];
+      res.data.forEach(function(it){
+        if (!it.route) return;
+        var kt = res.co === 'kmb' ? res.key : (cfgFor(res.dir, it.route) ? cfgFor(res.dir, it.route).kt : res.kt);
+        entries.push(norm(it, kt, res.co === 'kmb' ? 'KMB' : 'CTB'));
+      });
+      AGG[res.co][res.dir][res.key] = entries;
+    });
+    ['kmb','ctb'].forEach(function(co){
+      if (okCount[co] > 0){ H[co].ok = true; H[co].t = Date.now(); H[co].err = ''; }
+      else { H[co].ok = false; H[co].err = failMsg[co] || 'no data'; }
+    });
+    if (okCount.kmb + okCount.ctb > 0){ S.lastEta = Date.now(); S.loaded = true; }
+    ensureRows(); orderRows(); layoutPagers();
+    } catch (err){ S.errs.push('refresh: ' + (err && err.message || err)); }
+    etaBusy = false;
+  });
+}
+function cfgFor(dir, rt){
+  var i;
+  for (i = 0; i < ROWCFG[dir].length; i++){ if (ROWCFG[dir][i].route === rt) return ROWCFG[dir][i]; }
+  return DYN[dir][rt] || null;
+}
+function mergeAgg(dir){
+  var out = {}, k;
+  for (k in AGG.kmb[dir]){ if (AGG.kmb[dir].hasOwnProperty(k)){
+    AGG.kmb[dir][k].forEach(function(e){ (out[e.route] || (out[e.route] = [])).push(e); });
+  } }
+  for (k in AGG.ctb[dir]){ if (AGG.ctb[dir].hasOwnProperty(k)){
+    AGG.ctb[dir][k].forEach(function(e){ (out[e.route] || (out[e.route] = [])).push(e); });
+  } }
+  return out;
+}
+
+/* ---- weather ---- */
+var WARNMAP = {
+  TC1:{ icon:'t1.png', label:'一號戒備信號 T1', bg:'#e11d48' },
+  TC3:{ icon:'t3.png', label:'三號強風信號 T3', bg:'#e11d48' },
+  TC9:{ icon:'t9.png', label:'九號烈風或暴風風力增強信號 T9', bg:'#7c3aed' },
+  TC10:{ icon:'t10.png', label:'十號颶風信號 T10', bg:'#7c3aed' },
+  WRAINA:{ icon:'yellow-rain.png', label:'黃色暴雨警告 Amber Rain', bg:'#ca8a04' },
+  WRAINR:{ icon:'red-rain.png', label:'紅色暴雨警告 Red Rain', bg:'#dc2626' },
+  WRAINB:{ icon:'black-rain.png', label:'黑色暴雨警告 Black Rain', bg:'#111827' },
+  WL:{ icon:'landslip.png', label:'山泥傾瀉警告 Landslip', bg:'#b45309' },
+  WTS:{ icon:'thunder.png', label:'雷暴警告 Thunderstorm', bg:'#d97706' },
+  WFNTSA:{ icon:'nt-flood.png', label:'新界北部水浸特別報告 NT Flooding', bg:'#2563eb' },
+  WCOLD:{ icon:'cold.png', label:'寒冷天氣警告 Cold Weather', bg:'#2563eb' },
+  WHOT:{ icon:'hot.png', label:'酷熱天氣警告 Very Hot Weather', bg:'#d97706' },
+  WMSGNL:{ icon:'monsoon.png', label:'強烈季候風信號 Monsoon', bg:'#059669' },
+  WFIREY:{ icon:null, label:'黃色火災危險警告 Fire Danger (Yellow)', bg:'#ca8a04' },
+  WFIRER:{ icon:null, label:'紅色火災危險警告 Fire Danger (Red)', bg:'#dc2626' },
+  WTMW:{ icon:null, label:'海嘯警告 Tsunami Warning', bg:'#7c3aed' },
+  WFRNT:{ icon:null, label:'霜凍警告 Frost Warning', bg:'#2563eb' }
+};
+var TC8DIR = { NE:'東北', SE:'東南', SW:'西南', NW:'西北' };
+function warnInfo(w){
+  var code = w.code || '';
+  if (code.indexOf('TC8') === 0){
+    var d = TC8DIR[code.slice(3)] || '';
+    return { icon:'t8.png', label:'八號' + d + '烈風或暴風信號 T8', bg:'#7c3aed' };
+  }
+  return WARNMAP[code] || { icon:null, label:(w.name || 'Warning') + (w.type ? ' ' + w.type : ''), bg:'#b45309' };
+}
+function refreshWx(){
+  retryP(function(){ return fetchJSON(CFG.wx); }).then(function(j){
+    H.hko.ok = true; H.hko.t = Date.now(); H.hko.err = '';
+    var i;
+    if (j.temperature && j.temperature.data){
+      for (i = 0; i < j.temperature.data.length; i++){
+        if (j.temperature.data[i].place === '香港天文台'){ S.wx.temp = j.temperature.data[i].value; break; }
+      }
+    }
+    if (j.humidity && j.humidity.data){
+      for (i = 0; i < j.humidity.data.length; i++){
+        if (j.humidity.data[i].place === '香港天文台'){ S.wx.hum = j.humidity.data[i].value; break; }
+      }
+    }
+    if (j.icon && j.icon.length) S.wx.icon = j.icon[0];
+    S.wxMsgs = j.warningMessage || [];
+    $('wxTemp').textContent = (S.wx.temp === null ? '--' : S.wx.temp) + '°C';
+    $('wxHum').textContent = '濕度 ' + (S.wx.hum === null ? '--' : S.wx.hum) + '%';
+    if (S.wx.icon !== null){
+      var img = $('wxIcon');
+      img.onerror = function(){ img.style.display = 'none'; };
+      img.src = CFG.wxIcon + S.wx.icon + '.png';
+      img.style.display = 'block';
+    }
+  }).catch(function(e){ H.hko.ok = false; H.hko.err = String(e && e.message || e); });
+
+  retryP(function(){ return fetchJSON(CFG.warn); }).then(function(j){
+    var list = [], now = Date.now(), k;
+    for (k in j){ if (j.hasOwnProperty(k)){
+      var w = j[k];
+      if (!w || !w.code) continue;
+      if (w.actionCode === 'CANCEL') continue;
+      if (w.expireTime && Date.parse(w.expireTime) && Date.parse(w.expireTime) < now) continue;
+      var info = warnInfo(w);
+      list.push({ code:w.code, icon:info.icon, label:info.label, bg:info.bg });
+    } }
+    S.warns = list;
+  }).catch(function(){
+    /* fallback: plain warning strings from rhrread */
+    S.warns = S.wxMsgs.map(function(m){ return { code:'MSG', icon:null, label:cap(m, 60), bg:'#dc2626' }; });
+  });
+}
+
+/* ---- TD Special Traffic News (incident LOCATION feed) ---- */
+function txt(node, tag){
+  var n = node.getElementsByTagName(tag)[0];
+  return n && n.textContent ? n.textContent.replace(/\s+/g, ' ').trim() : '';
+}
+function refreshStn(){
+  if (!CFG.stn) return;
+  var direct = fetchText(CFG.stnUrl, 12000);
+  var attempt = CFG.stnProxy ? direct.catch(function(){ return fetchText(CFG.stnProxy + encodeURIComponent(CFG.stnUrl), 15000); }) : direct;
+  attempt.then(function(xml){
+    var doc = new DOMParser().parseFromString(xml, 'text/xml');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error('XML parse');
+    var msgs = doc.getElementsByTagName('message'), items = [], now = Date.now(), i;
+    for (i = 0; i < msgs.length; i++){
+      var m = msgs[i];
+      var status = txt(m, 'INCIDENT_STATUS_EN');
+      if (status === 'CLOSED' || txt(m, 'INCIDENT_STATUS_CN') === '完結') continue;
+      var t = parseHkLocal(txt(m, 'ANNOUNCEMENT_DATE'));
+      if (t && now - t > 12 * 3600000) continue;
+      var loc = txt(m, 'LOCATION_CN');
+      var dirn = txt(m, 'DIRECTION_CN');
+      var mark = txt(m, 'NEAR_LANDMARK_CN');
+      var dist = txt(m, 'DISTRICT_CN');
+      var content = txt(m, 'CONTENT_CN') || txt(m, 'CONTENT_EN');
+      var where = loc + (dirn ? '（往' + dirn + '）' : '') + (mark ? '近' + mark : '');
+      if (!where) where = dist || txt(m, 'INCIDENT_HEADING_CN');
+      var near = /觀塘|黃大仙|九龍城|西貢/.test(dist) ||
+        /協和街|和樂邨|觀塘|牛頭角|九龍灣|啟德|秀茂坪|順利|寶達|安泰|翠林|寶林|將軍澳|清水灣道|新清水灣道|觀塘繞道|鯉魚門/.test(where + ' ' + content);
+      items.push({ where:where, dist:dist, content:content, near:near, t:t });
+    }
+    items.sort(function(a, b){ return (b.near - a.near) || (b.t - a.t); });
+    S.stn = items.slice(0, 8);
+    H.td.ok = true; H.td.t = Date.now(); H.td.err = '';
+  }).catch(function(e){ H.td.ok = false; H.td.err = String(e && e.message || e); });
+}
+
+/* ================================================================
+   view model
+   ================================================================ */
+function viewFor(dir, c, es, now, hk){
+  var timed = [], nulls = [], i, e;
+  for (i = 0; i < es.length; i++){
+    e = es[i];
+    if (e.t && e.t > now - CFG.graceMs) timed.push(e);
+    else if (!e.t) nulls.push(e);
+  }
+  timed.sort(function(a, b){ return a.t - b.t || a.st - b.st || a.seq - b.seq; });
+  var seenKey = {}, etas = [];
+  for (i = 0; i < timed.length && etas.length < 3; i++){
+    e = timed[i];
+    var k = e.co + '|' + Math.round(e.t / 60000);
+    if (seenKey[k]) continue;
+    seenKey[k] = 1;
+    etas.push({ t:e.t, co:e.co, sched:isSched(e), last:isLast(e) });
+  }
+  var ended = false, noRmk = '', noRmkEn = '', traffic = '';
+  for (i = 0; i < nulls.length; i++){
+    e = nulls[i];
+    if (isEnded(e)) ended = true;
+    if (e.rmk && !noRmk && !isSourceRmk(e)){ noRmk = e.rmk; noRmkEn = e.rmkEn; }
+  }
+  for (i = 0; i < es.length; i++){ if (isTrafficRmk(es[i])){ traffic = es[i].rmk || es[i].rmkEn; break; } }
+  var lastFlag = false;
+  etas.forEach(function(x){ if (x.last) lastFlag = true; });
+  var first = etas[0] || null, status;
+  if (first) status = (first.t - now <= CFG.arriveMs) ? 'arriving' : (first.sched ? 'sched' : 'live');
+  else if (ended) status = 'ended';
+  else if (noRmk) status = 'rmk';
+  else if (c.win && !inWin(c.win, hk)) status = 'off';
+  else status = 'none';
+  var src = timed[0] || nulls[0] || es[0];
+  var destZh = (src && src.destZh) || c.dest;
+  var destEn = (src && src.destEn) || c.destEn;
+  if (c.circ && !/循環/.test(destZh)) destZh = destZh + '（循環）';
+  return { c:c, etas:etas, status:status, last:lastFlag, noRmk:noRmk, noRmkEn:noRmkEn,
+           traffic:traffic, destZh:destZh, destEn:destEn, seen:es.length > 0 };
+}
+function buildViews(dir){
+  var now = Date.now(), hk = hkDate(now), merged = mergeAgg(dir), list = [], used = {};
+  ROWCFG[dir].forEach(function(c){ used[c.route] = 1; list.push(viewFor(dir, c, merged[c.route] || [], now, hk)); });
+  Object.keys(DYN[dir]).forEach(function(rt){
+    if (used[rt]) return;
+    used[rt] = 1;
+    list.push(viewFor(dir, DYN[dir][rt], merged[rt] || [], now, hk));
+  });
+  return list;
+}
+
+/* ================================================================
+   DOM — rows built ONCE, cells updated by textContent only
+   ================================================================ */
+function makeRow(dir, c){
+  var plat = PLATBYKT[dir][c.kt] || { color:'#64748b', shelter:false };
+  var row = el('div', 'row');
+  row.setAttribute('data-group', c.kt);
+  row.style.borderLeftColor = plat.color;
+
+  var rc = el('div', 'c-route');
+  var bcls = c.night ? 'night' : (c.cos.length > 1 ? 'joint' : (c.cos[0] === 'CTB' ? 'ctb' : 'kmb'));
+  rc.appendChild(el('div', 'badge ' + bcls, c.route));
+  var cos = el('div', 'cos');
+  c.cos.forEach(function(co){ cos.appendChild(el('span', 'co ' + co.toLowerCase(), co === 'KMB' ? '九巴 KMB' : '城巴 CTB')); });
+  rc.appendChild(cos);
+  row.appendChild(rc);
+
+  var dc = el('div', 'c-dest');
+  var dzh = el('div', 'd-zh', c.dest), den = el('div', 'd-en', c.destEn), dsvc = el('div', 'd-svc');
+  var svc = c.peak ? c.peak : (c.night ? '每天通宵服務 Overnight daily' : '每天服務 Daily service');
+  if (c.note) svc += '｜' + c.note;
+  if (c.section) svc += '｜本站分段收費 Section fare';
+  if (c.dynamic) svc = '其他路線 Other route';
+  dsvc.textContent = svc; dsvc.title = svc;
+  dc.appendChild(dzh); dc.appendChild(den); dc.appendChild(dsvc);
+  row.appendChild(dc);
+
+  var pc = el('div', 'c-plat');
+  var chip = el('span', 'plat', c.kt);
+  chip.style.color = plat.color; chip.style.borderColor = plat.color;
+  pc.appendChild(chip);
+  pc.appendChild(el('div', 'p-type', plat.shelter ? '候車亭' : '站柱'));
+  row.appendChild(pc);
+
+  var ec = el('div', 'c-eta');
+  var main = el('div', 'e-main');
+  var min = el('span', 'e-min', '--'), unit = el('span', 'e-unit', ''), abs = el('span', 'e-abs', '');
+  main.appendChild(min); main.appendChild(unit); main.appendChild(abs);
+  var sub = el('div', 'e-sub'), next = el('div', 'e-next');
+  ec.appendChild(main); ec.appendChild(sub); ec.appendChild(next);
+  row.appendChild(ec);
+
+  return { el:row, min:min, unit:unit, abs:abs, sub:sub, next:next, dzh:dzh, den:den, eta:ec, sig:'' };
+}
+function ensureRows(){
+  ['south','north'].forEach(function(dir){
+    var merged = mergeAgg(dir);
+    Object.keys(merged).forEach(function(rt){
+      if (cfgFor(dir, rt)) return;
+      var es = merged[rt], e = es[0];
+      var c = r(rt, e.destZh || rt, e.destEn || '', e.kt, [e.co], { dynamic:true });
+      DYN[dir][rt] = c;
+    });
+    Object.keys(DYN[dir]).forEach(function(rt){
+      if (!ROWS[dir][rt]){
+        ROWS[dir][rt] = makeRow(dir, DYN[dir][rt]);
+      }
+    });
+  });
+}
+function updateRow(row, v, now){
+  var sig = v.status + '|' + v.destZh + '|' + v.destEn + '|' + v.noRmk + '|' + v.traffic + '|' + (v.last ? 1 : 0) + '|' + (S.loaded ? 1 : 0) + '|' +
+    v.etas.map(function(x){ return x.t + ':' + (x.sched ? 1 : 0) + (x.last ? 1 : 0) + ':' + Math.max(0, Math.floor((x.t - now) / 60000)); }).join(',');
+  if (row.sig === sig) return;
+  row.sig = sig;
+
+  row.dzh.textContent = v.destZh;
+  row.den.textContent = v.destEn;
+  row.eta.className = 'c-eta st-' + v.status;
+  row.el.className = 'row' + ((v.status === 'off' || v.status === 'none' || v.status === 'ended' || v.status === 'rmk') ? ' dim' : '');
+  while (row.sub.firstChild) row.sub.removeChild(row.sub.firstChild);
+  while (row.next.firstChild) row.next.removeChild(row.next.firstChild);
+
+  if (v.status === 'arriving' || v.status === 'live' || v.status === 'sched'){
+    var f = v.etas[0];
+    if (v.status === 'arriving'){ row.min.textContent = '即將到站'; row.unit.textContent = ''; }
+    else {
+      row.min.textContent = Math.max(1, Math.floor((f.t - now) / 60000));
+      row.unit.textContent = '分鐘 min';
+    }
+    row.abs.textContent = hhmm(f.t);
+    if (f.sched){
+      var c1 = el('span', 'chip sched', '預定班次 Scheduled');
+      c1.title = '編定班次時間，司機可能尚未開車 Scheduled departure — bus may not have started yet';
+      row.sub.appendChild(c1);
+    }
+    if (v.last) row.sub.appendChild(el('span', 'chip last', '尾班車 Last Bus'));
+    if (v.traffic){
+      var c3 = el('span', 'chip traf', '交通延誤 Traffic');
+      c3.title = v.traffic;
+      row.sub.appendChild(c3);
+    }
+    row.next.appendChild(el('span', '', '隨後 Next '));
+    if (v.etas.length > 1){
+      v.etas.slice(1).forEach(function(x, i){
+        if (i) row.next.appendChild(el('span', '', '・'));
+        row.next.appendChild(el('span', x.sched ? 'nx-sched' : '', hhmm(x.t)));
+      });
+    } else row.next.appendChild(el('span', '', '—'));
+  } else {
+    row.min.textContent = '--'; row.unit.textContent = ''; row.abs.textContent = '';
+    var st, cls;
+    if (!S.loaded && v.status === 'none'){ st = '載入中 Loading…'; cls = 'load'; }
+    else if (v.status === 'ended'){ st = '尾班車已過此站 Last bus departed'; cls = 'ended'; }
+    else if (v.status === 'rmk'){ st = v.noRmk; cls = 'rmk'; }
+    else if (v.status === 'off'){ st = '非服務時段 Not in service'; cls = 'off'; }
+    else { st = '未有班次資料 No ETA'; cls = 'none'; }
+    var sp = el('span', 'stat ' + cls, st);
+    sp.title = v.noRmk ? (v.noRmk + ' ' + v.noRmkEn) : st;
+    row.sub.appendChild(sp);
+    var tail = v.status === 'rmk' ? v.noRmkEn : (v.status === 'off' ? (v.c.peak || (v.c.night ? '通宵服務 Overnight service' : '')) : '');
+    if (tail) row.next.appendChild(el('span', '', cap(tail, 60)));
+  }
+}
+function orderRows(){
+  ['south','north'].forEach(function(dir){
+    var views = buildViews(dir);
+    views.sort(function(a, b){
+      if (CFG.sort === 'eta'){
+        var ta = a.etas.length ? a.etas[0].t : Infinity, tb = b.etas.length ? b.etas[0].t : Infinity;
+        if (ta !== tb) return ta - tb;
+        return routeNum(a.c.route) - routeNum(b.c.route) || a.c.route.localeCompare(b.c.route);
+      }
+      if (CFG.sort === 'route'){
+        return routeNum(a.c.route) - routeNum(b.c.route) || a.c.route.localeCompare(b.c.route);
+      }
+      var ia = PLATIDX[dir][a.c.kt], ib = PLATIDX[dir][b.c.kt];
+      if (ia === undefined) ia = 99; if (ib === undefined) ib = 99;
+      return ia - ib || routeNum(a.c.route) - routeNum(b.c.route) || a.c.route.localeCompare(b.c.route);
+    });
+    var inner = $('pages' + (dir === 'south' ? 'South' : 'North'));
+    views.forEach(function(v){
+      var row = ROWS[dir][v.c.route];
+      if (row) inner.appendChild(row.el);
+    });
+  });
+}
+
+/* ================================================================
+   pagination (page-flip instead of endless crawl)
+   ================================================================ */
+function makePager(dir){
+  var sfx = dir === 'south' ? 'South' : 'North';
+  return { dir:dir, view:$('view' + sfx), inner:$('pages' + sfx), dots:$('dots' + sfx),
+           label:$('pl' + sfx), bar:$('bar' + sfx), page:0, starts:[0], per:8, t0:0 };
+}
+function layoutPager(pg){
+  var rows = pg.inner.children, n = rows.length;
+  var per = Math.max(1, Math.floor(pg.view.clientHeight / ROW_H));
+  pg.per = per;
+  var starts = [0], i = 0;
+  if (CFG.sort === 'platform'){
+    while (i < n){
+      var g = rows[i].getAttribute('data-group'), j = i;
+      while (j < n && rows[j].getAttribute('data-group') === g) j++;
+      var size = j - i, last = starts[starts.length - 1], space = per - (i - last);
+      if (size <= per){
+        if (size > space && i > last) starts.push(i);
+      } else {
+        if (i > last) starts.push(i);
+        var k = i + per;
+        while (k < j){ starts.push(k); k += per; }
+      }
+      i = j;
+    }
+  } else {
+    for (var k2 = per; k2 < n; k2 += per) starts.push(k2);
+  }
+  pg.starts = starts;
+  if (pg.page >= starts.length) pg.page = 0;
+  while (pg.dots.firstChild) pg.dots.removeChild(pg.dots.firstChild);
+  starts.forEach(function(_, idx){
+    var d = el('i'); if (idx === pg.page) d.className = 'on';
+    pg.dots.appendChild(d);
+  });
+  applyPage(pg);
+}
+function applyPage(pg){
+  pg.inner.style.transform = 'translateY(' + (-pg.starts[pg.page] * ROW_H) + 'px)';
+  pg.label.textContent = (pg.page + 1) + '/' + pg.starts.length;
+  var ds = pg.dots.children;
+  for (var i = 0; i < ds.length; i++) ds[i].className = i === pg.page ? 'on' : '';
+}
+function layoutPagers(){ layoutPager(P.south); layoutPager(P.north); }
+function frame(ts){
+  if (!S.frameT) S.frameT = ts;
+  ['south','north'].forEach(function(dir){
+    var pg = P[dir];
+    if (!pg.t0) pg.t0 = ts;
+    if (pg.starts.length > 1){
+      var elap = ts - pg.t0;
+      pg.bar.style.width = Math.min(100, elap / CFG.pageMs * 100) + '%';
+      if (elap >= CFG.pageMs){
+        pg.page = (pg.page + 1) % pg.starts.length;
+        pg.t0 = ts;
+        applyPage(pg);
+      }
+    } else pg.bar.style.width = '0';
+  });
+  S.frameT = ts;
+  requestAnimationFrame(frame);
+}
+
+/* ================================================================
+   warning strip + ticker
+   ================================================================ */
+function freshStn(){
+  var now = Date.now();
+  return S.stn.filter(function(x){ return !x.t || now - x.t < 12 * 3600000; });
+}
+function buildWarnStrip(){
+  var nearby = freshStn().filter(function(x){ return x.near; });
+  var sig = S.warns.map(function(w){ return w.code; }).join(',') + '|' +
+            nearby.map(function(x){ return x.where; }).join(',') + '|' +
+            S.trafRmk.map(function(x){ return x.route + ':' + x.rmk; }).join(',');
+  if (sig === lastStripSig) return;
+  lastStripSig = sig;
+  var strip = $('warnStrip');
+  while (strip.firstChild) strip.removeChild(strip.firstChild);
+  S.warns.forEach(function(w){
+    var b = el('div', 'wb'); b.style.backgroundColor = w.bg;
+    if (w.icon){
+      var img = document.createElement('img');
+      img.onerror = function(){ img.style.display = 'none'; };
+      img.src = w.icon; img.alt = '';
+      b.appendChild(img);
+    }
+    b.appendChild(el('span', '', w.label));
+    strip.appendChild(b);
+  });
+  nearby.slice(0, 2).forEach(function(x){
+    var b = el('div', 'wb'); b.style.backgroundColor = '#9a3412';
+    b.appendChild(el('span', '', '交通消息：' + cap(x.where || x.content, 36)));
+    b.title = cap(x.content, 300);
+    strip.appendChild(b);
+  });
+  if (nearby.length > 2){
+    var more = el('div', 'wb'); more.style.backgroundColor = '#9a3412';
+    more.appendChild(el('span', '', '另有 ' + (nearby.length - 2) + ' 宗附近交通消息'));
+    strip.appendChild(more);
+  }
+  S.trafRmk.slice(0, 2).forEach(function(x){
+    var b = el('div', 'wb'); b.style.backgroundColor = '#9a3412';
+    b.appendChild(el('span', '', '路線 ' + x.route + '：' + cap(x.rmk, 30)));
+    strip.appendChild(b);
+  });
+  layoutPagers();   // strip height changed → rows-per-page may change
+}
+function rebuildTicker(){
+  var parts = [];
+  S.wxMsgs.forEach(function(m){ parts.push('【天氣警告】' + cap(m, 200)); });
+  if (!S.wxMsgs.length) S.warns.forEach(function(w){ parts.push('【天氣警告】' + w.label); });
+  freshStn().forEach(function(x){
+    parts.push('【交通消息' + (x.near ? '・附近' : '') + '】' + (x.dist ? x.dist + '・' : '') + x.where + '：' + cap(x.content, 170));
+  });
+  S.trafRmk.forEach(function(x){ parts.push('【巴士交通備註】路線 ' + x.route + '：' + x.rmk); });
+  if (S.lastEta && Date.now() - S.lastEta > CFG.staleMs) parts.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
+  parts.push('狀態說明：綠色＝實到站時間｜黃色＝預定班次（司機或尚未開車）｜紅色＝尾班車 Status: green = live, amber = scheduled, red = last bus');
+  parts.push('601／601P 為九巴及城巴聯營路線 Joint-operated by KMB & Citybus｜北行本站實施分段收費 Section fare applies at this stop (northbound)');
+  parts.push('23M 設特別班次經九龍灣商貿區（週一至五上午）23M special trips via Kowloon Bay Business Area (weekday AM peak)');
+  parts.push('測試中・僅供參考 Testing in progress — for reference only');
+  parts.push('資料來源 Data sources：九巴 KMB・城巴 Citybus・天文台 HKO・運輸署 TD Open Data');
+  parts.push('感謝使用 KTMC 巴士到站時間顯示系統 Thank you for using the KTMC Bus ETA Display System');
+  var str = parts.join('  •  ');
+  if (str === lastTickStr) return;
+  lastTickStr = str;
+  $('tickA').textContent = str;
+  $('tickB').textContent = str;
+  var track = $('tickTrack');
+  var w = track.offsetWidth / 2;
+  var dur = Math.max(25, w / 110);
+  track.style.animation = 'none';
+  void track.offsetWidth;
+  track.style.animation = 'tickmove ' + dur + 's linear infinite';
+}
+
+/* ================================================================
+   clock / per-second tick (no seconds shown anywhere)
+   ================================================================ */
+function tick(){
+  var now = Date.now(), hk = hkDate(now);
+  $('ch').textContent = pad(hk.getHours());
+  $('cm').textContent = pad(hk.getMinutes());
+  $('dateZh').textContent = hk.getFullYear() + '年' + (hk.getMonth() + 1) + '月' + hk.getDate() + '日 星期' + WZH[hk.getDay()];
+  $('dateEn').textContent = WEN[hk.getDay()] + ' ' + pad(hk.getDate()) + ' ' + MEN[hk.getMonth()] + ' ' + hk.getFullYear();
+
+  S.trafRmk = [];
+  ['south','north'].forEach(function(dir){
+    buildViews(dir).forEach(function(v){
+      var row = ROWS[dir][v.c.route];
+      if (row) updateRow(row, v, now);
+      if (v.traffic) S.trafRmk.push({ route:v.c.route, rmk:v.traffic });
+    });
+  });
+  buildWarnStrip();
+  rebuildTicker();
+
+  /* footer health */
+  var age;
+  [['kmb','dotKmb'],['ctb','dotCtb'],['hko','dotHko'],['td','dotTd']].forEach(function(pr){
+    var h = H[pr[0]], dot = $(pr[1]), cls = '';
+    if (!h.t) cls = '';
+    else if (h.ok && now - h.t < CFG.staleMs) cls = 'ok';
+    else if (h.ok) cls = 'warn';
+    else cls = 'bad';
+    dot.className = cls;
+  });
+  var upd = $('upd');
+  if (navigator.onLine === false){ upd.textContent = '離線 Offline'; upd.className = 'bad'; }
+  else if (!S.lastEta){ upd.textContent = '載入中…'; upd.className = ''; }
+  else {
+    age = now - S.lastEta;
+    if (age > CFG.staleMs){ upd.textContent = '延遲 ' + hhmm(S.lastEta); upd.className = 'warn'; }
+    else { upd.textContent = '更新 ' + hhmm(S.lastEta); upd.className = ''; }
+  }
+  if (S.dbg) renderDbg(now);
+}
+
+/* ================================================================
+   fullscreen / wake-lock / anti-screensaver
+   ================================================================ */
+function isFS(){
+  return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+            document.mozFullScreenElement || document.msFullscreenElement);
+}
+function reqFS(){
+  var e = document.documentElement;
+  var fn = e.requestFullscreen || e.webkitRequestFullscreen || e.mozRequestFullScreen || e.msRequestFullscreen;
+  if (!fn) return Promise.reject(new Error('Fullscreen API unavailable'));
+  try {
+    var p = fn.call(e, { navigationUI:'hide' });
+    return (p && p.then) ? p : Promise.resolve();
+  } catch (err){ return Promise.reject(err); }
+}
+function exitFS(){
+  var fn = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+  if (fn) try { fn.call(document); } catch (e){}
+}
+function onFS(){
+  S.fs = true;
+  $('fsPrompt').className = 'hide';
+  $('fsPill').className = '';
+  reqWake(); startAudio();
+  try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function(){}); } catch (e){}
+  setTimeout(function(){ if (!isFS()){ S.fs = false; $('fsPill').className = 'show'; } }, 800);
+}
+function tryFS(verbose){
+  if (isFS()){ onFS(); return; }
+  reqFS().then(onFS).catch(function(){
+    if (verbose){ $('fsPrompt').className = 'hide'; $('fsPill').className = 'show'; }
+  });
+}
+function onFSChanged(){
+  if (isFS()) onFS();
+  else { S.fs = false; $('fsPill').className = 'show'; }
+}
+function reqWake(){
+  try {
+    if (navigator.wakeLock && navigator.wakeLock.request){
+      navigator.wakeLock.request('screen').then(function(s){
+        S.wake = s;
+        if (s.addEventListener) s.addEventListener('release', function(){ S.wake = null; });
+      }).catch(function(){ S.wake = null; });
+    }
+  } catch (e){}
+}
+function startAudio(){
+  if (S.audio === 'on') return;
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    var ac = new AC();
+    var o = ac.createOscillator(), g = ac.createGain();
+    g.gain.value = 0.0001; o.frequency.value = 30;
+    o.connect(g); g.connect(ac.destination); o.start();
+    if (ac.resume) ac.resume();
+    S.audio = 'on';
+  } catch (e){ S.audio = 'err'; }
+}
+/* Full-viewport canvas→video: webOS treats playing video as activity,
+   which suppresses the idle screensaver. Doubles as a live background
+   and OLED anti-burn-in motion. */
+var guardVideo = null;
+function startGuard(){
+  try {
+    var cv = document.createElement('canvas');
+    cv.width = 480; cv.height = 270;
+    var cx = cv.getContext('2d'), t = 0;
+    function blob(x, y, rad, col){
+      var g = cx.createRadialGradient(x, y, 0, x, y, rad);
+      g.addColorStop(0, col); g.addColorStop(1, 'rgba(4,7,13,0)');
+      cx.fillStyle = g; cx.fillRect(0, 0, 480, 270);
+    }
+    function draw(){
+      t += 0.02;
+      cx.fillStyle = '#04070d'; cx.fillRect(0, 0, 480, 270);
+      blob(240 + Math.sin(t) * 160, 135 + Math.cos(t * 0.8) * 80, 190, 'rgba(20,40,70,0.55)');
+      blob(240 + Math.cos(t * 0.6) * 200, 135 + Math.sin(t * 0.5) * 100, 150, 'rgba(12,30,50,0.5)');
+      blob(240 + Math.sin(t * 0.4 + 2) * 220, 135 + Math.cos(t * 0.7 + 1) * 90, 130, 'rgba(30,25,55,0.4)');
+    }
+    draw();
+    setInterval(draw, 150);
+    guardVideo = $('bgvid');
+    if (cv.captureStream && 'srcObject' in guardVideo){
+      guardVideo.srcObject = cv.captureStream(8);
+      guardVideo.muted = true;
+      playGuard();
+      guardVideo.addEventListener('playing', function(){ S.guard = 'playing'; });
+      guardVideo.addEventListener('pause', function(){ S.guard = 'paused'; });
+      S.guard = 'starting';
+      setInterval(playGuard, 15000);
+    } else S.guard = 'unsupported';
+  } catch (e){ S.guard = 'error: ' + e.message; }
+}
+function playGuard(){
+  if (!guardVideo) return;
+  if (guardVideo.paused){
+    try { var p = guardVideo.play(); if (p && p.catch) p.catch(function(){}); } catch (e){}
+  }
+}
+
+/* ================================================================
+   stage scaling + pixel shift (OLED burn-in protection)
+   ================================================================ */
+function layout(){
+  var w = window.innerWidth, h = window.innerHeight;
+  var s = Math.min(w / STAGE_W, h / STAGE_H);
+  S.scale = s;
+  var sh = SHIFT[shiftIdx];
+  var x = (w - STAGE_W * s) / 2 + sh[0] * s;
+  var y = (h - STAGE_H * s) / 2 + sh[1] * s;
+  $('stage').style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+  layoutPagers();
+}
+
+/* ================================================================
+   debug panel (press D)
+   ================================================================ */
+function renderDbg(now){
+  var L = [];
+  L.push('KTMC ETA Board v2 — debug (press D to hide)');
+  L.push('HK time: ' + hhmm(now) + '  |  device: ' + new Date().toString());
+  L.push('screen: ' + window.innerWidth + 'x' + window.innerHeight + '  scale: ' + S.scale.toFixed(3));
+  L.push('fullscreen: ' + isFS() + '  wakeLock: ' + (S.wake ? 'active' : 'no') +
+         '  guardVideo: ' + S.guard + '  audio: ' + S.audio);
+  L.push('loaded: ' + S.loaded + '  lastEta: ' + (S.lastEta ? hhmm(S.lastEta) + ' (' + Math.round((now - S.lastEta) / 1000) + 's ago)' : 'never'));
+  ['kmb','ctb','hko','td'].forEach(function(k){
+    var h = H[k];
+    L.push(k.toUpperCase() + ': ' + (h.ok ? 'OK' : 'FAIL') + (h.t ? ' @' + hhmm(h.t) : '') + (h.err ? '  err=' + h.err : ''));
+  });
+  L.push('rows S/N: ' + Object.keys(ROWS.south).length + '/' + Object.keys(ROWS.north).length +
+         '  pages S/N: ' + P.south.starts.length + '/' + P.north.starts.length +
+         '  per: ' + P.south.per + '/' + P.north.per);
+  L.push('warns: ' + (S.warns.map(function(w){ return w.code; }).join(',') || 'none') +
+         '  STN items: ' + S.stn.length + ' (near ' + S.stn.filter(function(x){ return x.near; }).length + ')');
+  L.push('keys: D=debug  F=fullscreen  R=refresh now');
+  L.push('LG screensaver tips:');
+  L.push(' 1) Settings > General > System > Additional Settings > Screen Saver Promotion = Off');
+  L.push(' 2) Same menu: Auto Power Off / No Signal Image = Off; Energy Saving = Off');
+  L.push(' 3) Some models: press MUTE 3x quickly for the hidden signage menu');
+  L.push(' 4) Hotel/Installation mode can disable idle screensaver timers');
+  if (S.errs.length){ L.push('errors:'); S.errs.slice(-5).forEach(function(e){ L.push('  ' + e); }); }
+  $('dbg').textContent = L.join('\n');
+}
+
+/* ================================================================
+   events + boot
+   ================================================================ */
+function refreshAll(){ refreshEtas(); refreshWx(); refreshStn(); }
+function gesture(){
+  startAudio(); playGuard();
+  if (!isFS()) tryFS(true);
+}
+function bindEvents(){
+  window.addEventListener('resize', layout);
+  document.addEventListener('fullscreenchange', onFSChanged);
+  document.addEventListener('webkitfullscreenchange', onFSChanged);
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden){
+      refreshEtas(); refreshWx(); reqWake(); playGuard();
+      P.south.t0 = 0; P.north.t0 = 0;
+    }
+  });
+  window.addEventListener('online', refreshAll);
+  window.addEventListener('keydown', function(e){
+    var k = e.key || '';
+    if ([32,37,38,39,40].indexOf(e.keyCode) >= 0) e.preventDefault();
+    if (k === 'd' || k === 'D'){ S.dbg = !S.dbg; $('dbg').className = S.dbg ? 'show' : ''; }
+    else if (k === 'f' || k === 'F'){ if (isFS()) exitFS(); else tryFS(true); }
+    else if (k === 'r' || k === 'R'){ refreshAll(); }
+    else gesture();
+  });
+  window.addEventListener('pointerdown', gesture);
+  window.addEventListener('touchstart', gesture);
+  var cursorTimer = null;
+  window.addEventListener('mousemove', function(){
+    document.body.className = 'cursor';
+    if (cursorTimer) clearTimeout(cursorTimer);
+    cursorTimer = setTimeout(function(){ document.body.className = ''; }, 2500);
+  });
+  window.addEventListener('error', function(e){
+    S.errs.push(String(e.message || e));
+    if (S.errs.length > 10) S.errs.shift();
+  });
+  $('fsBtn').addEventListener('click', function(){ tryFS(true); });
+  $('fsPill').addEventListener('click', function(){ tryFS(true); });
+}
+function buildStatic(){
+  ['south','north'].forEach(function(dir){
+    var sfx = dir === 'south' ? 'South' : 'North';
+    var leg = $('leg' + sfx);
+    PLATFORMS[dir].forEach(function(p, idx){
+      PLATIDX[dir][p.kt] = idx;
+      PLATBYKT[dir][p.kt] = p;
+      var chip = el('span', 'lg');
+      var dot = el('i'); dot.style.background = p.color;
+      chip.appendChild(dot);
+      chip.appendChild(el('b', '', p.kt));
+      chip.appendChild(el('span', '', p.label));
+      leg.appendChild(chip);
+    });
+    ROWCFG[dir].forEach(function(c){
+      ROWS[dir][c.route] = makeRow(dir, c);
+    });
+    P[dir] = makePager(dir);
+  });
+  if (!CFG.stn) $('srcTd').style.display = 'none';
+  orderRows();
+}
+function init(){
+  buildStatic();
+  layout();
+  startGuard();
+  bindEvents();
+  tick();
+  refreshAll();
+  setInterval(tick, 1000);
+  setInterval(refreshEtas, CFG.etaMs);
+  setInterval(refreshWx, CFG.wxMs);
+  if (CFG.stn) setInterval(refreshStn, CFG.stnMs);
+  setInterval(function(){ shiftIdx = (shiftIdx + 1) % SHIFT.length; layout(); }, 45000);
+  requestAnimationFrame(frame);
+  /* optimistic auto-fullscreen attempt (works where the browser allows it);
+     otherwise the OK/Click prompt handles the required user gesture */
+  reqFS().then(onFS).catch(function(){});
+  try { $('fsBtn').focus(); } catch (e){}
+}
+init();
 </script>
 </body>
 </html>
