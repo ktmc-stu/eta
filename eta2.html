@@ -41,6 +41,12 @@ body.cursor{cursor:default}
 button,select,input{font-family:inherit}
 button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-offset:1px}
 #bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
+/* split-flap (Solari) flip effect */
+.flapping{position:relative;display:inline-block;animation:flapTilt .09s steps(2,end) infinite}
+.flapping::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.45);pointer-events:none}
+@keyframes flapTilt{0%{transform:rotateX(0deg)}50%{transform:rotateX(-9deg)}100%{transform:rotateX(0deg)}}
+body.no-anim .flapping{animation:none}
+body.no-anim .flapping::after{display:none}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
        padding:24px;display:flex;flex-direction:column}
 #header{height:100px;flex-shrink:0;display:flex;align-items:center;background:var(--panel);
@@ -279,24 +285,24 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
   <div id="header">
     <img id="logo" src="ktmc.png" alt="KTMC" onerror="this.style.display='none'">
     <div id="titleBox">
-      <div id="tZh">翠屏・協和・和樂 多站巴士到站顯示屏</div>
-      <div id="tEn">TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY</div>
-      <div id="tSub">和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站</div>
+      <div id="tZh" data-flap="hZ">翠屏・協和・和樂 多站巴士到站顯示屏</div>
+      <div id="tEn" data-flap="hE">TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY</div>
+      <div id="tSub" data-flap="hS">和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站</div>
     </div>
     <div id="warnBox"></div>
     <div id="phaseCard">
-      <div id="phaseLab">現正顯示 NOW SHOWING</div>
-      <div id="phaseVal">全站總覽</div>
-      <div id="phaseSub">—</div>
+      <div id="phaseLab" data-flap="hL">現正顯示 NOW SHOWING</div>
+      <div id="phaseVal" data-flap="hV">全站總覽</div>
+      <div id="phaseSub" data-flap="hP">—</div>
     </div>
     <div id="wxCard">
       <img id="wxIcon" alt="">
-      <div><div id="wxTemp">--°C</div><div id="wxHum">濕度 --%</div></div>
+      <div><div id="wxTemp">--°C</div><div id="wxHum" data-flap="hH">濕度 --%</div></div>
     </div>
     <div id="clockCard">
       <div id="clock"><span id="ch">--</span><span>:</span><span id="cm">--</span></div>
-      <div id="dateZh">----年--月--日</div>
-      <div id="dateEn">---</div>
+      <div id="dateZh" data-flap="hDZ">----年--月--日</div>
+      <div id="dateEn" data-flap="hDE">---</div>
     </div>
     <button id="setBtn" aria-label="設定 Settings" title="設定 Settings">
       <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -309,7 +315,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <div id="over" class="show"></div>
     <div id="detail">
       <div id="dHead">
-        <div id="dNameBox"><div id="dName">—</div><div id="dEn">—</div></div>
+        <div id="dNameBox"><div id="dName" data-flap="dN">—</div><div id="dEn" data-flap="dE">—</div></div>
         <div id="dTags"></div>
         <div id="dPager"><span class="dots" id="dDots"></span><span id="dLabel">1/1</span></div>
         <div id="dBar"></div>
@@ -336,7 +342,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <div class="pHead"><div class="pTitle">設定 Settings</div><button class="pClose" id="setClose" aria-label="關閉">✕</button></div>
     <div class="pLab">主題 Theme</div>
     <div class="two"><button class="opt" id="thDark">深色 Dark</button><button class="opt" id="thLight">淺色 Light</button></div>
-    <div class="pLab">動畫 Animations</div>
+    <div class="pLab">動畫及翻牌 Animations &amp; split-flip</div>
     <button class="opt" id="animBtn">動畫：開 Animations: On</button>
     <div class="pLab">語言 Language</div>
     <select class="sel" id="langSel">
@@ -371,7 +377,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <button class="opt" id="dbgBtn">診斷 Diagnostics</button>
     <button class="opt" id="refBtn">立即更新 Refresh now</button>
     <button class="opt" id="fsBtn2">全螢幕 Fullscreen</button>
-    <div class="pHint">設定會自動儲存。網址參數：?lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WOH-S&amp;reload=6</div>
+    <div class="pHint">「動畫：關」會同時關閉翻牌切換、滾動與閃爍，語言即時切換。網址參數：?lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WOH-S&amp;reload=6</div>
   </div>
 
   <div class="panel" id="resPanel">
@@ -531,6 +537,7 @@ function inWin(w,hk){if(w.d.indexOf(hk.getDay())<0)return false;var m=hk.getHour
 function rnum(r){var n=parseInt(r,10);if(isNaN(n))n=9999;if(r.charAt(0)==='N')n+=10000;return n;}
 function nname(s){return String(s||'').replace(/\s+/g,'').replace(/（/g,'(').replace(/）/g,')').toLowerCase();}
 function T(zh,en){return S.langCur==='en'?(en!==undefined?en:zh):zh;}
+function setIfNotFlapping(e,t){if(!e)return;if(e.classList&&e.classList.contains('flapping'))return;if(e.textContent!==t)e.textContent=t;}
 function fText(u,ms){return new Promise(function(res,rej){var done=false,
   to=setTimeout(function(){if(!done){done=true;rej(new Error('timeout'));}},ms||12000);
   fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
@@ -543,7 +550,7 @@ function qs(){var o={},s=location.search.replace(/^\?/,'');if(!s)return o;
     o[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});return o;}
 var S={scale:1,fs:false,wake:null,guard:'init',audio:'off',loaded:false,lastEta:0,theme:'dark',anim:true,
   open:'',errs:[],frameT:0,phases:[],pi:0,pT:0,resolving:false,boot:Date.now(),
-  langCur:'zh',langT:Date.now(),
+  langCur:'zh',langT:Date.now(),detailSig:'',
   wx:{temp:null,hum:null,icon:null},wxMsgs:[],warns:[]};
 var H={kmb:{ok:false,t:0,err:''},ctb:{ok:false,t:0,err:''},hko:{ok:false,t:0,err:''}};
 var MAP={},CTBM={},AGG={},CAND=[],ROWS={},OVC={},CHIP={};
@@ -552,6 +559,68 @@ var SHIFT=[[0,0],[2,1],[3,3],[1,2]],sIdx=0;
 var WZH=['日','一','二','三','四','五','六'],WEN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
 var MEN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 var lastTick='',lastStrip='',etaBusy=false;
+/* ---------- split-flap engine ---------- */
+var FLAP_LAT='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/·';
+var FLAP_CJK='アィウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ・ー';
+var FLAPPEND=[];
+function scramble(final,set,prog){
+  var reveal=Math.floor(final.length*prog),out='',i,ch;
+  for(i=0;i<final.length;i++){
+    ch=final.charAt(i);
+    if(ch===' '){out+=' ';continue;}
+    out+=(i<reveal)?ch:set.charAt(Math.floor(Math.random()*set.length));
+  }
+  return out;
+}
+function dropEntry(e){var i=FLAPPEND.indexOf(e);if(i>=0)FLAPPEND.splice(i,1);}
+function cancelFlaps(finalize){
+  FLAPPEND.forEach(function(e){
+    clearTimeout(e.to);if(e.iv)clearInterval(e.iv);
+    if(e.el&&e.el.classList)e.el.classList.remove('flapping');
+    if(finalize&&e.el)e.el.textContent=e.neu;
+  });
+  FLAPPEND.length=0;
+}
+function flapTo(entry,old,delay){
+  entry.to=setTimeout(function(){
+    if(!S.anim){entry.el.textContent=entry.neu;dropEntry(entry);return;}
+    entry.el.classList.add('flapping');
+    var set=/[一-鿿]/.test(entry.neu)?FLAP_CJK:FLAP_LAT;
+    var steps=7+Math.floor(Math.random()*5),i=0;
+    entry.el.textContent=old;
+    entry.iv=setInterval(function(){
+      i++;
+      if(i>=steps){clearInterval(entry.iv);entry.iv=null;
+        entry.el.classList.remove('flapping');entry.el.textContent=entry.neu;dropEntry(entry);return;}
+      entry.el.textContent=scramble(entry.neu,set,i/steps);
+    },45);
+  },delay);
+  FLAPPEND.push(entry);
+}
+function scheduleFlaps(oldMap){
+  var nodes=document.querySelectorAll('[data-flap]'),counters={},i;
+  for(i=0;i<nodes.length;i++){
+    var e=nodes[i],key=e.getAttribute('data-flap'),old=oldMap[key],neu=e.textContent;
+    if(old===undefined||old===neu)continue;
+    e.textContent=old; /* keep old language until this cell's own flip */
+    var base=0;
+    if(key.indexOf('rib')===0)base=0;
+    else if(key.indexOf('h')===0)base=120;
+    else if(key.indexOf('ov')===0)base=320;
+    else if(key.indexOf('d')===0)base=620;
+    else if(key.indexOf('r')===0)base=820;
+    counters[base]=(counters[base]||0);
+    var delay=base+counters[base]*30+Math.floor(Math.random()*50);
+    counters[base]++;
+    flapTo({el:e,neu:neu},old,delay);
+  }
+}
+function snapshotFlap(){
+  var m={},nodes=document.querySelectorAll('[data-flap]'),i;
+  for(i=0;i<nodes.length;i++)m[nodes[i].getAttribute('data-flap')]=nodes[i].textContent;
+  return m;
+}
+/* ---------- settings ---------- */
 function persist(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
 function setTheme(t){if(t!=='light')t='dark';S.theme=t;
   document.documentElement.setAttribute('data-theme',t);
@@ -562,7 +631,9 @@ function setTheme(t){if(t!=='light')t='dark';S.theme=t;
   $('thDark').textContent=(t==='dark'?'✓ ':'')+'深色 Dark';
   $('thLight').textContent=(t==='light'?'✓ ':'')+'淺色 Light';
   persist('ktmc2Theme',t);}
-function setAnim(v){S.anim=!!v;
+function setAnim(v){
+  S.anim=!!v;
+  if(!S.anim)cancelFlaps(true);
   if(S.anim)document.body.classList.remove('no-anim');else document.body.classList.add('no-anim');
   $('animBtn').textContent=S.anim?'動畫：開 Animations: On':'動畫：關 Animations: Off';
   $('animBtn').className='opt'+(S.anim?' on':'');
@@ -617,19 +688,29 @@ function openPanel(n){
   if(!S.open){try{$('setBtn').focus();}catch(e){}}
 }
 function applyHeaderLang(){
-  $('tZh').textContent=T('翠屏・協和・和樂 多站巴士到站顯示屏','TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY');
-  $('tEn').textContent=T('TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY','翠屏・協和・和樂 多站巴士到站顯示屏');
-  $('tSub').textContent=T('和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站',
-    'Wo Lok Estate · Wo Cheong Court · Po Pui Court · Chui On House · Chui Tsz House · Kwun Tong Swimming Pool · Tsui Ping Rd & Tsui Ping North Est. Terminuses');
-  $('phaseLab').textContent=T('現正顯示 NOW SHOWING','NOW SHOWING 現正顯示');
+  setIfNotFlapping($('tZh'),T('翠屏・協和・和樂 多站巴士到站顯示屏','TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY'));
+  setIfNotFlapping($('tEn'),T('TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY','翠屏・協和・和樂 多站巴士到站顯示屏'));
+  setIfNotFlapping($('tSub'),T('和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站',
+    'Wo Lok Estate · Wo Cheong Court · Po Pui Court · Chui On House · Chui Tsz House · Kwun Tong Swimming Pool · Tsui Ping Rd & Tsui Ping North Est. Terminuses'));
+  setIfNotFlapping($('phaseLab'),T('現正顯示 NOW SHOWING','NOW SHOWING 現正顯示'));
+  setIfNotFlapping($('wxHum'),T('濕度 ','Humidity ')+(S.wx.hum===null?'--':S.wx.hum)+'%');
+  var hk=hkDate(Date.now());
+  setIfNotFlapping($('dateZh'),T(hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()],
+    WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear()));
+  setIfNotFlapping($('dateEn'),T(WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear(),
+    hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()]));
 }
 function langChanged(){
+  cancelFlaps(true);
+  var oldMap=snapshotFlap();
   S.langT=Date.now();
   Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
+  S.detailSig='';
   applyHeaderLang();
   buildRibbon();buildOver();
   applyPhase();
   lastTick='';ticker();
+  scheduleFlaps(oldMap);
 }
 function rall(e){return (e.rmk||'')+' '+(e.rmkEn||'');}
 function isSched(e){return /原定|預計班次|scheduled/i.test(rall(e));}
@@ -775,10 +856,12 @@ function buildRibbon(){
   STOPS.forEach(function(g){
     var c=el('div','chip');c.style.borderLeftColor='var(--'+g.hue+')';
     var top=el('div','chipTop');
-    top.appendChild(el('div','chipName',T(g.name,g.en)));
-    top.appendChild(el('div','chipDir',g.arrow+T(g.dir,g.dirEn)));
+    var nm=el('div','chipName',T(g.name,g.en));nm.setAttribute('data-flap','ribN'+g.key);
+    var dr=el('div','chipDir',g.arrow+T(g.dir,g.dirEn));dr.setAttribute('data-flap','ribD'+g.key);
+    top.appendChild(nm);top.appendChild(dr);
     c.appendChild(top);
-    c.appendChild(el('div','chipWalk',T('步行'+g.walk+'分',g.walk+' min')));
+    var wk=el('div','chipWalk',T('步行'+g.walk+'分',g.walk+' min'));wk.setAttribute('data-flap','ribW'+g.key);
+    c.appendChild(wk);
     box.insertBefore(c,$('ribBar'));CHIP[g.key]=c;});
 }
 function buildOver(){
@@ -786,14 +869,17 @@ function buildOver(){
   STOPS.forEach(function(g){
     var c=el('div','oCard');c.style.borderTopColor='var(--'+g.hue+')';
     var h=el('div','oHead');
-    h.appendChild(el('div','oName',T(g.name,g.en)));
-    h.appendChild(el('div','oWalk',T('步行'+g.walk+'分',g.walk+' min')));
-    h.appendChild(el('div','oDir',g.arrow+' '+T(g.dir,g.dirEn)));
+    var nm=el('div','oName',T(g.name,g.en));nm.setAttribute('data-flap','ovN'+g.key);
+    var wk=el('div','oWalk',T('步行'+g.walk+'分',g.walk+' min'));wk.setAttribute('data-flap','ovW'+g.key);
+    var dr=el('div','oDir',g.arrow+' '+T(g.dir,g.dirEn));dr.setAttribute('data-flap','ovD'+g.key);
+    h.appendChild(nm);h.appendChild(wk);h.appendChild(dr);
     c.appendChild(h);
-    c.appendChild(el('div','oMeta',T(g.street+' · 月台 '+g.platforms.map(function(p){return p.label;}).join(' / '),
-      g.streetEn+' · Platforms '+g.platforms.map(function(p){return p.label;}).join(' / '))));
+    var mt=el('div','oMeta',T(g.street+' · 月台 '+g.platforms.map(function(p){return p.label;}).join(' / '),
+      g.streetEn+' · Platforms '+g.platforms.map(function(p){return p.label;}).join(' / ')));
+    mt.setAttribute('data-flap','ovM'+g.key);
+    c.appendChild(mt);
     var l=el('div','oList');c.appendChild(l);
-    var f=el('div','oFoot','');c.appendChild(f);
+    var f=el('div','oFoot','');f.setAttribute('data-flap','ovF'+g.key);c.appendChild(f);
     box.appendChild(c);OVC[g.key]={el:c,list:l,foot:f,sig:''};});
 }
 function renderOver(now,hk){
@@ -812,28 +898,32 @@ function renderOver(now,hk){
     }else show.forEach(function(x){
       var f=x.etas[0],m=Math.max(1,Math.floor((f.t-now)/60000)),r=el('div','oRow');
       r.appendChild(el('div','oBadge',x.c.route));
-      r.appendChild(el('div','oDest',T(x.destZh,x.destEn)));
+      var ds=el('div','oDest',T(x.destZh,x.destEn));ds.setAttribute('data-flap','ovR'+g.key+':'+x.c.route);
+      r.appendChild(ds);
       r.appendChild(el('div','oMin'+band(f.t-now),String(m)));
-      r.appendChild(el('div','oUnit',T('分鐘','min')));
+      var un2=el('div','oUnit',T('分鐘','min'));un2.setAttribute('data-flap','ovU'+g.key+':'+x.c.route);
+      r.appendChild(un2);
       o.list.appendChild(r);});
     o.foot.textContent=T('共 '+all.length+' 條路線 · '+live.length+' 班在途'+(live.length?' · 最快 '+hhmm(live[0].etas[0].t):''),
       all.length+' routes · '+live.length+' en route'+(live.length?' · soonest '+hhmm(live[0].etas[0].t):''));
   });
 }
 function makeRow(v){
+  var key=v.p.key+'|'+v.c.route;
   var row=el('div','row'),rc=el('div','c-route');
   rc.appendChild(el('div','badge',v.c.route));
   var cos=el('div','cos'),map={};
   v.c.cos.forEach(function(co){var sp=el('span','co '+co.toLowerCase(),co==='KMB'?T('九巴 KMB','KMB'):T('城巴 CTB','CTB'));map[co]=sp;cos.appendChild(sp);});
   rc.appendChild(cos);row.appendChild(rc);
   var dc=el('div','c-dest'),dz=el('div','d-zh'),de=el('div','d-en'),ds=el('div','d-svc');
+  dz.setAttribute('data-flap','rZ'+key);de.setAttribute('data-flap','rE'+key);ds.setAttribute('data-flap','rS'+key);
   dc.appendChild(dz);dc.appendChild(de);dc.appendChild(ds);row.appendChild(dc);
   var pc=el('div','c-plat');pc.appendChild(el('div','plat',v.p.label));row.appendChild(pc);
   var ec=el('div','c-eta'),main=el('div','e-main'),min=el('span','e-min','--');
   var right=el('div','e-right'),top=el('div','e-top'),bot=el('div','e-bot');
   right.appendChild(top);right.appendChild(bot);main.appendChild(min);main.appendChild(right);
   var next=el('div','e-next');ec.appendChild(main);ec.appendChild(next);row.appendChild(ec);
-  return {el:row,min:min,top:top,bot:bot,next:next,dz:dz,de:de,ds:ds,eta:ec,cos:map,sig:''};
+  return {el:row,min:min,top:top,bot:bot,next:next,dz:dz,de:de,ds:ds,eta:ec,cos:map,sig:'',key:key};
 }
 function ensureRows(){PLATS.forEach(function(p){p.routes.forEach(function(c){
   var k=p.key+'|'+c.route;if(!ROWS[k])ROWS[k]=makeRow({p:p,c:c});});});}
@@ -842,26 +932,30 @@ function updRow(row,v,now){
   var sig=S.langCur+'|'+v.status+'|'+v.destZh+'|'+v.destEn+'|'+v.noRmk+'|'+(v.last?1:0)+'|'+bd+'|'+(cur||'')+'|'+(S.loaded?1:0)+'|'+
     v.etas.map(function(x){return x.t+':'+(x.sched?1:0)+':'+Math.max(1,Math.floor((x.t-now)/60000));}).join(',');
   if(row.sig===sig)return;row.sig=sig;
+  var key=row.key;
   row.dz.textContent=T(v.destZh,v.destEn);
   row.de.textContent=T(v.destEn,v.destZh);
   row.ds.textContent=svcText(v.c);
   row.eta.className='c-eta st-'+v.status;
   row.el.className='row'+((v.status==='off'||v.status==='none'||v.status==='ended'||v.status==='rmk')?' dim':'');
   clear(row.top);clear(row.bot);clear(row.next);
-  var joint=v.c.cos.length>1;
+  var joint=v.c.cos.length>1,tn=0;
   Object.keys(row.cos).forEach(function(co){
     row.cos[co].className='co '+co.toLowerCase()+((joint&&cur&&co!==cur)?' off':'');});
+  function addTop(node){node.setAttribute('data-flap','rT'+key+'_'+(tn++));row.top.appendChild(node);}
   if(f){
     row.min.textContent=Math.max(1,Math.floor((f.t-now)/60000));
     row.min.className='e-min'+bd;
     var any=false;
-    if(v.status==='arriving'){row.top.appendChild(el('span','chipT arrive',T('即將到站','Arriving')));any=true;}
-    if(f.sched){row.top.appendChild(el('span','chipT sched',T('預定班次','Scheduled')));any=true;}
-    if(v.last){row.top.appendChild(el('span','chipT last',T('尾班車','Last bus')));any=true;}
-    if(!any)row.top.appendChild(el('span','liveTag',T('實時 Live','Live')));
-    row.bot.appendChild(el('span','e-unit',T('分鐘 min','min')));
+    if(v.status==='arriving'){addTop(el('span','chipT arrive',T('即將到站','Arriving')));any=true;}
+    if(f.sched){addTop(el('span','chipT sched',T('預定班次','Scheduled')));any=true;}
+    if(v.last){addTop(el('span','chipT last',T('尾班車','Last bus')));any=true;}
+    if(!any)addTop(el('span','liveTag',T('實時 Live','Live')));
+    var un=el('span','e-unit',T('分鐘 min','min'));un.setAttribute('data-flap','rU'+key);
+    row.bot.appendChild(un);
     row.bot.appendChild(el('span','e-abs',hhmm(f.t)));
-    row.next.appendChild(el('span','',T('下一班 Next ','Next ')));
+    var nl=el('span','',T('下一班 Next ','Next '));nl.setAttribute('data-flap','rN'+key);
+    row.next.appendChild(nl);
     if(v.etas.length>1)v.etas.slice(1).forEach(function(x,i){
       if(i)row.next.appendChild(el('span','','・'));
       row.next.appendChild(el('span',x.sched?'nx-sched':'',hhmm(x.t)));});
@@ -874,7 +968,7 @@ function updRow(row,v,now){
     else if(v.status==='rmk'){st=T(v.noRmk,(v.noRmkEn||v.noRmk));cls='rmk';}
     else if(v.status==='off'){st=T('非服務時段 Not in service','Not in service');cls='off';}
     else {st=T('未有班次資料 No ETA','No ETA');cls='none';}
-    row.top.appendChild(el('span','stat '+cls,st));
+    addTop(el('span','stat '+cls,st));
     var tail=v.status==='rmk'?v.noRmkEn:(v.status==='off'?T((v.c.peak||(v.c.night?'通宵服務 Overnight':'')),((v.c.peak||v.c.night)?'Peak/overnight window':'')):'');
     if(tail)row.bot.appendChild(el('span','e-unit',cap(tail,40)));
   }
@@ -883,19 +977,26 @@ function detailPer(){return Math.max(1,Math.floor((($('main').clientHeight||778)
 function renderDetail(now,hk){
   var ph=S.phases[S.pi];if(!ph||ph.type!=='stop')return;
   var g=STOPS[ph.si];
-  $('dName').textContent=T(g.name,g.en);
-  $('dEn').textContent=T(g.en+' · '+g.streetEn, g.name+' · '+g.street);
-  $('dHead').style.borderLeftColor='var(--'+g.hue+')';
-  var tg=$('dTags');clear(tg);
-  tg.appendChild(el('span','tag dir',g.arrow+' '+T(g.dir,g.dirEn)));
-  tg.appendChild(el('span','tag',T(g.street,g.streetEn)));
-  if(g.terminus)tg.appendChild(el('span','tag term',T('總站','Terminus')));
-  tg.appendChild(el('span','tag walk',T('步行 ~'+g.walk+' 分鐘','Walk ~'+g.walk+' min')));
-  var leg=$('dLegend');clear(leg);
-  g.platforms.forEach(function(p){var c=el('span','lg');
-    c.appendChild(el('b','',T('月台 ','Plat. ')+p.label));
-    c.appendChild(el('span','',T(p.note+'（'+p.routes.length+' 路線）',p.routes.length+' routes')));
-    leg.appendChild(c);});
+  var sig=g.key+'|'+S.langCur;
+  if(sig!==S.detailSig){
+    S.detailSig=sig;
+    $('dName').textContent=T(g.name,g.en);
+    $('dEn').textContent=T(g.en+' · '+g.streetEn, g.name+' · '+g.street);
+    $('dHead').style.borderLeftColor='var(--'+g.hue+')';
+    var tg=$('dTags');clear(tg);
+    var t1=el('span','tag dir',g.arrow+' '+T(g.dir,g.dirEn));t1.setAttribute('data-flap','dT1');
+    var t2=el('span','tag',T(g.street,g.streetEn));t2.setAttribute('data-flap','dT2');
+    tg.appendChild(t1);tg.appendChild(t2);
+    if(g.terminus){var t3=el('span','tag term',T('總站','Terminus'));t3.setAttribute('data-flap','dT3');tg.appendChild(t3);}
+    var t4=el('span','tag walk',T('步行 ~'+g.walk+' 分鐘','Walk ~'+g.walk+' min'));t4.setAttribute('data-flap','dT4');
+    tg.appendChild(t4);
+    var leg=$('dLegend');clear(leg);
+    g.platforms.forEach(function(p,idx){var c=el('span','lg');
+      var b=el('b','',T('月台 ','Plat. ')+p.label);b.setAttribute('data-flap','dLb'+idx);
+      var sp=el('span','',T(p.note+'（'+p.routes.length+' 路線）',p.routes.length+' routes'));sp.setAttribute('data-flap','dLn'+idx);
+      c.appendChild(b);c.appendChild(sp);
+      leg.appendChild(c);});
+  }
   var views=sortViews(stopViews(g,now,hk)),box=$('dPages');
   views.forEach(function(v){var r=ROWS[v.p.key+'|'+v.c.route];if(!r)return;updRow(r,v,now);box.appendChild(r.el);});
   DP.per=detailPer();
@@ -935,11 +1036,11 @@ function applyPhase(){
   var over=ph.type==='over';
   $('over').className=over?'show':'';
   $('detail').className=over?'':'show';
-  if(over){$('phaseVal').textContent=T('全站總覽','All-stops overview');
-    $('phaseSub').textContent=T(STOPS.length+' 個站 · 最快班次',STOPS.length+' stops · soonest buses');}
-  else{var g=STOPS[ph.si];$('phaseVal').textContent=T(g.name,g.en);
-    $('phaseSub').textContent=T(g.arrow+' '+g.dir+' · 步行'+g.walk+'分 · '+(ph.page+1)+'/'+ph.pages+' 頁',
-      g.arrow+' '+g.dirEn+' · walk '+g.walk+'min · '+(ph.page+1)+'/'+ph.pages);}
+  if(over){setIfNotFlapping($('phaseVal'),T('全站總覽','All-stops overview'));
+    setIfNotFlapping($('phaseSub'),T(STOPS.length+' 個站 · 最快班次',STOPS.length+' stops · soonest buses'));}
+  else{var g=STOPS[ph.si];setIfNotFlapping($('phaseVal'),T(g.name,g.en));
+    setIfNotFlapping($('phaseSub'),T(g.arrow+' '+g.dir+' · 步行'+g.walk+'分 · '+(ph.page+1)+'/'+ph.pages+' 頁',
+      g.arrow+' '+g.dirEn+' · walk '+g.walk+'min · '+(ph.page+1)+'/'+ph.pages));}
   STOPS.forEach(function(g,i){CHIP[g.key].className='chip'+((!over&&i===ph.si)?' on':'');});
   Object.keys(OVC).forEach(function(k){OVC[k].sig='';});
   renderAll();
@@ -990,7 +1091,7 @@ function refreshWx(){
     if(j.icon&&j.icon.length)S.wx.icon=j.icon[0];
     S.wxMsgs=j.warningMessage||[];
     $('wxTemp').textContent=(S.wx.temp===null?'--':S.wx.temp)+'°C';
-    $('wxHum').textContent=T('濕度 ','Humidity ')+(S.wx.hum===null?'--':S.wx.hum)+'%';
+    setIfNotFlapping($('wxHum'),T('濕度 ','Humidity ')+(S.wx.hum===null?'--':S.wx.hum)+'%');
     if(S.wx.icon!==null){var m=$('wxIcon');m.onerror=function(){m.style.display='none';};
       m.src=CFG.wxIcon+S.wx.icon+'.png';m.style.display='block';}
   }).catch(function(e){H.hko.ok=false;H.hko.err=String(e&&e.message||e);});
@@ -1039,10 +1140,10 @@ function tick(){
     if(now-S.langT>=CFG.langMs){S.langCur=(S.langCur==='zh')?'en':'zh';langChanged();}
   }else if(S.langCur!==CFG.lang){S.langCur=CFG.lang;langChanged();}
   $('ch').textContent=pad(hk.getHours());$('cm').textContent=pad(hk.getMinutes());
-  $('dateZh').textContent=T(hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()],
-    WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear());
-  $('dateEn').textContent=T(WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear(),
-    hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()]);
+  setIfNotFlapping($('dateZh'),T(hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()],
+    WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear()));
+  setIfNotFlapping($('dateEn'),T(WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear(),
+    hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()]));
   renderAll();strip();ticker();
   [['kmb','dotKmb'],['ctb','dotCtb'],['hko','dotHko']].forEach(function(pr){
     var h=H[pr[0]],c='';
@@ -1059,7 +1160,7 @@ function tick(){
 function dbg(now){
   var ph=S.phases[S.pi]||{},L=[];
   L.push('HK '+hhmm(now)+'　theme '+S.theme+'　anim '+(S.anim?'on':'off')+'　lang '+S.langCur+' ('+CFG.lang+(CFG.lang==='auto'?('/'+Math.round(CFG.langMs/1000)+'s'):'')+')');
-  L.push('mode '+CFG.mode+(CFG.lock?(' lock='+STOPBY[CFG.lock].name):'')+'　sort '+CFG.sort);
+  L.push('mode '+CFG.mode+(CFG.lock?(' lock='+STOPBY[CFG.lock].name):'')+'　sort '+CFG.sort+'　pending flaps '+FLAPPEND.length);
   L.push('screen '+window.innerWidth+'x'+window.innerHeight+' scale '+S.scale.toFixed(3)+'　fs '+(isFS()?'Y':'N')+'　guard '+S.guard+'　wake '+(S.wake?'Y':'N'));
   L.push('phase '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type==='over'?'overview':(ph.type==='stop'?STOPS[ph.si].name+' p'+(ph.page+1)+'/'+ph.pages:'-'))+'　rows/page '+DP.per);
   L.push('dwell '+Math.round(CFG.dwell/1000)+'s　overview rows '+CFG.rows+'　reload '+(CFG.reloadH?CFG.reloadH+'h':'off'));
@@ -1125,7 +1226,9 @@ function bindUI(){
   $('animBtn').addEventListener('click',function(){setAnim(!S.anim);});
   $('langSel').addEventListener('change',function(){
     CFG.lang=this.value;persist('ktmc2Lang',CFG.lang);
-    S.langCur=(CFG.lang==='auto')?'zh':CFG.lang;langChanged();});
+    var nl=(CFG.lang==='auto')?S.langCur:CFG.lang;
+    if(nl!==S.langCur){S.langCur=nl;langChanged();}else{S.langT=Date.now();}
+  });
   $('lgM').addEventListener('click',function(){CFG.langMs=Math.max(3000,CFG.langMs-1000);persist('ktmc2LangMs',Math.round(CFG.langMs/1000));syncCtrls();S.langT=Date.now();});
   $('lgP').addEventListener('click',function(){CFG.langMs=Math.min(30000,CFG.langMs+1000);persist('ktmc2LangMs',Math.round(CFG.langMs/1000));syncCtrls();S.langT=Date.now();});
   $('modeSel').addEventListener('change',function(){CFG.mode=this.value;persist('ktmc2Mode',CFG.mode);S.pT=0;buildPhases();});
