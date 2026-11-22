@@ -41,7 +41,6 @@ body.cursor{cursor:default}
 button,select,input{font-family:inherit}
 button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-offset:1px}
 #bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
-/* overflow -> one-way right-to-left marquee, same style as footer ticker */
 .flow{overflow:hidden;white-space:nowrap}
 .flow .mqTrack{display:inline-block;white-space:nowrap;will-change:transform}
 .flow .flowT,.flow .flowT2{padding-right:60px}
@@ -54,7 +53,6 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .flow.clip .flowT2{display:none}
 @keyframes mqmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 body.no-anim .flow.mq .mqTrack{animation:none}
-/* split-flap */
 .flapping{position:relative;display:inline-block;animation:flapTilt .09s steps(2,end) infinite}
 .flapping::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.45);pointer-events:none}
 @keyframes flapTilt{0%{transform:rotateX(0deg)}50%{transform:rotateX(-9deg)}100%{transform:rotateX(0deg)}}
@@ -394,7 +392,7 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
 
   <div class="panel" id="resPanel">
     <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
-    <div class="resNote">所有九巴月台與城巴站均已內建經核實的 stop ID（預設對應），開機即用。月台只顯示 KT 編號；翠屏道各柱 KMB 開放數據未公開 KT 編號，暫顯示「—」，可在 script 頂部 KT_OVERRIDE 貼上真實 KT 號。以本站為終點的到達班次不會顯示。</div>
+    <div class="resNote">所有九巴月台（含 KT 編號）與城巴站均已內建經核實的對應，開機即用。若日後站點改動，可在此貼上新 stop ID 覆寫，或按「重新解析」自動配對；「還原預設」清除覆寫。以本站為終點的到達班次不會顯示。</div>
     <div id="resList"></div>
     <div class="resActs">
       <button class="opt" id="resRun">重新解析 Re-resolve</button>
@@ -424,7 +422,7 @@ var CFG={etaMs:30000,wxMs:300000,staleMs:120000,arriveMs:60000,graceMs:45000,
   wx:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc',
   warn:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
   wxIcon:'https://rss.weather.gov.hk/img/pic'};
-/* 如持有翠屏道各柱的 KT 編號，在此貼上即可顯示，例：'PPC-S-1000':'KT538' */
+/* 如需臨時改動個別月台顯示編號，在此覆寫，例：'KTP-N-1000':'KT272' */
 var KT_OVERRIDE={};
 var DEFAULT_MAP={
   'WOH-S-537':'AE2A9F719AB5E353','WOH-S-536':'6CEE063506576EDB','WOH-S-535':'073C44CE5FF431BC',
@@ -494,40 +492,40 @@ var STOPS=[
     rt('23','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true}),rt('28B','彩福','CHOI FOOK'),
     rt('N293','尚德','SHEUNG TAK',{night:true,win:W.night})]}]},
 {key:'PPC-S',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:3,aliases:['寶珮苑'],platforms:[
-  {key:'PPC-S-1000',label:'',note:'往竹園・油塘',routes:[
+  {key:'PPC-S-1000',label:'KT561',note:'往竹園・油塘',routes:[
     rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day})]}]},
 {key:'PPC-N',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:3,aliases:['寶珮苑','翠屏北邨寶珮苑'],platforms:[
-  {key:'PPC-N-1100',label:'',note:'往秀茂坪・寶達・沙田',routes:[
+  {key:'PPC-N-1100',label:'KT273',note:'往秀茂坪・寶達・沙田',routes:[
     rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
     rt('89','瀝源','LEK YUEN'),rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'COH-N',name:'翠桉樓',en:'Tsui On House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:6,aliases:['翠桉樓','翠屏邨翠桉樓','翠屏北邨翠桉樓'],platforms:[
-  {key:'COH-N-1075',label:'',note:'往秀茂坪・寶達・沙田・觀塘',routes:[
+  {key:'COH-N-1075',label:'KT272',note:'往秀茂坪・寶達・沙田・觀塘',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),rt('89C','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
     rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'CTH-S',name:'翠梓樓',en:'Tsui Tsz House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:7,aliases:['翠梓樓','翠屏邨翠梓樓','翠屏北邨翠梓樓'],platforms:[
-  {key:'CTH-S-1050',label:'',note:'往九龍城・竹園・油塘・恆安',routes:[
+  {key:'CTH-S-1050',label:'KT562',note:'往九龍城・竹園・油塘・恆安',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),
     rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('89C','恆安','HENG ON')]}]},
 {key:'TPR-T',name:'觀塘（翠屏道）總站',en:'Kwun Tong (Tsui Ping Road) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:5,
  aliases:['觀塘(翠屏道)總站','觀塘（翠屏道）總站','翠屏道總站','觀塘(翠屏道)','觀塘（翠屏道）'],platforms:[
-  {key:'TPR-T-0',label:'',note:'開出班次 Departures',routes:[
+  {key:'TPR-T-0',label:'KT948',note:'開出班次 Departures',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),
     rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午到達，不設回程；到達班不顯示）'}),
     rt('89X','沙田站','SHA TIN STATION')]}]},
 {key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:7,
  aliases:['觀塘(翠屏北邨)總站','觀塘（翠屏北邨）總站','翠屏北邨總站','觀塘(翠屏北邨)','觀塘（翠屏北邨）'],platforms:[
-  {key:'TPN-T-1050',label:'',note:'往瀝源・青龍頭',routes:[
+  {key:'TPN-T-1050',label:'KT271',note:'往瀝源・青龍頭',routes:[
     rt('89','瀝源','LEK YUEN'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM})]}]},
 {key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-S-1100',label:'',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
+  {key:'KTP-S-1100',label:'KT563',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('89C','恆安','HENG ON'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM})]}]},
 {key:'KTP-N',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-N-1000',label:'',note:'往秀茂坪・寶達・沙田・翠屏',routes:[
+  {key:'KTP-N-1000',label:'KT270',note:'往秀茂坪・寶達・沙田・翠屏',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
     rt('89','觀塘（翠屏北邨）','KWUN TONG (TSUI PING NORTH EST.)'),
@@ -556,7 +554,6 @@ function inWin(w,hk){if(w.d.indexOf(hk.getDay())<0)return false;var m=hk.getHour
 function rnum(r){var n=parseInt(r,10);if(isNaN(n))n=9999;if(r.charAt(0)==='N')n+=10000;return n;}
 function nname(s){return String(s||'').replace(/\s+/g,'').replace(/（/g,'(').replace(/）/g,')').toLowerCase();}
 function T(zh,en){return S.langCur==='en'?(en!==undefined?en:zh):zh;}
-/* ---------- flow (overflow marquee) ---------- */
 function flowEnsure(e){
   if(!e.classList.contains('flow'))return null;
   var tr=e.firstChild;
@@ -606,7 +603,6 @@ function reflowVisible(){
   for(i=0;i<n.length;i++){if(n[i]._ft!==undefined)flowSet(n[i],n[i]._ft);}
 }
 function setIfNotFlapping(e,t){if(!e)return;if(e.classList&&e.classList.contains('flapping'))return;flowSetText(e,t);}
-/* ---------- split-flap ---------- */
 var FLAP_LAT='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/·';
 var FLAP_CJK='アィウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ・ー';
 var FLAPPEND=[];
@@ -662,7 +658,6 @@ function snapshotFlap(){
   for(i=0;i<n.length;i++)m[n[i].getAttribute('data-flap')]=flowText(n[i]);
   return m;
 }
-/* ---------- settings ---------- */
 function persist(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
 function setTheme(t){if(t!=='light')t='dark';S.theme=t;
   document.documentElement.setAttribute('data-theme',t);
