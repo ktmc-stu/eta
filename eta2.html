@@ -61,7 +61,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
            border-radius:6px;padding:8px 16px;text-align:right;min-width:186px}
 #phaseLab{font-size:11px;color:var(--dim);letter-spacing:1px}
 #phaseVal{font-size:20px;font-weight:700;margin-top:2px;white-space:nowrap}
-#phaseSub{font-size:11.5px;color:var(--sub);margin-top:2px;font-variant-numeric:tabular-nums}
+#phaseSub{font-size:12px;color:var(--sub);margin-top:2px;font-variant-numeric:tabular-nums}
 #wxCard{display:flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
         padding:8px 14px;margin-left:14px;flex-shrink:0}
 #wxIcon{width:40px;height:40px;margin-right:10px;display:none}
@@ -85,9 +85,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .chip.on .chipName{color:var(--badge-txt)}
 .chipDir{font-size:10px;color:var(--dim);margin-left:5px;flex-shrink:0}
 .chip.on .chipDir{color:var(--sub)}
-.chipMeta{font-size:10px;color:var(--dim);margin-left:6px;flex-shrink:0;max-width:170px;
-          white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chip.on .chipMeta{color:var(--sub)}
+.chipWalk{font-size:13px;font-weight:700;color:var(--green);margin-left:6px;flex-shrink:0;white-space:nowrap}
 #ribBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
 #main{flex:1;min-height:0;margin-top:10px;position:relative}
 #over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
@@ -97,8 +95,8 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .oCard:nth-child(4n){margin-right:0}
 .oHead{flex-shrink:0;display:flex;align-items:baseline}
 .oName{font-size:24px;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oWalk{font-size:16px;font-weight:700;color:var(--green);margin-left:8px;flex-shrink:0}
 .oDir{font-size:13px;font-weight:700;color:var(--sub);margin-left:8px;flex-shrink:0}
-.oWalk{font-size:12px;font-weight:700;color:var(--green);margin-left:8px;flex-shrink:0}
 .oMeta{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:3px;padding-bottom:6px;border-bottom:1px solid var(--line);
        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .oList{flex:1;min-height:0;margin-top:3px;overflow:hidden}
@@ -126,7 +124,7 @@ button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-off
 .tag{font-size:15px;color:var(--sub);border:1px solid var(--line);border-radius:5px;padding:7px 12px;margin-left:8px;white-space:nowrap}
 .tag.dir{font-size:19px;font-weight:700;color:var(--txt)}
 .tag.term{color:var(--terminus);border-color:var(--amber-line)}
-.tag.walk{color:var(--green);border-color:var(--green-line);font-weight:700}
+.tag.walk{font-size:20px;font-weight:700;color:var(--green);border-color:var(--green-line);padding:8px 14px}
 #dPager{flex-shrink:0;display:flex;align-items:center;margin-left:18px}
 .dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dot);margin-left:6px}
 .dots i.on{background:var(--dot-on)}
@@ -417,7 +415,7 @@ var W={wkAM:{d:[1,2,3,4,5],from:360,to:660},satAM:{d:[1,2,3,4,5,6],from:360,to:6
 function rt(r,z,e,x){var o={route:r,dest:z,destEn:e,cos:['KMB']};
   if(x)for(var k in x)if(x.hasOwnProperty(k))o[k]=x[k];
   if(o.joint)o.cos=['KMB','CTB'];return o;}
-/* walk = 由學校步行到該站約需分鐘 Walking minutes from school to the stop */
+/* walk = 由學校步行約需分鐘（近→遠：寶珮苑3、翠屏道總站5、翠桉樓6、翠屏北邨總站7＝翠梓樓7、游泳池9）*/
 var STOPS=[
 {key:'WOH-S',name:'和樂邨',en:'Wo Lok Estate',street:'協和街',streetEn:'Hip Wo Street',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'hipwo',walk:3,aliases:['和樂邨'],platforms:[
   {key:'WOH-S-537',label:'KT537',note:'往油尖旺・深水埗',routes:[
@@ -474,33 +472,33 @@ var STOPS=[
   {key:'PPC-N-1100',label:'1100',note:'往秀茂坪・寶達・沙田',routes:[
     rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
     rt('89','瀝源','LEK YUEN'),rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'COH-N',name:'翠桉樓',en:'Chui On House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:4,aliases:['翠桉樓','翠屏邨翠桉樓','翠屏北邨翠桉樓'],platforms:[
+{key:'COH-N',name:'翠桉樓',en:'Chui On House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:6,aliases:['翠桉樓','翠屏邨翠桉樓','翠屏北邨翠桉樓'],platforms:[
   {key:'COH-N-1075',label:'1075',note:'往秀茂坪・寶達・沙田・觀塘',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),rt('89C','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
     rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'CTH-S',name:'翠梓樓',en:'Chui Tsz House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:5,aliases:['翠梓樓','翠屏邨翠梓樓','翠屏北邨翠梓樓'],platforms:[
+{key:'CTH-S',name:'翠梓樓',en:'Chui Tsz House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:7,aliases:['翠梓樓','翠屏邨翠梓樓','翠屏北邨翠梓樓'],platforms:[
   {key:'CTH-S-1050',label:'1050',note:'往九龍城・竹園・油塘・恆安',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),
     rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('89C','恆安','HENG ON')]}]},
-{key:'TPR-T',name:'觀塘（翠屏道）總站',en:'Kwun Tong (Tsui Ping Road) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:7,
+{key:'TPR-T',name:'觀塘（翠屏道）總站',en:'Kwun Tong (Tsui Ping Road) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:5,
  aliases:['觀塘(翠屏道)總站','觀塘（翠屏道）總站','翠屏道總站','觀塘(翠屏道)','觀塘（翠屏道）'],platforms:[
   {key:'TPR-T-0',label:'總站',note:'開出班次 Departures',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),
     rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午到達，不設回程；到達班不顯示）'}),
     rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:6,
+{key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:7,
  aliases:['觀塘(翠屏北邨)總站','觀塘（翠屏北邨）總站','翠屏北邨總站','觀塘(翠屏北邨)','觀塘（翠屏北邨）'],platforms:[
   {key:'TPN-T-1050',label:'1050',note:'往瀝源・青龍頭',routes:[
     rt('89','瀝源','LEK YUEN'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM})]}]},
-{key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:6,aliases:['觀塘游泳池'],platforms:[
+{key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
   {key:'KTP-S-1100',label:'1100',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
     rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('89C','恆安','HENG ON'),
     rt('234C','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM}),
     rt('234D','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM})]}]},
-{key:'KTP-N',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:6,aliases:['觀塘游泳池'],platforms:[
+{key:'KTP-N',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
   {key:'KTP-N-1000',label:'1000',note:'往秀茂坪・寶達・沙田・翠屏',routes:[
     rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
     rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
@@ -647,7 +645,6 @@ function platShort(g){
   var ls=g.platforms.map(function(x){return x.label;});
   return ls.length>3?(ls[0]+' 等'+ls.length+'個'):ls.join('/');
 }
-function walkLabel(g){return '步行~'+g.walk+'分';}
 function buildResList(){
   var box=$('resList');clear(box);
   PLATS.forEach(function(p){
@@ -742,7 +739,7 @@ function buildRibbon(){
     top.appendChild(el('div','chipName',g.name));
     top.appendChild(el('div','chipDir',g.arrow+g.dir));
     c.appendChild(top);
-    c.appendChild(el('div','chipMeta','月台 '+platShort(g)+' · '+walkLabel(g)));
+    c.appendChild(el('div','chipWalk','步行'+g.walk+'分'));
     box.insertBefore(c,$('ribBar'));CHIP[g.key]=c;});
 }
 function buildOver(){
@@ -751,7 +748,7 @@ function buildOver(){
     var c=el('div','oCard');c.style.borderTopColor='var(--'+g.hue+')';
     var h=el('div','oHead');
     h.appendChild(el('div','oName',g.name));
-    h.appendChild(el('div','oWalk','步行~'+g.walk+'分'));
+    h.appendChild(el('div','oWalk','步行'+g.walk+'分'));
     h.appendChild(el('div','oDir',g.arrow+' '+g.dir));
     c.appendChild(h);
     c.appendChild(el('div','oMeta',g.street+' · 月台 '+g.platforms.map(function(p){return p.label;}).join(' / ')));
@@ -899,7 +896,7 @@ function applyPhase(){
   $('detail').className=over?'':'show';
   if(over){$('phaseVal').textContent='全站總覽';$('phaseSub').textContent=STOPS.length+' 個站 · 最快班次';}
   else{var g=STOPS[ph.si];$('phaseVal').textContent=g.name;
-    $('phaseSub').textContent=g.arrow+' '+g.dir+' · 步行~'+g.walk+'分 · '+(ph.page+1)+'/'+ph.pages+' 頁';}
+    $('phaseSub').textContent=g.arrow+' '+g.dir+' · 步行'+g.walk+'分 · '+(ph.page+1)+'/'+ph.pages+' 頁';}
   STOPS.forEach(function(g,i){CHIP[g.key].className='chip'+((!over&&i===ph.si)?' on':'');});
   Object.keys(OVC).forEach(function(k){OVC[k].sig='';});
   renderAll();
@@ -979,7 +976,7 @@ function ticker(){
   if(un)p.push('注意：'+un+' 個月台數據未連結，請於設定→站點解析處理 '+un+' platform(s) not linked');
   if(S.lastEta&&Date.now()-S.lastEta>CFG.staleMs)p.push('注意：數據更新延遲，顯示資料可能過時 Data may be stale');
   p.push('本顯示屏自動輪播：先顯示全部 '+STOPS.length+' 個站點最快班次，再逐站顯示所有路線');
-  p.push('步行時間為由學校出發之約略值 Walking times are approximations from school');
+  p.push('步行時間（由學校・近→遠）：寶珮苑3・翠屏道總站5・翠桉樓6・翠屏北邨總站7・翠梓樓7・觀塘游泳池9');
   p.push('總站只顯示開出班次，到達／終點班不顯示 Terminuses show departures only');
   p.push('和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站');
   p.push('601／601P 九巴及城巴聯營 Joint-operated KMB & Citybus');
