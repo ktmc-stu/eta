@@ -1288,8 +1288,8 @@ function refreshStn(){
       var where=loc+(dirn?('（往'+dirn+'）'):'')+(mark?('近'+mark):'');
       var whereEn=(locEn||loc)+(dirEn?(' ('+dirEn+'bound)'):'')+(markEn?(' near '+markEn):'');
       items.push({ended:ended,t:t,
-        zh:(ended?'【交通結束】':'【交通消息】')+(dist?(dist+'・'):'')+where+'：'+cap(content||'',120),
-        en:(ended?'[Traffic cleared] ':'[Traffic] ')+(distEn?(distEn+' · '):'')+whereEn+': '+cap(contentEn||content||'',120)});
+        zh:(ended?'【交通消息】':'【交通消息】')+(dist?(dist+'・'):'')+where+'：'+cap(content||'',120),
+        en:(ended?'[Traffic News] ':'[Traffic News] ')+(distEn?(distEn+' · '):'')+whereEn+': '+cap(contentEn||content||'',120)});
     }
     items.sort(function(a,b){return (b.t||0)-(a.t||0);});
     S.stn=items.slice(0,6);
