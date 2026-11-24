@@ -111,14 +111,23 @@ body.no-anim .flapping::after{display:none}
 #over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
 #over.show{display:flex}
 .oCard{width:457px;height:250px;margin:0 14px 14px 0;background:var(--panel);border:1px solid var(--line);
-       border-top:3px solid var(--faint);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;overflow:hidden}
+       border-top:3px solid var(--faint);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;
+       overflow:hidden;position:relative}
 .oCard:nth-child(4n){margin-right:0}
 .oHead{flex-shrink:0;display:flex;align-items:baseline}
 .oName{font-size:24px;font-weight:700;flex:1;min-width:0}
 .oDir{font-size:13px;font-weight:700;color:var(--sub);margin-left:8px;flex-shrink:0}
 .oWalk{font-size:20px;font-weight:700;color:var(--green);margin-left:10px;flex-shrink:0}
 .oMeta{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:3px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-.oList{flex:1;min-height:0;margin-top:3px;overflow:hidden}
+.oList{flex:1;min-height:0;margin-top:3px;overflow-y:auto;overflow-x:hidden;
+       scrollbar-width:thin;scrollbar-color:var(--bar) transparent}
+.oList::-webkit-scrollbar{width:8px}
+.oList::-webkit-scrollbar-track{background:transparent}
+.oList::-webkit-scrollbar-thumb{background:var(--bar);border-radius:4px}
+.oList::-webkit-scrollbar-thumb:hover{background:var(--sub)}
+.oFade{position:absolute;left:1px;right:9px;bottom:30px;height:26px;pointer-events:none;display:none;
+       background:linear-gradient(to bottom,rgba(0,0,0,0),var(--panel))}
+.oCard.ovf .oFade{display:block}
 .oRow{height:38px;display:flex;align-items:center;border-bottom:1px solid var(--rowline)}
 .oRow:last-child{border-bottom:none}
 .oBadge{width:76px;height:30px;flex-shrink:0;border-radius:4px;background:var(--badge-bg);color:var(--badge-txt);
@@ -378,8 +387,6 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <select class="sel" id="lockSel"></select>
     <div class="sRow"><span class="sLab">每頁停留 Dwell</span>
       <div class="step"><button id="dwM" aria-label="減少">−</button><span id="dwV">10s</span><button id="dwP" aria-label="增加">+</button></div></div>
-    <div class="sRow"><span class="sLab">總覽每站班次 Overview rows</span>
-      <div class="step"><button id="rwM" aria-label="減少">−</button><span id="rwV">4</span><button id="rwP" aria-label="增加">+</button></div></div>
     <div class="sRow"><span class="sLab">自動重載 Auto reload</span>
       <div class="step"><button id="rlM" aria-label="減少">−</button><span id="rlV">關</span><button id="rlP" aria-label="增加">+</button></div></div>
     <div class="pLab">排序 Sort</div>
@@ -393,12 +400,12 @@ body.no-anim .e-min,body.no-anim .oMin{animation:none}
     <button class="opt" id="dbgBtn">診斷 Diagnostics</button>
     <button class="opt" id="refBtn">立即更新 Refresh now</button>
     <button class="opt" id="fsBtn2">全螢幕 Fullscreen</button>
-    <div class="pHint">走馬字只顯示：自訂訊息＋交通消息（含結束）＋天文台公告。網址參數：?tick=…&amp;lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;rows=4&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WOH-S&amp;reload=6</div>
+    <div class="pHint">總覽現在顯示該站全部在途班次（可滾動），不再隱藏任何即將到站車。走馬字＝自訂＋交通（TD 原文狀態）＋天文台公告。網址參數：?tick=…&amp;lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WOH-S&amp;reload=6</div>
   </div>
 
   <div class="panel" id="resPanel">
     <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
-    <div class="resNote">開機後系統會自動核對每個月台「實際回傳路線」與「設定路線」是否吻合；吻合度不足的月台會自動重新配對。亦可按「重新解析」強制重配所有月台（內建預設亦會被修正），或手動貼上 stop ID 覆寫。以本站為終點的到達班次不會顯示。</div>
+    <div class="resNote">所有九巴月台（含 KT 編號）與城巴站均已內建經核實的對應，開機即用；開機後亦會自動核對「實際回傳路線」與「設定路線」吻合度，偏低者自動重配。可按「重新解析」強制重配，或手動貼上 stop ID 覆寫。以本站為終點的到達班次不會顯示。</div>
     <div id="resList"></div>
     <div class="resActs">
       <button class="opt" id="resRun">重新解析 Re-resolve</button>
@@ -430,15 +437,16 @@ window.addEventListener('error',function(ev){
   showBootErr((ev&&ev.message)?ev.message:'unknown');
 });
 if(!window.fetch){showBootErr('瀏覽器不支援 fetch（Browser lacks fetch API）');}
-var CFG={etaMs:30000,wxMs:300000,stnMs:180000,staleMs:120000,arriveMs:60000,graceMs:45000,
+var CFG={etaMs:30000,wxMs:300000,staleMs:120000,arriveMs:60000,graceMs:45000,
   band4:240000,band6:360000,band10:600000,
-  mode:'cycle',dwell:10000,rows:4,sort:'eta',lock:'',reloadH:0,
+  mode:'cycle',dwell:10000,sort:'eta',lock:'',reloadH:0,
   lang:'auto',langMs:8000,
   kmbStop:'https://data.etabus.gov.hk/v1/transport/kmb/stop/',
   kmbEta:'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
   ctbEta:'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
   wx:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=',
   tc:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=tcmessage&lang=',
+  warn:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
   stnUrl:'https://www.td.gov.hk/en/special_news/trafficnews.xml',
   proxy:'https://api.allorigins.win/raw?url=',
   wxIcon:'https://rss.weather.gov.hk/img/pic'};
@@ -727,7 +735,6 @@ function setAnim(v){
 function syncCtrls(){
   $('modeSel').value=CFG.mode;$('lockSel').value=CFG.lock;$('sortSel').value=CFG.sort;$('langSel').value=CFG.lang;
   $('dwV').textContent=Math.round(CFG.dwell/1000)+'s';
-  $('rwV').textContent=String(CFG.rows);
   $('rlV').textContent=CFG.reloadH?CFG.reloadH+'h':'關';
   $('lgV').textContent=Math.round(CFG.langMs/1000)+'s';
   $('tickIn').value=S.tickCustom;
@@ -740,7 +747,6 @@ function loadSettings(){
   if(['auto','zh','en'].indexOf(CFG.lang)<0)CFG.lang='auto';
   CFG.langMs=Math.min(30000,Math.max(3000,(parseInt(q.langms||g('ktmc2LangMs','8'),10)||8)*1000));
   CFG.dwell=Math.min(60000,Math.max(4000,(parseInt(q.dwell||g('ktmc2Dwell','10'),10)||10)*1000));
-  CFG.rows=Math.min(4,Math.max(2,parseInt(q.rows||g('ktmc2Rows','4'),10)||4));
   CFG.sort=q.sort||g('ktmc2Sort','eta');
   if(['eta','route','platform'].indexOf(CFG.sort)<0)CFG.sort='eta';
   CFG.lock=q.lock||g('ktmc2Lock','');if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
@@ -924,7 +930,7 @@ var S={scale:1,fs:false,wake:null,guard:'init',audio:'off',loaded:false,lastEta:
   open:'',errs:[],frameT:0,phases:[],pi:0,pT:0,resolving:false,validated:false,boot:Date.now(),
   langCur:'zh',langT:Date.now(),detailSig:'',tickCustom:'',
   wx:{temp:null,hum:null,icon:null},wxMsgs:[],wxMsgsEn:[],tcZh:[],tcEn:[],warns:[],stn:[]};
-var H={kmb:{ok:false,t:0,err:''},ctb:{ok:false,t:0,err:''},hko:{ok:false,t:0,err:''},td:{ok:false,t:0,err:''}};
+var H={kmb:{ok:false,t:0,err:''},ctb:{ok:false,t:0,err:''},hko:{ok:false,t:0,err:''}};
 var MAP={},CTBM={},AGG={},CAND=[],ROWS={},OVC={},CHIP={};
 var DP={per:7,starts:[0],page:0};
 var SHIFT=[[0,0],[2,1],[3,3],[1,2]],sIdx=0;
@@ -1025,19 +1031,23 @@ function buildOver(){
     var mt=el('div','oMeta flow');mt.setAttribute('data-flap','ovM'+g.key);
     c.appendChild(mt);
     var l=el('div','oList');c.appendChild(l);
+    var fd=el('div','oFade');c.appendChild(fd);
     var f=el('div','oFoot','');f.setAttribute('data-flap','ovF'+g.key);c.appendChild(f);
     box.appendChild(c);OVC[g.key]={el:c,list:l,foot:f,sig:''};
     flowSet(nm,T(g.name,g.en));
     flowSet(mt,T(g.street+' · '+(kts.length?('月台 '+kts.join(' / ')):('月台 '+g.platforms.length+' 個')),
       g.streetEn+' · '+(kts.length?('Platforms '+kts.join(' / ')):(g.platforms.length+' platforms'))));});
 }
+/* Overview now lists EVERY live arrival for the stop (no row cap).
+   The list scrolls when longer than the card; a bottom fade hints at overflow. */
 function renderOver(now,hk){
   STOPS.forEach(function(g){
     var o=OVC[g.key];if(!o)return;
     var all=stopViews(g,now,hk),live=all.filter(function(x){return x.etas.length;});
     live.sort(function(a,b){return a.etas[0].t-b.etas[0].t;});
-    var show=live.slice(0,CFG.rows);
-    var sig=S.langCur+'|'+CFG.rows+'|'+live.length+'|'+(S.loaded?1:0)+'|'+
+    var show=live;
+    var imminent=show.filter(function(x){return (x.etas[0].t-now)<=CFG.band4;}).length;
+    var sig=S.langCur+'|'+show.length+'|'+(S.loaded?1:0)+'|'+
       show.map(function(x){return x.c.route+':'+Math.max(1,Math.floor((x.etas[0].t-now)/60000))+':'+band(x.etas[0].t-now);}).join(',');
     if(o.sig===sig)return;o.sig=sig;
     clear(o.list);
@@ -1054,8 +1064,9 @@ function renderOver(now,hk){
       r.appendChild(un2);
       o.list.appendChild(r);
       flowSet(ds,T(x.destZh,x.destEn));});
-    o.foot.textContent=T('共 '+all.length+' 條路線 · '+live.length+' 班在途'+(live.length?' · 最快 '+hhmm(live[0].etas[0].t):''),
-      all.length+' routes · '+live.length+' en route'+(live.length?' · soonest '+hhmm(live[0].etas[0].t):''));
+    o.el.classList.toggle('ovf', o.list.scrollHeight>o.list.clientHeight+2);
+    o.foot.textContent=T('共 '+all.length+' 條路線 · '+live.length+' 班在途'+(imminent?(' · '+imminent+' 班即將到站'):'')+(live.length?(' · 最快 '+hhmm(live[0].etas[0].t)):''),
+      all.length+' routes · '+live.length+' en route'+(imminent?(' · '+imminent+' arriving'):'')+(live.length?(' · soonest '+hhmm(live[0].etas[0].t)):''));
   });
 }
 function makeRow(v){
@@ -1267,7 +1278,6 @@ function refreshWx(){
     S.warns=l;}).catch(function(){
       S.warns=S.wxMsgs.map(function(m){return {code:'MSG',icon:null,label:cap(m,24),bg:'#96473f'};});});
 }
-/* TD special traffic news: incidents + cleared incidents */
 function refreshStn(){
   fText(CFG.stnUrl,12000).catch(function(){return fText(CFG.proxy+encodeURIComponent(CFG.stnUrl),15000);})
   .then(function(xml){
@@ -1276,8 +1286,9 @@ function refreshStn(){
     var msgs=doc.getElementsByTagName('message'),items=[],now=Date.now(),i;
     for(i=0;i<msgs.length;i++){
       var m=msgs[i];
-      var stEn=xtxt(m,'INCIDENT_STATUS_EN'),stCn=xtxt(m,'INCIDENT_STATUS_CN');
-      var ended=(stEn==='CLOSED'||stCn==='完結'||stCn==='恢復正常');
+      var stZh=xtxt(m,'INCIDENT_STATUS_CN');
+      var stEn=xtxt(m,'INCIDENT_STATUS_EN');
+      var ended=(stEn==='CLOSED'||stZh==='完結'||stZh==='恢復正常');
       var t=parseHkLocal(xtxt(m,'ANNOUNCEMENT_DATE'));
       if(t&&now-t>12*3600000)continue;
       var loc=xtxt(m,'LOCATION_CN'),locEn=xtxt(m,'LOCATION_EN');
@@ -1287,14 +1298,15 @@ function refreshStn(){
       var content=xtxt(m,'CONTENT_CN'),contentEn=xtxt(m,'CONTENT_EN');
       var where=loc+(dirn?('（往'+dirn+'）'):'')+(mark?('近'+mark):'');
       var whereEn=(locEn||loc)+(dirEn?(' ('+dirEn+'bound)'):'')+(markEn?(' near '+markEn):'');
-      items.push({ended:ended,t:t,
-        zh:(ended?'【交通消息】':'【交通消息】')+(dist?(dist+'・'):'')+where+'：'+cap(content||'',120),
-        en:(ended?'[Traffic News] ':'[Traffic News] ')+(distEn?(distEn+' · '):'')+whereEn+': '+cap(contentEn||content||'',120)});
+      if(!where)where=dist||loc;
+      if(!whereEn)whereEn=distEn||locEn||where;
+      items.push({ended:ended,t:t,statusZh:stZh,statusEn:stEn,
+        where:where,whereEn:whereEn,dist:dist,distEn:distEn,
+        content:content||contentEn,contentEn:contentEn||content});
     }
-    items.sort(function(a,b){return (b.t||0)-(a.t||0);});
-    S.stn=items.slice(0,6);
-    H.td.ok=true;H.td.t=Date.now();H.td.err='';
-  }).catch(function(e){H.td.ok=false;H.td.err=String(e&&e.message||e);});
+    items.sort(function(a,b){return (a.ended?1:0)-(b.ended?1:0)||((b.t||0)-(a.t||0));});
+    S.stn=items.slice(0,8);
+  }).catch(function(e){S.errs.push('stn: '+(e&&e.message||e));});
 }
 function strip(){
   var sig=S.warns.map(function(w){return w.code;}).join(',');
@@ -1304,17 +1316,17 @@ function strip(){
     if(w.icon){var m=document.createElement('img');m.onerror=function(){m.style.display='none';};m.src=w.icon;m.alt='';d.appendChild(m);}
     d.appendChild(el('span','',w.label));b.appendChild(d);});
 }
-/* ticker = custom message + traffic news (incl. cleared) + HKO announcements only */
 function ticker(){
-  var parts=[];
-  if(S.tickCustom)parts.push(S.tickCustom);
-  S.stn.forEach(function(x){parts.push(T(x.zh,x.en));});
-  var wm=(S.langCur==='en'?S.wxMsgsEn:S.wxMsgs);
-  wm.forEach(function(m){parts.push(T('【天氣】','[Weather] ')+cap(m,200));});
-  var tm=(S.langCur==='en'?S.tcEn:S.tcZh);
-  tm.forEach(function(m){parts.push(T('【天文台】','[HKO] ')+cap(m,200));});
-  if(!parts.length)parts.push(T('目前沒有特別消息','No special announcements at present'));
-  var s=parts.join(' | ');if(s===lastTick)return;lastTick=s;
+  var p=[];
+  if(S.tickCustom)p.push(S.tickCustom);
+  S.stn.forEach(function(x){
+    var cat=T(x.statusZh,x.statusEn);
+    p.push((cat?('【'+cat+'】':''))+(x.dist?T(x.dist,x.distEn)+'・':'')+T(x.where,x.whereEn)+'：'+cap(T(x.content,x.contentEn),170));
+  });
+  (S.langCur==='en'?S.wxMsgsEn:S.wxMsgs).forEach(function(m){p.push(cap(m,200));});
+  (S.langCur==='en'?S.tcEn:S.tcZh).forEach(function(m){p.push(cap(m,200));});
+  if(!p.length)p.push(T('目前沒有特別消息','No special announcements at present'));
+  var s=p.join(' | ');if(s===lastTick)return;lastTick=s;
   $('tickA').textContent=s;$('tickB').textContent=s;
   var t=$('tickTrack'),w=t.offsetWidth/2,d=Math.max(25,w/110);
   t.style.animation='none';void t.offsetWidth;
@@ -1354,7 +1366,7 @@ function dbg(now){
   L.push('ticker: custom='+(S.tickCustom?'Y':'N')+' traffic='+S.stn.length+' wx='+(S.langCur==='en'?S.wxMsgsEn.length:S.wxMsgs.length)+' tc='+(S.langCur==='en'?S.tcEn.length:S.tcZh.length));
   PLATS.forEach(function(p){var d=liveDice(p);
     if(d>=0&&d<0.4)L.push('  LOW MATCH '+p.stop.name+' '+p.stop.dir+' '+platLabel(p)+' '+MAP[p.key]+' dice='+Math.round(d*100)+'%');});
-  ['kmb','ctb','hko','td'].forEach(function(k){var h=H[k];
+  ['kmb','ctb','hko'].forEach(function(k){var h=H[k];
     L.push(k.toUpperCase()+': '+(h.ok?'OK':'FAIL')+(h.t?(' @'+hhmm(h.t)):'')+(h.err?('  '+h.err):''));});
   if(S.errs.length){L.push('errors:');S.errs.slice(-6).forEach(function(e){L.push('  '+e);});}
   $('dbg').textContent=L.join('\n');
@@ -1427,10 +1439,6 @@ function bindUI(){
     Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});buildPhases();});
   $('dwM').addEventListener('click',function(){CFG.dwell=Math.max(4000,CFG.dwell-1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
   $('dwP').addEventListener('click',function(){CFG.dwell=Math.min(60000,CFG.dwell+1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
-  $('rwM').addEventListener('click',function(){CFG.rows=Math.max(2,CFG.rows-1);persist('ktmc2Rows',CFG.rows);syncCtrls();
-    Object.keys(OVC).forEach(function(k){OVC[k].sig='';});renderAll();});
-  $('rwP').addEventListener('click',function(){CFG.rows=Math.min(4,CFG.rows+1);persist('ktmc2Rows',CFG.rows);syncCtrls();
-    Object.keys(OVC).forEach(function(k){OVC[k].sig='';});renderAll();});
   $('rlM').addEventListener('click',function(){CFG.reloadH=Math.max(0,CFG.reloadH-1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
   $('rlP').addEventListener('click',function(){CFG.reloadH=Math.min(24,CFG.reloadH+1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
   $('resBtn').addEventListener('click',function(){openPanel('res');});
@@ -1476,7 +1484,7 @@ function init(){
   setInterval(function(){try{tick();}catch(e){}},1000);
   setInterval(refreshEtas,CFG.etaMs);
   setInterval(refreshWx,CFG.wxMs);
-  setInterval(refreshStn,CFG.stnMs);
+  setInterval(refreshStn,180000);
   setInterval(function(){sIdx=(sIdx+1)%SHIFT.length;try{layout();}catch(e){}},45000);
   setInterval(function(){if(S.lastEta&&Date.now()-S.lastEta>CFG.staleMs)refreshEtas();},20000);
   document.addEventListener('visibilitychange',function(){
