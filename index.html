@@ -1169,7 +1169,7 @@ function refreshStn(){
       var m = msgs[i];
       var stEn = txt(m, 'INCIDENT_STATUS_EN');
       var stCn = txt(m, 'INCIDENT_STATUS_CN');
-      var ended = (stEn === 'TRAFFIC NEWS' || stCn === '交通消息' || stCn === '交通消息');
+      var ended = (stEn === 'CLOSED' || stCn === '完結' || stCn === '恢復正常');
       var t = parseHkLocal(txt(m, 'ANNOUNCEMENT_DATE'));
       if (t && now - t > 12 * 3600000) continue;
       var loc = txt(m, 'LOCATION_CN');
@@ -1555,7 +1555,7 @@ function rebuildTicker(){
   var parts = [];
   if (S.tickCustom) parts.push(S.tickCustom);
   freshStn().forEach(function(x){
-    var tag = T(x.ended ? '【交通結束】' : '【交通消息】', x.ended ? '[Traffic cleared] ' : '[Traffic] ');
+    var tag = T(x.ended ? '【交通消息】' : '【交通消息】', x.ended ? '[Traffic cleared] ' : '[Traffic] ');
     var where = T(x.where, x.whereEn);
     var body = T(x.content, x.contentEn);
     parts.push(tag + (x.dist ? T(x.dist, x.distEn) + '・' : '') + where + '：' + cap(body || where, 170));
