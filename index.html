@@ -1169,7 +1169,7 @@ function refreshStn(){
       var m = msgs[i];
       var stEn = txt(m, 'INCIDENT_STATUS_EN');
       var stCn = txt(m, 'INCIDENT_STATUS_CN');
-      var ended = (stEn === 'CLOSED' || stCn === '完結' || stCn === '恢復正常');
+      var ended = (stEn === 'TRAFFIC NEWS' || stCn === '交通消息' || stCn === '交通消息');
       var t = parseHkLocal(txt(m, 'ANNOUNCEMENT_DATE'));
       if (t && now - t > 12 * 3600000) continue;
       var loc = txt(m, 'LOCATION_CN');
