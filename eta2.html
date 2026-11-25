@@ -2,1625 +2,1278 @@
 <html lang="zh-HK" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#0e1116">
-<title>翠屏・協和・和樂 多站巴士到站顯示屏 | KTMC Multi-Stop ETA Display</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>翠屏・協和・和樂 多站巴士到站顯示屏 | KTMC Multi-Stop ETA</title>
 <style>
 :root{
-  --bg:#0e1116; --panel:#151a21; --panel2:#12161c; --line:#242c37;
-  --rowline:#1d242e; --zebra:#171d25;
-  --txt:#eef2f6; --sub:#9aa6b4; --dim:#66727f; --faint:#4a5563;
-  --badge-bg:#242d39; --badge-txt:#f2f5f8;
-  --green:#7fc48f; --amber:#d4af6e; --red:#d08a8a;
-  --green-line:#3a5a44; --amber-line:#5a4d33; --red-line:#5a3a3a;
-  --kmb:#c98f8f; --ctb:#8fb0d0;
-  --hipwo:#7aa8d0; --tsuiping:#6fb89a; --terminus:#d4af6e;
-  --dot:#333d4a; --dot-on:#eef2f6; --bar:#4a5563;
-  --btn-bg:#1c232d; --btn-line:#2c3644; --accent:#3d5a78;
-  --card:#151a21; --tick:#c4cdd8; --focus:#9aa6b4;
-  --eta-red:#c62828; --eta-yellow:#b8860b; --eta-green:#2e7d32;
+  --bg:#0d1015;--surf:#151a21;--surf2:#11151b;--line:#232b36;--row:#1c232c;--zebra:#171d25;
+  --tx:#eef2f6;--tx2:#9aa6b4;--tx3:#6a7684;--tx4:#4b5663;
+  --chip:#242d39;--chipTx:#f2f5f8;
+  --ok:#7fc48f;--warn:#d4af6e;--bad:#d08a8a;
+  --okL:#3a5a44;--warnL:#5a4d33;--badL:#5a3a3a;
+  --kmb:#c98f8f;--ctb:#8fb0d0;--hip:#7aa8d0;--tsp:#6fb89a;--term:#d4af6e;
+  --btn:#1b222c;--btnL:#2b3542;--acc:#3d5a78;--bar:#48535f;
+  --r:#c62828;--y:#b8860b;--g:#2e7d32;
 }
-:root[data-theme="light"]{
-  --bg:#eef1f5; --panel:#ffffff; --panel2:#f6f8fa; --line:#d3dae3;
-  --rowline:#e2e7ee; --zebra:#f4f6f9;
-  --txt:#18202c; --sub:#46536a; --dim:#6b7688; --faint:#9aa4b5;
-  --badge-bg:#233043; --badge-txt:#ffffff;
-  --green:#1d7a3e; --amber:#8f6414; --red:#b23c3c;
-  --green-line:#bcd9c4; --amber-line:#e0cfa8; --red-line:#e3bcbc;
-  --kmb:#a03e3e; --ctb:#2f5f92;
-  --hipwo:#2f5f92; --tsuiping:#1f7a5c; --terminus:#8f6414;
-  --dot:#c3ccd8; --dot-on:#18202c; --bar:#8b96a8;
-  --btn-bg:#ffffff; --btn-line:#c9d2dd; --accent:#2f5f92;
-  --card:#ffffff; --tick:#2c3a52; --focus:#46536a;
+:root[data-theme=light]{
+  --bg:#eef1f5;--surf:#fff;--surf2:#f5f8fa;--line:#d4dae2;--row:#e3e8ee;--zebra:#f4f6f9;
+  --tx:#17202b;--tx2:#46536a;--tx3:#6d7889;--tx4:#9aa4b4;
+  --chip:#22303f;--chipTx:#fff;
+  --ok:#1d7a3e;--warn:#8a6112;--bad:#b03a3a;
+  --okL:#bcd9c4;--warnL:#e0cfa8;--badL:#e3bcbc;
+  --kmb:#a03e3e;--ctb:#2f5f92;--hip:#2f5f92;--tsp:#1c7a5b;--term:#8a6112;
+  --btn:#fff;--btnL:#c9d2dd;--acc:#2f5f92;--bar:#8b96a8;
 }
-*{box-sizing:border-box;margin:0;padding:0}
+*{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
-body{font-family:Arial,'Microsoft JhengHei','微軟正黑體','PingFang HK','Heiti TC',sans-serif;
-     font-weight:400;color:var(--txt);-webkit-user-select:none;user-select:none;cursor:none;touch-action:none}
-body.cursor{cursor:default}
+body{font-family:Arial,"Microsoft JhengHei","微軟正黑體","PingFang HK",sans-serif;color:var(--tx);
+  -webkit-user-select:none;user-select:none;cursor:none}
+body.cur{cursor:default}
 button,select,input{font-family:inherit}
-button:focus,select:focus,input:focus{outline:2px solid var(--focus);outline-offset:1px}
-#bgvid{position:fixed;left:0;top:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
-#bootErr{position:fixed;left:0;right:0;top:0;z-index:99;display:none;background:#8f1f1f;color:#fff;
-         font-size:15px;line-height:1.5;padding:10px 16px;white-space:pre-wrap}
-#bootErr.show{display:block}
-.flow{overflow:hidden;white-space:nowrap}
-.flow .mqTrack{display:inline-block;white-space:nowrap;will-change:transform}
-.flow .flowT,.flow .flowT2{padding-right:60px}
-.flow .flowT2{display:none}
-.flow.mq .mqTrack{animation:mqmove linear infinite}
-.flow.mq .flowT2{display:inline}
-.flow.clip{text-overflow:ellipsis}
-.flow.clip .mqTrack{display:inline}
-.flow.clip .flowT{padding-right:0}
-.flow.clip .flowT2{display:none}
-@keyframes mqmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-body.no-anim .flow.mq .mqTrack{animation:none}
-.flapping{position:relative;display:inline-block;animation:flapTilt .09s steps(2,end) infinite}
-.flapping::after{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.45);pointer-events:none}
-@keyframes flapTilt{0%{transform:rotateX(0deg)}50%{transform:rotateX(-9deg)}100%{transform:rotateX(0deg)}}
-body.no-anim .flapping{animation:none}
-body.no-anim .flapping::after{display:none}
+button:focus,select:focus,input:focus{outline:2px solid var(--tx2);outline-offset:1px}
+#guard{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
+#err{position:fixed;left:0;right:0;top:0;z-index:200;display:none;background:#8e2020;color:#fff;
+  padding:10px 16px;font-size:15px;line-height:1.5;white-space:pre-wrap}
+#err.on{display:block}
 #stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;z-index:1;
-       padding:24px;display:flex;flex-direction:column}
-#header{height:100px;flex-shrink:0;display:flex;align-items:center;background:var(--panel);
-        border:1px solid var(--line);border-radius:6px;padding:0 22px}
-#logo{height:60px;width:auto;margin-right:20px;flex-shrink:0}
-#titleBox{flex:1;min-width:0}
-#tZh{font-size:27px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#tEn{font-size:13px;color:var(--sub);margin-top:2px;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#tSub{font-size:12px;color:var(--dim);margin-top:3px}
-#warnBox{flex:0 1 520px;min-width:0;display:flex;flex-wrap:wrap;align-content:center;
-         justify-content:flex-end;margin-left:14px}
-#warnBox:empty{display:none;margin-left:0}
-.wb{display:inline-flex;align-items:center;font-size:12.5px;font-weight:700;padding:3px 9px;border-radius:4px;
-    margin:2px 0 2px 6px;line-height:1.25;color:#f2f5f8;max-width:100%}
-.wb img{width:18px;height:18px;margin-right:5px;flex-shrink:0}
-.wb span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-#phaseCard{flex-shrink:0;margin-left:16px;background:var(--panel2);border:1px solid var(--line);
-           border-radius:6px;padding:8px 16px;text-align:right;min-width:186px}
-#phaseLab{font-size:11px;color:var(--dim);letter-spacing:1px}
-#phaseVal{font-size:20px;font-weight:700;margin-top:2px;white-space:nowrap}
-#phaseSub{font-size:11.5px;color:var(--sub);margin-top:2px;font-variant-numeric:tabular-nums}
-#wxCard{display:flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:6px;
-        padding:8px 14px;margin-left:14px;flex-shrink:0}
-#wxIcon{width:40px;height:40px;margin-right:10px;display:none}
-#wxTemp{font-size:25px;font-weight:700;line-height:1}
-#wxHum{font-size:11.5px;color:var(--sub);margin-top:3px;white-space:nowrap}
-#clockCard{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 16px;margin-left:14px;text-align:right;flex-shrink:0}
-#clock{font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-#dateZh{font-size:13px;color:var(--sub);margin-top:4px;white-space:nowrap}
-#dateEn{font-size:11.5px;color:var(--dim);margin-top:1px;letter-spacing:.6px}
-#setBtn{width:46px;height:46px;flex-shrink:0;margin-left:14px;display:flex;align-items:center;justify-content:center;
-        background:var(--btn-bg);border:1px solid var(--btn-line);border-radius:6px;color:var(--sub);cursor:pointer}
-#setBtn:hover{color:var(--txt);border-color:var(--sub)}
-#ribbon{height:78px;flex-shrink:0;margin-top:10px;display:flex;flex-wrap:wrap;align-content:space-between;
-        position:relative;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 6px;overflow:hidden}
-.chip{width:306px;height:33px;flex-shrink:0;margin:0 4px 0 0;padding:3px 9px;border-radius:5px;background:var(--panel2);
-      border-left:4px solid var(--faint);display:flex;align-items:center;overflow:hidden}
-.chip:nth-child(6n){margin-right:0}
-.chip.on{background:var(--badge-bg)}
-.chipTop{display:flex;align-items:baseline;flex:1;min-width:0}
-.chipName{font-size:15px;font-weight:700;color:var(--sub)}
-.chip.on .chipName{color:var(--badge-txt)}
-.chipDir{font-size:10px;color:var(--dim);margin-left:5px;flex-shrink:0}
-.chip.on .chipDir{color:var(--sub)}
-.chipWalk{font-size:14px;font-weight:700;color:var(--green);margin-left:6px;flex-shrink:0;white-space:nowrap}
+  padding:22px;display:flex;flex-direction:column}
+.flip{animation:fl .28s ease}
+@keyframes fl{0%{transform:rotateX(0)}50%{transform:rotateX(-86deg)}100%{transform:rotateX(0)}}
+.mq{display:block;overflow:hidden;white-space:nowrap}
+.mq>i{display:inline-block;font-style:normal;white-space:nowrap;will-change:transform}
+.mq.run>i{animation:mq linear infinite}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+body.noanim .mq.run>i{animation:none}
+body.noanim .flip{animation:none}
+/* header */
+#hd{height:98px;flex:0 0 auto;display:flex;align-items:center;gap:14px;background:var(--surf);
+  border:1px solid var(--line);border-radius:6px;padding:0 20px}
+#logo{height:58px;width:auto;flex:0 0 auto}
+#ttl{flex:1 1 auto;min-width:0}
+#t1{font-size:27px;font-weight:700;line-height:1.15}
+#t2{font-size:12.5px;color:var(--tx2);margin-top:3px;letter-spacing:.4px}
+#t3{font-size:11.5px;color:var(--tx3);margin-top:3px}
+.hbox{flex:0 0 auto;background:var(--surf2);border:1px solid var(--line);border-radius:6px;padding:7px 14px}
+#now{text-align:right;min-width:180px}
+#nowL{font-size:10.5px;color:var(--tx3);letter-spacing:1px}
+#nowV{font-size:20px;font-weight:700;margin-top:2px}
+#nowS{font-size:11px;color:var(--tx2);margin-top:2px}
+#wx{display:flex;align-items:center;gap:9px}
+#wxI{width:38px;height:38px;display:none}
+#wxT{font-size:24px;font-weight:700;line-height:1}
+#wxH{font-size:11px;color:var(--tx2);margin-top:3px}
+#clk{text-align:right}
+#clkT{font-size:42px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+#clkD{font-size:12.5px;color:var(--tx2);margin-top:4px}
+#clkE{font-size:11px;color:var(--tx3);margin-top:1px;letter-spacing:.5px}
+#setB{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+  background:var(--btn);border:1px solid var(--btnL);border-radius:6px;color:var(--tx2);cursor:pointer}
+#setB:hover{color:var(--tx);border-color:var(--tx2)}
+#warn{flex:0 0 auto;display:flex;flex-wrap:wrap;max-width:430px;justify-content:flex-end;gap:5px}
+.wb{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#f4f6f8;
+  padding:3px 8px;border-radius:4px;max-width:100%}
+.wb img{width:17px;height:17px}
+.wb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ribbon */
+#rib{height:76px;flex:0 0 auto;margin-top:9px;position:relative;background:var(--surf);
+  border:1px solid var(--line);border-radius:6px;padding:5px 6px;display:flex;flex-wrap:wrap;
+  align-content:space-between;overflow:hidden}
+.rc{width:305px;height:32px;margin-right:4px;padding:0 9px;border-radius:5px;background:var(--surf2);
+  border-left:4px solid var(--tx4);display:flex;align-items:center;gap:6px;overflow:hidden}
+.rc:nth-child(6n){margin-right:0}
+.rc.on{background:var(--chip)}
+.rcN{flex:1 1 auto;min-width:0;font-size:15px;font-weight:700;color:var(--tx2)}
+.rc.on .rcN{color:var(--chipTx)}
+.rcD{flex:0 0 auto;font-size:10px;color:var(--tx3)}
+.rcW{flex:0 0 auto;font-size:13.5px;font-weight:700;color:var(--ok)}
 #ribBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
-#main{flex:1;min-height:0;margin-top:10px;position:relative}
-#over{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
-#over.show{display:flex}
-.oCard{width:457px;height:250px;margin:0 14px 14px 0;background:var(--panel);border:1px solid var(--line);
-       border-top:3px solid var(--faint);border-radius:6px;padding:10px 14px;display:flex;flex-direction:column;
-       overflow:hidden;position:relative}
-.oCard:nth-child(4n){margin-right:0}
-.oHead{flex-shrink:0;display:flex;align-items:baseline}
-.oName{font-size:24px;font-weight:700;flex:1;min-width:0}
-.oDir{font-size:13px;font-weight:700;color:var(--sub);margin-left:8px;flex-shrink:0}
-.oWalk{font-size:20px;font-weight:700;color:var(--green);margin-left:10px;flex-shrink:0}
-.oMeta{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:3px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-.oList{flex:1;min-height:0;margin-top:3px;overflow-y:auto;overflow-x:hidden}
-.oList::-webkit-scrollbar{width:8px}
-.oList::-webkit-scrollbar-track{background:transparent}
-.oList::-webkit-scrollbar-thumb{background:var(--bar);border-radius:4px}
-.oList::-webkit-scrollbar-thumb:hover{background:var(--sub)}
-.oFade{position:absolute;left:1px;right:9px;bottom:30px;height:26px;pointer-events:none;display:none;
-       background:linear-gradient(to bottom,rgba(0,0,0,0),var(--panel))}
-.oCard.ovf .oFade{display:block}
-.oRow{height:38px;display:flex;align-items:center;border-bottom:1px solid var(--rowline)}
-.oRow:last-child{border-bottom:none}
-.oBadge{width:76px;height:30px;flex-shrink:0;border-radius:4px;background:var(--badge-bg);color:var(--badge-txt);
-        font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.oDest{flex:1;min-width:0;margin:0 10px;font-size:17px}
-.oMin{flex-shrink:0;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;padding:1px 8px;border-radius:5px;color:var(--txt)}
-.oMin.b3{background:var(--eta-red);color:#fff;animation:etaBlink 1s infinite}
-.oMin.b6{background:var(--eta-yellow);color:#fff;animation:etaBlink 1.4s infinite}
-.oMin.b10{background:var(--eta-green);color:#fff}
-.oUnit{flex-shrink:0;font-size:12px;color:var(--sub);margin-left:5px;width:30px}
-.oFoot{flex-shrink:0;font-size:11.5px;color:var(--dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.oEmpty{font-size:15px;color:var(--dim);padding-top:14px}
-#detail{position:absolute;left:0;top:0;right:0;bottom:0;display:none;flex-direction:column;background:var(--panel);
-        border:1px solid var(--line);border-radius:6px;overflow:hidden}
-#detail.show{display:flex}
-#dHead{height:96px;flex-shrink:0;display:flex;align-items:center;padding:0 20px;background:var(--panel2);
-       border-bottom:1px solid var(--line);border-left:6px solid var(--faint);position:relative}
-#dNameBox{flex:1;min-width:0}
-#dName{font-size:50px;font-weight:700;line-height:1.05}
-#dEn{font-size:14px;color:var(--sub);margin-top:3px}
-#dTags{flex-shrink:0;display:flex;align-items:center;margin-left:18px}
-.tag{font-size:15px;color:var(--sub);border:1px solid var(--line);border-radius:5px;padding:7px 12px;margin-left:8px;white-space:nowrap}
-.tag.dir{font-size:19px;font-weight:700;color:var(--txt)}
-.tag.term{color:var(--terminus);border-color:var(--amber-line)}
-.tag.walk{color:var(--green);border-color:var(--green-line);font-size:22px;font-weight:700;padding:9px 14px}
-#dPager{flex-shrink:0;display:flex;align-items:center;margin-left:18px}
-.dots i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dot);margin-left:6px}
-.dots i.on{background:var(--dot-on)}
-#dLabel{font-size:14px;color:var(--dim);margin-left:10px;font-variant-numeric:tabular-nums}
+/* main */
+#main{flex:1 1 auto;min-height:0;margin-top:9px;position:relative}
+#ov{position:absolute;inset:0;display:none;flex-wrap:wrap;align-content:flex-start;overflow:hidden}
+#ov.on{display:flex}
+.card{width:459px;height:252px;margin:0 13px 13px 0;background:var(--surf);border:1px solid var(--line);
+  border-top:3px solid var(--tx4);border-radius:6px;padding:9px 13px;display:flex;flex-direction:column;
+  position:relative;overflow:hidden}
+.card:nth-child(4n){margin-right:0}
+.cHd{flex:0 0 auto;display:flex;align-items:baseline;gap:8px}
+.cN{flex:1 1 auto;min-width:0;font-size:23px;font-weight:700}
+.cW{flex:0 0 auto;font-size:19px;font-weight:700;color:var(--ok)}
+.cD{flex:0 0 auto;font-size:12.5px;font-weight:700;color:var(--tx2)}
+.cM{flex:0 0 auto;font-size:11px;color:var(--tx3);margin-top:3px;padding-bottom:5px;border-bottom:1px solid var(--line)}
+.cL{flex:1 1 auto;min-height:0;margin-top:3px;overflow-y:auto;overflow-x:hidden}
+.cL::-webkit-scrollbar{width:8px}
+.cL::-webkit-scrollbar-track{background:transparent}
+.cL::-webkit-scrollbar-thumb{background:var(--bar);border-radius:4px}
+.cL::-webkit-scrollbar-thumb:hover{background:var(--tx2)}
+.cFade{position:absolute;left:1px;right:9px;bottom:29px;height:24px;display:none;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(0,0,0,0),var(--surf))}
+.card.more .cFade{display:block}
+.cR{height:37px;display:flex;align-items:center;gap:9px;border-bottom:1px solid var(--row)}
+.cR:last-child{border-bottom:none}
+.cB{flex:0 0 auto;width:74px;height:29px;border-radius:4px;background:var(--chip);color:var(--chipTx);
+  font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.cDest{flex:1 1 auto;min-width:0;font-size:16.5px}
+.cMin{flex:0 0 auto;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;
+  padding:1px 8px;border-radius:5px}
+.cU{flex:0 0 auto;width:30px;font-size:11.5px;color:var(--tx2)}
+.cF{flex:0 0 auto;font-size:11px;color:var(--tx3);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cE{font-size:14.5px;color:var(--tx3);padding-top:14px}
+.b3{background:var(--r);color:#fff;animation:bl 1s infinite}
+.b6{background:var(--y);color:#fff;animation:bl 1.4s infinite}
+.b10{background:var(--g);color:#fff}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.42}}
+body.noanim .b3,body.noanim .b6{animation:none}
+/* detail */
+#dt{position:absolute;inset:0;display:none;flex-direction:column;background:var(--surf);
+  border:1px solid var(--line);border-radius:6px;overflow:hidden}
+#dt.on{display:flex}
+#dH{height:92px;flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:0 20px;
+  background:var(--surf2);border-bottom:1px solid var(--line);border-left:6px solid var(--tx4);position:relative}
+#dNB{flex:1 1 auto;min-width:0}
+#dN{font-size:48px;font-weight:700;line-height:1.05}
+#dS{font-size:13.5px;color:var(--tx2);margin-top:3px}
+#dTags{flex:0 0 auto;display:flex;gap:8px}
+.tg{font-size:14px;color:var(--tx2);border:1px solid var(--line);border-radius:5px;padding:6px 11px;white-space:nowrap}
+.tg.d{font-size:18px;font-weight:700;color:var(--tx)}
+.tg.w{font-size:21px;font-weight:700;color:var(--ok);border-color:var(--okL)}
+.tg.t{color:var(--term);border-color:var(--warnL)}
+#dPg{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+.dots{display:flex;gap:5px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--tx4)}
+.dots i.on{background:var(--tx)}
+#dPl{font-size:13px;color:var(--tx3);font-variant-numeric:tabular-nums}
 #dBar{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--bar)}
-#dLegend{height:32px;flex-shrink:0;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--line);
-         overflow:hidden;white-space:nowrap}
-.lg{display:inline-flex;align-items:center;font-size:12.5px;color:var(--dim);margin-right:20px;flex-shrink:0}
-.lg b{font-size:14px;font-weight:700;color:var(--sub);margin-right:6px}
-.thead{height:28px;flex-shrink:0;display:flex;align-items:center;padding:0 20px;font-size:12.5px;color:var(--dim);
-       border-bottom:1px solid var(--line);letter-spacing:.5px}
-.hRoute{width:172px;flex-shrink:0}
-.hDest{flex:1;min-width:0}
-.hPlat{width:96px;flex-shrink:0;text-align:center}
-.hEta{width:264px;flex-shrink:0;text-align:right}
-#dView{flex:1;min-height:0;overflow:hidden;position:relative}
-#dPages{position:absolute;left:0;top:0;width:100%;transition:transform .7s cubic-bezier(.4,0,.2,1);will-change:transform}
-.row{height:88px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--rowline)}
-.row:nth-child(even){background:var(--zebra)}
-.row.dim{opacity:.55}
-.c-route{width:172px;flex-shrink:0;display:flex;align-items:center}
-.badge{width:114px;height:56px;border-radius:4px;display:flex;align-items:center;justify-content:center;
-       font-size:38px;font-weight:700;color:var(--badge-txt);background:var(--badge-bg);flex-shrink:0}
-.cos{margin-left:8px;display:flex;flex-direction:column}
-.co{font-size:11px;margin:1px 0;white-space:nowrap}
-.co.kmb{color:var(--kmb)}
-.co.ctb{color:var(--ctb)}
-.co.off{color:var(--faint)}
-.c-dest{flex:1;min-width:0;margin:0 12px;display:flex;flex-direction:column;justify-content:center}
-.d-zh{font-size:26px;font-weight:700;line-height:1.25}
-.d-en{font-size:14px;color:var(--sub);line-height:1.35}
-.d-svc{font-size:12.5px;color:var(--dim);line-height:1.4}
-.c-plat{width:96px;flex-shrink:0;text-align:center}
-.plat{font-size:20px;font-weight:700;color:var(--txt)}
-.c-eta{width:264px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-width:0}
-.e-main{display:flex;align-items:center;justify-content:flex-end;line-height:1;max-width:100%}
-.e-min{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--txt);
-       margin-right:10px;flex-shrink:0;padding:2px 10px;border-radius:6px;line-height:1.1}
-.e-min.b3{background:var(--eta-red);color:#fff;animation:etaBlink 1s infinite}
-.e-min.b6{background:var(--eta-yellow);color:#fff;animation:etaBlink 1.4s infinite}
-.e-min.b10{background:var(--eta-green);color:#fff}
-@keyframes etaBlink{0%,100%{opacity:1}50%{opacity:.4}}
-.e-right{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;min-width:0}
-.e-top{height:21px;display:flex;align-items:center;justify-content:flex-start;max-width:100%;overflow:hidden}
-.e-top .chipT:first-child{margin-left:0}
-.e-bot{height:21px;display:flex;align-items:baseline;justify-content:flex-start;max-width:100%;overflow:hidden;white-space:nowrap}
-.e-unit{font-size:15px;color:var(--sub);white-space:nowrap}
-.e-abs{font-size:16px;color:var(--sub);margin-left:8px;font-variant-numeric:tabular-nums}
-.e-next{margin-top:4px;height:20px;display:flex;align-items:center;justify-content:flex-end;max-width:100%;overflow:hidden;
-        font-size:14px;color:var(--dim);font-variant-numeric:tabular-nums;white-space:nowrap}
-.chipT{font-size:13px;border-radius:3px;padding:1px 6px;margin-left:5px;border:1px solid;white-space:nowrap}
-.chipT.sched{color:var(--amber);border-color:var(--amber-line)}
-.chipT.last{color:var(--red);border-color:var(--red-line)}
-.chipT.arrive{color:var(--green);border-color:var(--green-line)}
-.liveTag{font-size:13px;color:var(--dim);white-space:nowrap}
-.st-ended .e-min,.st-off .e-min,.st-none .e-min,.st-rmk .e-min{color:var(--faint);font-size:30px;background:none;animation:none}
-.stat{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
-.stat.ended{color:var(--red)}
-.stat.rmk{color:var(--amber)}
-.stat.off,.stat.none{color:var(--dim)}
-.stat.load{color:var(--sub)}
-.nx-sched{color:var(--amber)}
-body.no-anim #dPages{transition:none}
-body.no-anim #dBar,body.no-anim #ribBar{display:none}
-body.no-anim #tickTrack{animation:none}
-body.no-anim .e-min,body.no-anim .oMin{animation:none}
-#footer{height:46px;flex-shrink:0;margin-top:10px;display:flex;align-items:stretch;background:var(--panel);
-        border:1px solid var(--line);border-radius:6px;overflow:hidden}
-#tickTag{width:92px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--panel2);
-         border-right:1px solid var(--line);font-size:13px;font-weight:700;color:var(--sub)}
-#tickWrap{flex:1;min-width:0;overflow:hidden;display:flex;align-items:center}
-#tickTrack{display:inline-block;white-space:nowrap;will-change:transform;animation:tickmove 60s linear infinite}
-#tickTrack span{font-size:16px;color:var(--tick);padding-right:70px}
-@keyframes tickmove{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-#statusBox{width:420px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:0 16px;
-           border-left:1px solid var(--line);background:var(--panel2)}
-.src{display:inline-flex;align-items:center;font-size:12px;color:var(--sub);margin-left:10px}
-.src i{width:7px;height:7px;border-radius:50%;background:var(--dot);margin-right:4px}
-.src i.ok{background:var(--green)}
-.src i.warn{background:var(--amber)}
-.src i.bad{background:var(--red)}
-#rotInfo{font-size:12.5px;color:var(--dim);margin-left:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
-#upd{font-size:13px;color:var(--sub);margin-left:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
-#upd.warn{color:var(--amber)}
-#upd.bad{color:var(--red)}
-.panel{position:absolute;top:134px;right:24px;width:360px;max-height:900px;z-index:40;display:none;
-       flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow:auto}
-.panel.show{display:flex}
-.panel::-webkit-scrollbar{width:12px}
-.panel::-webkit-scrollbar-track{background:var(--panel2);border-radius:6px}
-.panel::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--card)}
-.panel::-webkit-scrollbar-thumb:hover{background:var(--sub)}
-.pHead{display:flex;align-items:center;flex-shrink:0}
-.pTitle{font-size:16px;font-weight:700;flex:1;min-width:0}
-.pClose{width:34px;height:34px;flex-shrink:0;background:var(--btn-bg);border:1px solid var(--btn-line);
-        border-radius:6px;color:var(--sub);font-size:15px;cursor:pointer}
-.pClose:hover{color:var(--txt);border-color:var(--sub)}
-.pLab{font-size:11.5px;color:var(--dim);margin-top:12px;flex-shrink:0}
-.opt{display:block;width:100%;text-align:left;font-size:15px;color:var(--txt);background:var(--panel2);
-     border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:6px;cursor:pointer;flex-shrink:0}
-.opt.on{border-color:var(--accent);font-weight:700}
-.opt:hover{border-color:var(--sub)}
-.two{display:flex;flex-shrink:0}
-.two .opt{margin-right:8px}
-.two .opt:last-child{margin-right:0}
-.sel,.tin{width:100%;font-size:14px;color:var(--txt);background:var(--panel2);border:1px solid var(--line);
-     border-radius:6px;padding:9px 10px;margin-top:6px;flex-shrink:0}
-.sRow{display:flex;align-items:center;margin-top:10px;flex-shrink:0}
-.sLab{flex:1;min-width:0;font-size:12.5px;color:var(--dim)}
-.step{display:flex;align-items:center;flex-shrink:0;border:1px solid var(--btn-line);border-radius:6px;overflow:hidden}
-.step button{width:34px;height:34px;font-size:17px;color:var(--txt);background:var(--btn-bg);border:none;cursor:pointer}
-.step button:hover{background:var(--accent);color:#fff}
-.step span{min-width:56px;text-align:center;font-size:14px;line-height:34px;background:var(--panel2);
-           color:var(--txt);font-variant-numeric:tabular-nums}
-.pHint{font-size:11px;color:var(--dim);line-height:1.6;margin-top:12px;flex-shrink:0}
-#resPanel{left:24px;right:auto;width:1010px;max-height:830px}
-.resNote{font-size:12px;color:var(--dim);line-height:1.6;margin-top:10px;flex-shrink:0}
-#resList{flex:1;min-height:90px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
-#resList::-webkit-scrollbar{width:12px}
-#resList::-webkit-scrollbar-track{background:var(--panel)}
-#resList::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
-#resList::-webkit-scrollbar-thumb:hover{background:var(--sub)}
-.resRow{display:flex;align-items:center;padding:9px 12px;border-bottom:1px solid var(--rowline)}
-.resName{width:300px;flex-shrink:0;font-size:14px}
-.resName b{font-weight:700}
-.resName i{font-style:normal;display:block;font-size:11.5px;color:var(--dim);margin-top:2px}
-.resId{flex:1;min-width:0;font-size:12.5px;color:var(--sub);word-break:break-all}
-.resId.ok{color:var(--green)}
-.resId.bad{color:var(--amber)}
-.resIn{width:210px;flex-shrink:0;font-size:12.5px;color:var(--txt);background:var(--panel);border:1px solid var(--line);
-       border-radius:5px;padding:6px 8px;margin-left:10px}
-.resActs{display:flex;flex-wrap:wrap;flex-shrink:0;margin-top:10px}
-.resActs .opt{width:auto;margin-right:10px;padding:8px 14px;font-size:13px}
-#resLog{flex-shrink:0;height:150px;overflow:auto;margin-top:10px;background:var(--panel2);border:1px solid var(--line);
-        border-radius:6px;padding:10px;font-size:11.5px;line-height:1.55;color:var(--sub);white-space:pre-wrap}
-#resLog::-webkit-scrollbar{width:12px}
-#resLog::-webkit-scrollbar-track{background:var(--panel)}
-#resLog::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
-#dbgPanel{left:24px;right:auto;width:680px;max-height:830px}
-#dbg{flex:1;min-height:80px;overflow:auto;margin-top:10px;background:var(--panel2);border:1px solid var(--line);
-     border-radius:6px;padding:12px;font-size:12px;line-height:1.6;color:var(--sub);white-space:pre-wrap}
-#dbg::-webkit-scrollbar{width:12px}
-#dbg::-webkit-scrollbar-track{background:var(--panel)}
-#dbg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--panel2)}
+#dLg{height:30px;flex:0 0 auto;display:flex;align-items:center;gap:18px;padding:0 20px;
+  border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap}
+.lg{font-size:12px;color:var(--tx3);flex:0 0 auto}
+.lg b{font-size:13px;color:var(--tx2);margin-right:5px}
+.th{height:27px;flex:0 0 auto;display:flex;align-items:center;padding:0 20px;font-size:12px;
+  color:var(--tx3);border-bottom:1px solid var(--line)}
+.thR{width:170px;flex:0 0 auto}.thD{flex:1 1 auto}.thP{width:92px;flex:0 0 auto;text-align:center}
+.thE{width:262px;flex:0 0 auto;text-align:right}
+#dV{flex:1 1 auto;min-height:0;overflow:hidden;position:relative}
+#dP{position:absolute;left:0;top:0;width:100%;transition:transform .65s cubic-bezier(.4,0,.2,1)}
+body.noanim #dP{transition:none}
+body.noanim #dBar,body.noanim #ribBar{display:none}
+.rw{height:86px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--row)}
+.rw:nth-child(even){background:var(--zebra)}
+.rw.dim{opacity:.55}
+.rR{width:170px;flex:0 0 auto;display:flex;align-items:center;gap:7px}
+.badge{width:112px;height:54px;border-radius:4px;background:var(--chip);color:var(--chipTx);
+  font-size:37px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.ops{display:flex;flex-direction:column}
+.op{font-size:10.5px;line-height:1.35;white-space:nowrap}
+.op.kmb{color:var(--kmb)}.op.ctb{color:var(--ctb)}.op.off{color:var(--tx4)}
+.rD{flex:1 1 auto;min-width:0;margin:0 12px}
+.dz{font-size:25px;font-weight:700;line-height:1.22}
+.de{font-size:13.5px;color:var(--tx2);line-height:1.3}
+.ds{font-size:12px;color:var(--tx3);line-height:1.35}
+.rP{width:92px;flex:0 0 auto;text-align:center;font-size:19px;font-weight:700}
+.rE{width:262px;flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end}
+.eM{display:flex;align-items:center;justify-content:flex-end;line-height:1}
+.eN{font-size:43px;font-weight:700;font-variant-numeric:tabular-nums;padding:2px 10px;border-radius:6px;
+  margin-right:10px;line-height:1.08}
+.eRt{display:flex;flex-direction:column;align-items:flex-start}
+.eT{height:20px;display:flex;align-items:center;gap:5px;overflow:hidden}
+.eB{height:20px;display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.eU{font-size:14.5px;color:var(--tx2)}
+.eA{font-size:15.5px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.eX{margin-top:4px;height:19px;font-size:13.5px;color:var(--tx3);font-variant-numeric:tabular-nums;
+  display:flex;justify-content:flex-end;overflow:hidden;white-space:nowrap}
+.cp{font-size:12.5px;border:1px solid;border-radius:3px;padding:1px 6px;white-space:nowrap}
+.cp.s{color:var(--warn);border-color:var(--warnL)}
+.cp.l{color:var(--bad);border-color:var(--badL)}
+.cp.a{color:var(--ok);border-color:var(--okL)}
+.lv{font-size:12.5px;color:var(--tx3)}
+.st{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.st.e{color:var(--bad)}.st.r{color:var(--warn)}.st.o,.st.n{color:var(--tx3)}.st.ld{color:var(--tx2)}
+.eN.none{color:var(--tx4);font-size:29px;background:none;animation:none}
+/* footer */
+#ft{height:46px;flex:0 0 auto;margin-top:9px;display:flex;background:var(--surf);
+  border:1px solid var(--line);border-radius:6px;overflow:hidden}
+#ftTag{width:88px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  background:var(--surf2);border-right:1px solid var(--line);font-size:12.5px;font-weight:700;color:var(--tx2)}
+#ftW{flex:1 1 auto;min-width:0;overflow:hidden;display:flex;align-items:center}
+#ftT{display:inline-block;white-space:nowrap;animation:tk 60s linear infinite}
+#ftT span{font-size:16px;color:var(--tx2);padding-right:66px}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+body.noanim #ftT{animation:none}
+#ftS{width:392px;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:11px;
+  padding:0 15px;background:var(--surf2);border-left:1px solid var(--line)}
+.src{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--tx2)}
+.src i{width:7px;height:7px;border-radius:50%;background:var(--tx4)}
+.src i.ok{background:var(--ok)}.src i.wn{background:var(--warn)}.src i.bd{background:var(--bad)}
+#rot,#upd{font-size:12px;color:var(--tx3);white-space:nowrap;font-variant-numeric:tabular-nums}
+#upd.wn{color:var(--warn)}#upd.bd{color:var(--bad)}
+/* panels */
+.pnl{position:absolute;top:130px;right:22px;width:352px;max-height:900px;z-index:50;display:none;
+  flex-direction:column;background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:15px;overflow:auto}
+.pnl.on{display:flex}
+.pnl::-webkit-scrollbar{width:11px}
+.pnl::-webkit-scrollbar-track{background:var(--surf2);border-radius:6px}
+.pnl::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--surf)}
+.pnl::-webkit-scrollbar-thumb:hover{background:var(--tx2)}
+.ph{display:flex;align-items:center;flex:0 0 auto}
+.ph b{flex:1 1 auto;font-size:16px}
+.px{width:32px;height:32px;background:var(--btn);border:1px solid var(--btnL);border-radius:6px;
+  color:var(--tx2);font-size:14px;cursor:pointer}
+.px:hover{color:var(--tx);border-color:var(--tx2)}
+.lb{font-size:11.5px;color:var(--tx3);margin-top:11px;flex:0 0 auto}
+.bt{display:block;width:100%;text-align:left;font-size:14.5px;color:var(--tx);background:var(--surf2);
+  border:1px solid var(--line);border-radius:6px;padding:9px 11px;margin-top:6px;cursor:pointer;flex:0 0 auto}
+.bt.on{border-color:var(--acc);font-weight:700}
+.bt:hover{border-color:var(--tx2)}
+.pair{display:flex;gap:7px;flex:0 0 auto}
+.sl,.ti{width:100%;font-size:14px;color:var(--tx);background:var(--surf2);border:1px solid var(--line);
+  border-radius:6px;padding:8px 10px;margin-top:6px;flex:0 0 auto}
+.sr{display:flex;align-items:center;margin-top:9px;flex:0 0 auto}
+.sr>span{flex:1 1 auto;font-size:12px;color:var(--tx3)}
+.stp{display:flex;border:1px solid var(--btnL);border-radius:6px;overflow:hidden;flex:0 0 auto}
+.stp button{width:32px;height:32px;font-size:16px;color:var(--tx);background:var(--btn);border:none;cursor:pointer}
+.stp button:hover{background:var(--acc);color:#fff}
+.stp b{min-width:54px;text-align:center;line-height:32px;font-size:13.5px;background:var(--surf2);font-variant-numeric:tabular-nums}
+.hint{font-size:10.5px;color:var(--tx3);line-height:1.6;margin-top:11px;flex:0 0 auto}
+#diag{left:22px;right:auto;width:700px}
+#dg{flex:1 1 auto;min-height:90px;margin-top:10px;overflow:auto;background:var(--surf2);
+  border:1px solid var(--line);border-radius:6px;padding:11px;font-size:12px;line-height:1.6;
+  color:var(--tx2);white-space:pre-wrap}
+#dg::-webkit-scrollbar{width:11px}
+#dg::-webkit-scrollbar-track{background:var(--surf)}
+#dg::-webkit-scrollbar-thumb{background:var(--bar);border-radius:6px;border:3px solid var(--surf2)}
 </style>
 </head>
 <body>
-
-<video id="bgvid" autoplay muted playsinline loop></video>
-<div id="bootErr"></div>
+<video id="guard" autoplay muted playsinline loop></video>
+<div id="err"></div>
 
 <div id="stage">
-  <div id="header">
+  <div id="hd">
     <img id="logo" src="ktmc.png" alt="KTMC" onerror="this.style.display='none'">
-    <div id="titleBox">
-      <div id="tZh" data-flap="hZ">翠屏・協和・和樂 多站巴士到站顯示屏</div>
-      <div id="tEn" data-flap="hE">TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY</div>
-      <div id="tSub" class="flow" data-flap="hS">和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站</div>
+    <div id="ttl">
+      <div id="t1" class="mq"><i></i></div>
+      <div id="t2" class="mq"><i></i></div>
+      <div id="t3" class="mq"><i></i></div>
     </div>
-    <div id="warnBox"></div>
-    <div id="phaseCard">
-      <div id="phaseLab" data-flap="hL">現正顯示 NOW SHOWING</div>
-      <div id="phaseVal" data-flap="hV">全站總覽</div>
-      <div id="phaseSub" data-flap="hP">—</div>
+    <div id="warn"></div>
+    <div id="now" class="hbox">
+      <div id="nowL">現正顯示 NOW SHOWING</div>
+      <div id="nowV" class="mq"><i></i></div>
+      <div id="nowS" class="mq"><i></i></div>
     </div>
-    <div id="wxCard">
-      <img id="wxIcon" alt="">
-      <div><div id="wxTemp">--°C</div><div id="wxHum" data-flap="hH">濕度 --%</div></div>
+    <div id="wx" class="hbox">
+      <img id="wxI" alt="">
+      <div><div id="wxT">--°C</div><div id="wxH">濕度 --%</div></div>
     </div>
-    <div id="clockCard">
-      <div id="clock"><span id="ch">--</span><span>:</span><span id="cm">--</span></div>
-      <div id="dateZh" data-flap="hDZ">----年--月--日</div>
-      <div id="dateEn" data-flap="hDE">---</div>
+    <div id="clk" class="hbox">
+      <div id="clkT"><span id="hh">--</span>:<span id="mm">--</span></div>
+      <div id="clkD">----</div>
+      <div id="clkE">---</div>
     </div>
-    <button id="setBtn" aria-label="設定 Settings" title="設定 Settings">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    <button id="setB" title="設定 Settings" aria-label="設定">
+      <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
     </button>
   </div>
 
-  <div id="ribbon"><div id="ribBar"></div></div>
+  <div id="rib"><div id="ribBar"></div></div>
 
   <div id="main">
-    <div id="over" class="show"></div>
-    <div id="detail">
-      <div id="dHead">
-        <div id="dNameBox"><div id="dName" class="flow" data-flap="dN">—</div><div id="dEn" class="flow" data-flap="dE">—</div></div>
+    <div id="ov" class="on"></div>
+    <div id="dt">
+      <div id="dH">
+        <div id="dNB"><div id="dN" class="mq"><i></i></div><div id="dS" class="mq"><i></i></div></div>
         <div id="dTags"></div>
-        <div id="dPager"><span class="dots" id="dDots"></span><span id="dLabel">1/1</span></div>
+        <div id="dPg"><span class="dots" id="dDots"></span><span id="dPl">1/1</span></div>
         <div id="dBar"></div>
       </div>
-      <div id="dLegend"></div>
-      <div class="thead"><span class="hRoute">路線 ROUTE</span><span class="hDest">目的地 DESTINATION</span><span class="hPlat">月台 STOP</span><span class="hEta">到站時間 ARRIVALS</span></div>
-      <div id="dView"><div id="dPages"></div></div>
+      <div id="dLg"></div>
+      <div class="th"><span class="thR">路線 ROUTE</span><span class="thD">目的地 DESTINATION</span><span class="thP">月台 STOP</span><span class="thE">到站時間 ARRIVALS</span></div>
+      <div id="dV"><div id="dP"></div></div>
     </div>
   </div>
 
-  <div id="footer">
-    <div id="tickTag">資訊 INFO</div>
-    <div id="tickWrap"><div id="tickTrack"><span id="tickA"></span><span id="tickB"></span></div></div>
-    <div id="statusBox">
-      <span class="src"><i id="dotKmb"></i>KMB</span>
-      <span class="src"><i id="dotCtb"></i>CTB</span>
-      <span class="src"><i id="dotHko"></i>HKO</span>
-      <span id="rotInfo">—</span>
-      <span id="upd">載入中…</span>
+  <div id="ft">
+    <div id="ftTag">資訊 INFO</div>
+    <div id="ftW"><div id="ftT"><span id="tkA"></span><span id="tkB"></span></div></div>
+    <div id="ftS">
+      <span class="src"><i id="dK"></i>KMB</span>
+      <span class="src"><i id="dC"></i>CTB</span>
+      <span class="src"><i id="dH2"></i>HKO</span>
+      <span id="rot">—</span><span id="upd">載入中…</span>
     </div>
   </div>
 
-  <div class="panel" id="setPanel">
-    <div class="pHead"><div class="pTitle">設定 Settings</div><button class="pClose" id="setClose" aria-label="關閉">✕</button></div>
-    <div class="pLab">主題 Theme</div>
-    <div class="two"><button class="opt" id="thDark">深色 Dark</button><button class="opt" id="thLight">淺色 Light</button></div>
-    <div class="pLab">動畫及翻牌 Animations &amp; split-flip</div>
-    <button class="opt" id="animBtn">動畫：開 Animations: On</button>
-    <div class="pLab">語言 Language</div>
-    <select class="sel" id="langSel">
-      <option value="auto">自動切換中／英 Auto alternate</option>
-      <option value="zh">只顯示中文 Chinese only</option>
-      <option value="en">只顯示英文 English only</option>
+  <div class="pnl" id="setP">
+    <div class="ph"><b>設定 Settings</b><button class="px" id="setX">✕</button></div>
+    <div class="lb">主題 Theme</div>
+    <div class="pair"><button class="bt" id="bDark">深色 Dark</button><button class="bt" id="bLight">淺色 Light</button></div>
+    <div class="lb">動畫及翻牌 Animation &amp; flip</div>
+    <button class="bt" id="bAnim">動畫：開 On</button>
+    <div class="lb">語言 Language</div>
+    <select class="sl" id="sLang">
+      <option value="auto">自動切換中／英 Auto</option>
+      <option value="zh">只顯示中文 Chinese</option>
+      <option value="en">只顯示英文 English</option>
     </select>
-    <div class="sRow"><span class="sLab">語言切換間隔 Language interval</span>
-      <div class="step"><button id="lgM" aria-label="減少">−</button><span id="lgV">8s</span><button id="lgP" aria-label="增加">+</button></div></div>
-    <div class="pLab">底部走馬字自訂訊息 Custom ticker message</div>
-    <input class="tin" id="tickIn" placeholder="例：請提前五分鐘到達月台候車">
-    <div class="pLab">顯示模式 Display mode</div>
-    <select class="sel" id="modeSel">
+    <div class="sr"><span>語言間隔 Interval</span><div class="stp"><button id="lgM">−</button><b id="lgV">8s</b><button id="lgP">+</button></div></div>
+    <div class="lb">走馬字自訂訊息 Custom ticker</div>
+    <input class="ti" id="iTick" placeholder="例：請提前五分鐘到達月台候車">
+    <div class="lb">顯示模式 Mode</div>
+    <select class="sl" id="sMode">
       <option value="cycle">自動輪播（總覽＋逐站）</option>
       <option value="overview">只顯示全站總覽</option>
       <option value="detail">只逐站輪播</option>
     </select>
-    <div class="pLab">固定站點 Lock to one stop</div>
-    <select class="sel" id="lockSel"></select>
-    <div class="sRow"><span class="sLab">每頁停留 Dwell</span>
-      <div class="step"><button id="dwM" aria-label="減少">−</button><span id="dwV">10s</span><button id="dwP" aria-label="增加">+</button></div></div>
-    <div class="sRow"><span class="sLab">自動重載 Auto reload</span>
-      <div class="step"><button id="rlM" aria-label="減少">−</button><span id="rlV">關</span><button id="rlP" aria-label="增加">+</button></div></div>
-    <div class="pLab">排序 Sort</div>
-    <select class="sel" id="sortSel">
+    <div class="lb">固定站點 Lock stop</div>
+    <select class="sl" id="sLock"></select>
+    <div class="sr"><span>每頁停留 Dwell</span><div class="stp"><button id="dwM">−</button><b id="dwV">10s</b><button id="dwP">+</button></div></div>
+    <div class="sr"><span>自動重載 Reload</span><div class="stp"><button id="rlM">−</button><b id="rlV">關</b><button id="rlP">+</button></div></div>
+    <div class="lb">排序 Sort</div>
+    <select class="sl" id="sSort">
       <option value="eta">最快到站 Soonest</option>
-      <option value="route">路線號 Route number</option>
+      <option value="route">路線號 Route</option>
       <option value="platform">月台 Platform</option>
     </select>
-    <div class="pLab">數據及畫面 Data &amp; screen</div>
-    <button class="opt" id="resBtn">站點解析 Stop resolver</button>
-    <button class="opt" id="dbgBtn">診斷 Diagnostics</button>
-    <button class="opt" id="refBtn">立即更新 Refresh now</button>
-    <button class="opt" id="fsBtn2">全螢幕 Fullscreen</button>
-    <div class="pHint">開機即時載入 20 個月台 ETA，不下載全站清單（避免電視記憶體不足）。缺漏月台以輕量路線掃描自動補配。總覽顯示全部在途班次，可滾動。URL：?tick=…&amp;lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;lock=WOH-S&amp;reload=6</div>
+    <div class="lb">數據及畫面 Data &amp; screen</div>
+    <button class="bt" id="bDiag">診斷 Diagnostics</button>
+    <button class="bt" id="bRef">立即更新 Refresh</button>
+    <button class="bt" id="bFs">全螢幕 Fullscreen</button>
+    <div class="hint">總覽顯示每站全部在途班次（可滾動），不隱藏任何即將到站車。走馬字＝自訂＋運輸署交通消息（原文狀態）＋天文台公告。URL：?lang=auto|zh|en&amp;langms=8&amp;mode=cycle&amp;dwell=10&amp;sort=eta&amp;theme=dark&amp;anim=1&amp;tick=…&amp;lock=WOH-S</div>
   </div>
 
-  <div class="panel" id="resPanel">
-    <div class="pHead"><div class="pTitle">站點解析 Stop Resolver</div><button class="pClose" id="resClose" aria-label="關閉">✕</button></div>
-    <div class="resNote">20 個月台已內建經核實的 stop ID，開機即時載入。「補配缺漏」只用輕量路線掃描（不下載全站清單）。「全站重新解析」會下載九巴全站清單（數 MB），只建議在電腦上使用；電視記憶體不足時可能失敗。亦可直接貼上 stop ID 覆寫。</div>
-    <div id="resList"></div>
-    <div class="resActs">
-      <button class="opt" id="resMissing">補配缺漏 Fix missing</button>
-      <button class="opt" id="resRun">全站重新解析 Full re-resolve</button>
-      <button class="opt" id="resSave">儲存覆寫 Save overrides</button>
-      <button class="opt" id="resDefault">還原預設 Restore defaults</button>
-    </div>
-    <pre id="resLog">使用內建預設對應 Using built-in defaults.</pre>
-  </div>
-
-  <div class="panel" id="dbgPanel">
-    <div class="pHead"><div class="pTitle">診斷 Diagnostics</div><button class="pClose" id="dbgClose" aria-label="關閉">✕</button></div>
-    <pre id="dbg"></pre>
+  <div class="pnl" id="diag">
+    <div class="ph"><b>診斷 Diagnostics</b><button class="px" id="dgX">✕</button></div>
+    <pre id="dg"></pre>
   </div>
 </div>
 
-<noscript><div style="color:#fff;padding:40px;font-size:24px">此顯示屏需要 JavaScript。This display requires JavaScript.</div></noscript>
-
 <script>
-'use strict';
-function showBootErr(msg){
-  try{
-    var b=document.getElementById('bootErr');
-    if(!b)return;
-    b.textContent='顯示屏啟動錯誤 Boot error: '+msg+'\n請截圖此訊息回報。Please report this message.';
-    b.className='show';
-  }catch(e){}
+"use strict";
+/* ============ boot-safe error surface ============ */
+var ERR=[];
+function fail(where,e){
+  var m=where+": "+((e&&e.message)||e);
+  ERR.push(m);if(ERR.length>10)ERR.shift();
+  try{var b=document.getElementById("err");b.textContent="顯示屏錯誤 "+m+"\n請截圖回報 Please report.";b.className="on";}catch(x){}
 }
-window.addEventListener('error',function(ev){ showBootErr((ev&&ev.message)?ev.message:'unknown'); });
-if(!window.fetch){ showBootErr('瀏覽器不支援 fetch（Browser lacks fetch API）'); }
+window.onerror=function(m){fail("runtime",m);};
 
-var CFG={etaMs:30000,wxMs:300000,stnMs:180000,staleMs:120000,arriveMs:60000,graceMs:45000,
-  band4:240000,band6:360000,band10:600000,
-  mode:'cycle',dwell:10000,sort:'eta',lock:'',reloadH:0,
-  lang:'auto',langMs:8000,concurrency:6,
-  kmbStop:'https://data.etabus.gov.hk/v1/transport/kmb/stop/',
-  kmbEta:'https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/',
-  kmbRouteStop:'https://data.etabus.gov.hk/v1/transport/kmb/route-stop/',
-  ctbEta:'https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/',
-  wx:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=',
-  tc:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=tcmessage&lang=',
-  warn:'https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en',
-  stnUrl:'https://www.td.gov.hk/en/special_news/trafficnews.xml',
-  proxy:'https://api.allorigins.win/raw?url=',
-  wxIcon:'https://rss.weather.gov.hk/img/pic'};
-
-var KT_OVERRIDE={};
-var DEFAULT_MAP={
-  'WOH-S-537':'AE2A9F719AB5E353','WOH-S-536':'6CEE063506576EDB','WOH-S-535':'073C44CE5FF431BC',
-  'WOH-N-260':'11EC0BEF4F8781A9','WOH-N-259':'072046BF00257739','WOH-N-258':'B314CF2831F9C5F1',
-  'WOH-N-257':'55AE88BFD351F56D','WOH-N-256':'17A8BC1197F76422','WOH-N-255':'6530130BE25E909C',
-  'WCH-S-534':'6CF34EF02CDBE26B','WCH-N-261':'DE925628D8747F6D',
-  'PPC-S-1000':'C6E63C45FF2EA573','PPC-N-1100':'CED060CB0E89E2B3',
-  'COH-N-1075':'F9210821429F55B6','CTH-S-1050':'3673A01280621EC2',
-  'TPR-T-0':'1AEB39A1738104D3','TPN-T-1050':'71B7CB659DF54E28',
-  'KTP-S-1100':'3558FA1D8DCF1F12','KTP-N-1000':'49229D04FCA51B61'
+/* ============ config ============ */
+var URLS={
+  eta:"https://data.etabus.gov.hk/v1/transport/kmb/stop-eta/",
+  stop:"https://data.etabus.gov.hk/v1/transport/kmb/stop/",
+  rs:"https://data.etabus.gov.hk/v1/transport/kmb/route-stop/",
+  ctb:"https://rt.data.gov.hk/v2/transport/citybus/eta/CTB/",
+  wx:"https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=",
+  tc:"https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=tcmessage&lang=",
+  ws:"https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=en",
+  td:"https://www.td.gov.hk/en/special_news/trafficnews.xml",
+  proxy:"https://api.allorigins.win/raw?url=",
+  icon:"https://rss.weather.gov.hk/img/pic"
 };
-var CTB_DEF={ 'WOH-S-536':'003040', 'WOH-N-255':'003041', 'WCH-S-533':'003039' };
-var ROW_H=88,SW=1920,SH=1080;
-var W={wkAM:{d:[1,2,3,4,5],from:360,to:660},satAM:{d:[1,2,3,4,5,6],from:360,to:660},
-  wkPM:{d:[1,2,3,4,5],from:960,to:1290},night:{d:[0,1,2,3,4,5,6],from:1380,to:400},
-  day:{d:[0,1,2,3,4,5,6],from:300,to:1439}};
-function rt(r,z,e,x){var o={route:r,dest:z,destEn:e,cos:['KMB']};
-  if(x)for(var k in x)if(x.hasOwnProperty(k))o[k]=x[k];
-  if(o.joint)o.cos=['KMB','CTB'];return o;}
+var C={etaMs:30000,wxMs:300000,tdMs:180000,stale:120000,arrive:60000,grace:45000,
+  b4:240000,b6:360000,b10:600000,mode:"cycle",dwell:10000,sort:"eta",lock:"",reload:0,
+  lang:"auto",langMs:8000,tick:"",anim:true,theme:"dark"};
+var ROWH=86;
+
+function R(n,z,e,o){var x={r:n,z:z,e:e,co:["KMB"]};if(o)for(var k in o)x[k]=o[k];if(x.joint)x.co=["KMB","CTB"];return x;}
+var WIN={am:{d:[1,2,3,4,5],a:360,b:660},sam:{d:[1,2,3,4,5,6],a:360,b:660},
+  pm:{d:[1,2,3,4,5],a:960,b:1290},nt:{d:[0,1,2,3,4,5,6],a:1380,b:400},day:{d:[0,1,2,3,4,5,6],a:300,b:1439}};
+
 var STOPS=[
-{key:'WOH-S',name:'和樂邨',en:'Wo Lok Estate',street:'協和街',streetEn:'Hip Wo Street',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'hipwo',walk:3,aliases:['和樂邨'],platforms:[
-  {key:'WOH-S-537',label:'KT537',note:'往油尖旺・深水埗',routes:[
-    rt('1A','尖沙咀碼頭','STAR FERRY'),rt('13D','維港灣','ISLAND HARBOURVIEW'),
-    rt('13P','長沙灣（麗閣邨）','CHEUNG SHA WAN (LAI KOK ESTATE)',{peak:'週一至五上午繁忙時間',win:W.wkAM}),
-    rt('93K','旺角東站','MONG KOK EAST STATION')]},
-  {key:'WOH-S-536',label:'KT536',note:'往啟德・港島・通宵',routes:[
-    rt('28B','啟德（啟晴邨）','KAI TAK (KAI CHING ESTATE)'),
-    rt('601','金鐘（東）','ADMIRALTY (EAST)',{joint:true}),
-    rt('601P','上環','SHEUNG WAN',{joint:true,peak:'週一至六上午繁忙時間',win:W.satAM}),
-    rt('N293','旺角（柏景灣）','MONG KOK (PARK AVENUE)',{night:true,win:W.night})]},
-  {key:'WOH-S-535',label:'KT535',note:'往觀塘・紅磡・沙田',routes:[
-    rt('11X','紅磡站','HUNG HOM STATION'),rt('13M','觀塘（雅麗道）','KWUN TONG (ELEGANCE ROAD)',{circ:true}),
-    rt('23','觀塘碼頭','KWUN TONG FERRY',{circ:true}),
-    rt('23M','樂華','LOK WAH',{circ:true,note:'設特別班次經九龍灣商貿區（週一至五上午）'}),
-    rt('26M','觀塘（循環）','KWUN TONG (CIRCULAR)',{circ:true}),
-    rt('89','瀝源','LEK YUEN'),rt('89X','沙田站','SHA TIN STATION'),rt('93A','觀塘碼頭','KWUN TONG FERRY')]}]},
-{key:'WOH-N',name:'和樂邨',en:'Wo Lok Estate',street:'協和街',streetEn:'Hip Wo Street',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'hipwo',walk:3,aliases:['和樂邨'],platforms:[
-  {key:'WOH-N-260',label:'KT260',note:'往寶林',routes:[ rt('93A','寶林','PO LAM') ]},
-  {key:'WOH-N-259',label:'KT259',note:'往翠林・通宵',routes:[
-    rt('93K','翠林','TSUI LAM'),rt('N293','尚德','SHEUNG TAK',{night:true,win:W.night})]},
-  {key:'WOH-N-258',label:'KT258',note:'往四順・聯合醫院',routes:[
-    rt('14H','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true,note:'經聯合醫院',win:W.day}),
-    rt('23','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true}),
-    rt('23M','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true}),
-    rt('26M','彩虹','CHOI HUNG')]},
-  {key:'WOH-N-257',label:'KT257',note:'往彩福',routes:[ rt('28B','彩福','CHOI FOOK') ]},
-  {key:'WOH-N-256',label:'KT256',note:'往中秀茂坪',routes:[ rt('1A','中秀茂坪','SAU MAU PING (CENTRAL)') ]},
-  {key:'WOH-N-255',label:'KT255',note:'往寶達・安泰',routes:[
-    rt('11X','安泰（北）','ON TAI (NORTH)'),rt('13D','寶達','PO TAT'),
-    rt('601','寶達','PO TAT',{joint:true,section:true}),
-    rt('601P','寶達','PO TAT',{joint:true,section:true,peak:'週一至五下午繁忙時間',win:W.wkPM})]}]},
-{key:'WCH-S',name:'祥和苑',en:'Cheung Wo Court',street:'協和街',streetEn:'Hip Wo Street',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'hipwo',walk:3,aliases:['祥和苑'],platforms:[
-  {key:'WCH-S-534',label:'KT534',note:'往竹園・紅磡・旺角',routes:[
-    rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('11X','紅磡站','HUNG HOM STATION'),rt('13D','維港灣','ISLAND HARBOURVIEW'),
-    rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('93K','旺角東站','MONG KOK EAST STATION')]},
-  {key:'WCH-S-533',label:'KT533',note:'往尖沙咀・觀塘・港島',routes:[
-    rt('1A','尖沙咀碼頭','STAR FERRY'),rt('13M','觀塘（雅麗道）','KWUN TONG (ELEGANCE ROAD)',{circ:true}),
-    rt('13P','長沙灣（麗閣邨）','CHEUNG SHA WAN (LAI KOK ESTATE)',{peak:'週一至五上午繁忙時間',win:W.wkAM}),
-    rt('28B','啟德（啟晴邨）','KAI TAK (KAI CHING ESTATE)'),rt('93A','觀塘碼頭','KWUN TONG FERRY'),
-    rt('601','金鐘（東）','ADMIRALTY (EAST)',{joint:true}),
-    rt('601P','上環','SHEUNG WAN',{joint:true,peak:'週一至六上午繁忙時間',win:W.satAM}),
-    rt('N293','旺角（柏景灣）','MONG KOK (PARK AVENUE)',{night:true,win:W.night})]}]},
-{key:'WCH-N',name:'祥和苑',en:'Cheung Wo Court',street:'協和街',streetEn:'Hip Wo Street',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'hipwo',walk:4,aliases:['祥和苑'],platforms:[
-  {key:'WCH-N-261',label:'KT261',note:'往秀茂坪・安泰・寶達・順利',routes:[
-    rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('11X','安泰（北）','ON TAI (NORTH)'),rt('13D','寶達','PO TAT'),
-    rt('14H','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true,note:'經聯合醫院',win:W.day}),
-    rt('23','順利（循環）','SHUN LEE (CIRCULAR)',{circ:true}),rt('28B','彩福','CHOI FOOK'),
-    rt('N293','尚德','SHEUNG TAK',{night:true,win:W.night})]}]},
-{key:'PPC-S',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:3,aliases:['寶珮苑'],platforms:[
-  {key:'PPC-S-1000',label:'KT561',note:'往竹園・油塘',routes:[
-    rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day})]}]},
-{key:'PPC-N',name:'寶珮苑',en:'Po Pui Court',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:3,aliases:['寶珮苑','翠屏北邨寶珮苑'],platforms:[
-  {key:'PPC-N-1100',label:'KT273',note:'往秀茂坪・寶達・沙田',routes:[
-    rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
-    rt('89','瀝源','LEK YUEN'),rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'COH-N',name:'翠桉樓',en:'Tsui On House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:6,aliases:['翠桉樓','翠屏邨翠桉樓','翠屏北邨翠桉樓'],platforms:[
-  {key:'COH-N-1075',label:'KT272',note:'往秀茂坪・寶達・沙田・觀塘',routes:[
-    rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
-    rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),rt('89C','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
-    rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'CTH-S',name:'翠梓樓',en:'Tsui Tsz House',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:7,aliases:['翠梓樓','翠屏邨翠梓樓','翠屏北邨翠梓樓'],platforms:[
-  {key:'CTH-S-1050',label:'KT562',note:'往九龍城・竹園・油塘・恆安',routes:[
-    rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),
-    rt('14H','油塘','YAU TONG',{circ:true,note:'經聯合醫院',win:W.day}),rt('89C','恆安','HENG ON')]}]},
-{key:'TPR-T',name:'觀塘（翠屏道）總站',en:'Kwun Tong (Tsui Ping Road) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:5,
- aliases:['觀塘(翠屏道)總站','觀塘（翠屏道）總站','翠屏道總站','觀塘(翠屏道)','觀塘（翠屏道）'],platforms:[
-  {key:'TPR-T-0',label:'KT948',note:'開出班次 Departures',routes:[
-    rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),
-    rt('89C','恆安','HENG ON',{note:'設特別班次（週一至六上午到達，不設回程；到達班不顯示）'}),
-    rt('89X','沙田站','SHA TIN STATION')]}]},
-{key:'TPN-T',name:'觀塘（翠屏北邨）總站',en:'Kwun Tong (Tsui Ping North Est.) Terminus',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'總站',dirEn:'Terminus',arrow:'●',hue:'terminus',terminus:true,walk:7,
- aliases:['觀塘(翠屏北邨)總站','觀塘（翠屏北邨）總站','翠屏北邨總站','觀塘(翠屏北邨)','觀塘（翠屏北邨）'],platforms:[
-  {key:'TPN-T-1050',label:'KT271',note:'往瀝源・青龍頭',routes:[
-    rt('89','瀝源','LEK YUEN'),
-    rt('234C','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM}),
-    rt('234D','青龍頭','TSING LUNG TAU',{peak:'下午回程開出（上午到達班不顯示）',win:W.wkPM})]}]},
-{key:'KTP-S',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'南行',dirEn:'Southbound',arrow:'▼',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-S-1100',label:'KT563',note:'往鯉魚門道／觀塘道・青龍頭',routes:[
-    rt('11B','九龍城碼頭','KOWLOON CITY FERRY'),rt('11C','竹園邨','CHUK YUEN ESTATE'),rt('89C','恆安','HENG ON'),
-    rt('234C','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM}),
-    rt('234D','青龍頭','TSING LUNG TAU',{peak:'週一至五下午繁忙時間回程',win:W.wkPM})]}]},
-{key:'KTP-N',name:'觀塘游泳池',en:'Kwun Tong Swimming Pool',street:'翠屏道',streetEn:'Tsui Ping Road',dir:'北行',dirEn:'Northbound',arrow:'▲',hue:'tsuiping',walk:9,aliases:['觀塘游泳池'],platforms:[
-  {key:'KTP-N-1000',label:'KT270',note:'往秀茂坪・寶達・沙田・翠屏',routes:[
-    rt('11B','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),rt('11C','上秀茂坪','SAU MAU PING (UPPER)'),
-    rt('13M','寶達（循環）','PO TAT (CIRCULAR)',{circ:true}),
-    rt('89','觀塘（翠屏北邨）','KWUN TONG (TSUI PING NORTH EST.)'),
-    rt('89C','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
-    rt('89X','觀塘（翠屏道）','KWUN TONG (TSUI PING ROAD)'),
-    rt('234C','觀塘（翠屏北邨）','KWUN TONG (TSUI PING NORTH EST.)',{peak:'週一至六上午繁忙時間去程',win:W.satAM}),
-    rt('234D','觀塘（翠屏北邨）','KWUN TONG (TSUI PING NORTH EST.)',{peak:'週一至五上午繁忙時間去程',win:W.wkAM})]}]}
+{k:"WOH-S",z:"和樂邨",e:"Wo Lok Estate",sz:"協和街",se:"Hip Wo Street",dz:"南行",de:"Southbound",ar:"▼",hue:"hip",walk:3,al:["和樂邨"],pf:[
+ {k:"WOH-S-537",kt:"KT537",id:"AE2A9F719AB5E353",nz:"往油尖旺・深水埗",ne:"Yau Tsim Mong / SSP",rs:[
+  R("1A","尖沙咀碼頭","STAR FERRY"),R("13D","維港灣","ISLAND HARBOURVIEW"),
+  R("13P","長沙灣（麗閣邨）","CHEUNG SHA WAN (LAI KOK EST)",{pz:"週一至五上午繁忙時間",pe:"Peak Mon–Fri AM",win:WIN.am}),
+  R("93K","旺角東站","MONG KOK EAST STN")]},
+ {k:"WOH-S-536",kt:"KT536",id:"6CEE063506576EDB",ctb:"003040",nz:"往啟德・港島・通宵",ne:"Kai Tak / HK Island / Night",rs:[
+  R("28B","啟德（啟晴邨）","KAI TAK (KAI CHING EST)"),
+  R("601","金鐘（東）","ADMIRALTY (EAST)",{joint:1}),
+  R("601P","上環","SHEUNG WAN",{joint:1,pz:"週一至六上午繁忙時間",pe:"Peak Mon–Sat AM",win:WIN.sam}),
+  R("N293","旺角（柏景灣）","MONG KOK (PARK AVENUE)",{nt:1,win:WIN.nt})]},
+ {k:"WOH-S-535",kt:"KT535",id:"073C44CE5FF431BC",nz:"往觀塘・紅磡・沙田",ne:"Kwun Tong / Hung Hom / Sha Tin",rs:[
+  R("11X","紅磡站","HUNG HOM STN"),R("13M","觀塘（雅麗道）","KWUN TONG (ELEGANCE RD)",{circ:1}),
+  R("23","觀塘碼頭","KWUN TONG FERRY",{circ:1}),
+  R("23M","樂華","LOK WAH",{circ:1,nz:"設特別班次經九龍灣商貿區（週一至五上午）",ne:"Special trips via Kln Bay Business Area"}),
+  R("26M","觀塘（循環）","KWUN TONG (CIRCULAR)",{circ:1}),
+  R("89","瀝源","LEK YUEN"),R("89X","沙田站","SHA TIN STN"),R("93A","觀塘碼頭","KWUN TONG FERRY")]}]},
+{k:"WOH-N",z:"和樂邨",e:"Wo Lok Estate",sz:"協和街",se:"Hip Wo Street",dz:"北行",de:"Northbound",ar:"▲",hue:"hip",walk:3,al:["和樂邨"],pf:[
+ {k:"WOH-N-260",kt:"KT260",id:"11EC0BEF4F8781A9",nz:"往寶林",ne:"Po Lam",rs:[R("93A","寶林","PO LAM")]},
+ {k:"WOH-N-259",kt:"KT259",id:"072046BF00257739",nz:"往翠林・通宵",ne:"Tsui Lam / Night",rs:[
+  R("93K","翠林","TSUI LAM"),R("N293","尚德","SHEUNG TAK",{nt:1,win:WIN.nt})]},
+ {k:"WOH-N-258",kt:"KT258",id:"B314CF2831F9C5F1",nz:"往四順・聯合醫院",ne:"Shun Lee / UCH",rs:[
+  R("14H","順利（循環）","SHUN LEE (CIRCULAR)",{circ:1,nz:"經聯合醫院",ne:"via United Christian Hospital",win:WIN.day}),
+  R("23","順利（循環）","SHUN LEE (CIRCULAR)",{circ:1}),
+  R("23M","順利（循環）","SHUN LEE (CIRCULAR)",{circ:1}),
+  R("26M","彩虹","CHOI HUNG")]},
+ {k:"WOH-N-257",kt:"KT257",id:"55AE88BFD351F56D",nz:"往彩福",ne:"Choi Fook",rs:[R("28B","彩福","CHOI FOOK")]},
+ {k:"WOH-N-256",kt:"KT256",id:"17A8BC1197F76422",nz:"往中秀茂坪",ne:"Sau Mau Ping (Central)",rs:[R("1A","中秀茂坪","SAU MAU PING (CENTRAL)")]},
+ {k:"WOH-N-255",kt:"KT255",id:"6530130BE25E909C",ctb:"003041",nz:"往寶達・安泰",ne:"Po Tat / On Tai",rs:[
+  R("11X","安泰（北）","ON TAI (NORTH)"),R("13D","寶達","PO TAT"),
+  R("601","寶達","PO TAT",{joint:1,sec:1}),
+  R("601P","寶達","PO TAT",{joint:1,sec:1,pz:"週一至五下午繁忙時間",pe:"Peak Mon–Fri PM",win:WIN.pm})]}]},
+{k:"WCH-S",z:"祥和苑",e:"Cheung Wo Court",sz:"協和街",se:"Hip Wo Street",dz:"南行",de:"Southbound",ar:"▼",hue:"hip",walk:3,al:["祥和苑"],pf:[
+ {k:"WCH-S-534",kt:"KT534",id:"6CF34EF02CDBE26B",nz:"往竹園・紅磡・旺角",ne:"Chuk Yuen / Hung Hom / Mong Kok",rs:[
+  R("11C","竹園邨","CHUK YUEN EST"),R("11X","紅磡站","HUNG HOM STN"),R("13D","維港灣","ISLAND HARBOURVIEW"),
+  R("14H","油塘","YAU TONG",{circ:1,nz:"經聯合醫院",ne:"via UCH",win:WIN.day}),R("93K","旺角東站","MONG KOK EAST STN")]},
+ {k:"WCH-S-533",kt:"KT533",id:"",ctb:"003039",nz:"往尖沙咀・觀塘・港島",ne:"Tsim Sha Tsui / Kwun Tong / HK Island",rs:[
+  R("1A","尖沙咀碼頭","STAR FERRY"),R("13M","觀塘（雅麗道）","KWUN TONG (ELEGANCE RD)",{circ:1}),
+  R("13P","長沙灣（麗閣邨）","CHEUNG SHA WAN (LAI KOK EST)",{pz:"週一至五上午繁忙時間",pe:"Peak Mon–Fri AM",win:WIN.am}),
+  R("28B","啟德（啟晴邨）","KAI TAK (KAI CHING EST)"),R("93A","觀塘碼頭","KWUN TONG FERRY"),
+  R("601","金鐘（東）","ADMIRALTY (EAST)",{joint:1}),
+  R("601P","上環","SHEUNG WAN",{joint:1,pz:"週一至六上午繁忙時間",pe:"Peak Mon–Sat AM",win:WIN.sam}),
+  R("N293","旺角（柏景灣）","MONG KOK (PARK AVENUE)",{nt:1,win:WIN.nt})]}]},
+{k:"WCH-N",z:"祥和苑",e:"Cheung Wo Court",sz:"協和街",se:"Hip Wo Street",dz:"北行",de:"Northbound",ar:"▲",hue:"hip",walk:4,al:["祥和苑"],pf:[
+ {k:"WCH-N-261",kt:"KT261",id:"DE925628D8747F6D",nz:"往秀茂坪・安泰・寶達・順利",ne:"Sau Mau Ping / On Tai / Po Tat / Shun Lee",rs:[
+  R("11C","上秀茂坪","SAU MAU PING (UPPER)"),R("11X","安泰（北）","ON TAI (NORTH)"),R("13D","寶達","PO TAT"),
+  R("14H","順利（循環）","SHUN LEE (CIRCULAR)",{circ:1,nz:"經聯合醫院",ne:"via UCH",win:WIN.day}),
+  R("23","順利（循環）","SHUN LEE (CIRCULAR)",{circ:1}),R("28B","彩福","CHOI FOOK"),
+  R("N293","尚德","SHEUNG TAK",{nt:1,win:WIN.nt})]}]},
+{k:"PPC-S",z:"寶珮苑",e:"Po Pui Court",sz:"翠屏道",se:"Tsui Ping Road",dz:"南行",de:"Southbound",ar:"▼",hue:"tsp",walk:3,al:["寶珮苑"],pf:[
+ {k:"PPC-S-1000",kt:"KT561",id:"C6E63C45FF2EA573",nz:"往竹園・油塘",ne:"Chuk Yuen / Yau Tong",rs:[
+  R("11C","竹園邨","CHUK YUEN EST"),R("14H","油塘","YAU TONG",{circ:1,nz:"經聯合醫院",ne:"via UCH",win:WIN.day})]}]},
+{k:"PPC-N",z:"寶珮苑",e:"Po Pui Court",sz:"翠屏道",se:"Tsui Ping Road",dz:"北行",de:"Northbound",ar:"▲",hue:"tsp",walk:3,al:["寶珮苑"],pf:[
+ {k:"PPC-N-1100",kt:"KT273",id:"CED060CB0E89E2B3",nz:"往秀茂坪・寶達・沙田",ne:"Sau Mau Ping / Po Tat / Sha Tin",rs:[
+  R("11C","上秀茂坪","SAU MAU PING (UPPER)"),R("13M","寶達（循環）","PO TAT (CIRCULAR)",{circ:1}),
+  R("89","瀝源","LEK YUEN"),R("89X","沙田站","SHA TIN STN")]}]},
+{k:"TPR-T",z:"觀塘（翠屏道）總站",e:"Kwun Tong (Tsui Ping Rd) Terminus",sz:"翠屏道",se:"Tsui Ping Road",dz:"總站",de:"Terminus",ar:"●",hue:"term",walk:5,term:1,
+ al:["觀塘(翠屏道)總站","觀塘(翠屏道)","翠屏道總站"],pf:[
+ {k:"TPR-T-0",kt:"KT948",id:"1AEB39A1738104D3",nz:"開出班次",ne:"Departures",rs:[
+  R("11B","九龍城碼頭","KOWLOON CITY FERRY"),R("89C","恆安","HENG ON"),R("89X","沙田站","SHA TIN STN")]}]},
+{k:"COH-N",z:"翠桉樓",e:"Tsui On House",sz:"翠屏道",se:"Tsui Ping Road",dz:"北行",de:"Northbound",ar:"▲",hue:"tsp",walk:6,al:["翠桉樓","翠屏北邨翠桉樓","翠屏邨翠桉樓"],pf:[
+ {k:"COH-N-1075",kt:"KT272",id:"F9210821429F55B6",nz:"往秀茂坪・寶達・沙田・觀塘",ne:"Sau Mau Ping / Po Tat / Sha Tin / Kwun Tong",rs:[
+  R("11B","觀塘（翠屏道）","KWUN TONG (TSUI PING RD)"),R("11C","上秀茂坪","SAU MAU PING (UPPER)"),
+  R("13M","寶達（循環）","PO TAT (CIRCULAR)",{circ:1}),R("89C","觀塘（翠屏道）","KWUN TONG (TSUI PING RD)"),
+  R("89X","沙田站","SHA TIN STN")]}]},
+{k:"TPN-T",z:"觀塘（翠屏北邨）總站",e:"Kwun Tong (Tsui Ping N Est) Terminus",sz:"翠屏道",se:"Tsui Ping Road",dz:"總站",de:"Terminus",ar:"●",hue:"term",walk:7,term:1,
+ al:["觀塘(翠屏北邨)總站","觀塘(翠屏北邨)","翠屏北邨總站"],pf:[
+ {k:"TPN-T-1050",kt:"KT271",id:"71B7CB659DF54E28",nz:"往瀝源・青龍頭",ne:"Lek Yuen / Tsing Lung Tau",rs:[
+  R("89","瀝源","LEK YUEN"),
+  R("234C","青龍頭","TSING LUNG TAU",{pz:"下午回程開出",pe:"PM return departures",win:WIN.pm}),
+  R("234D","青龍頭","TSING LUNG TAU",{pz:"下午回程開出",pe:"PM return departures",win:WIN.pm})]}]},
+{k:"CTH-S",z:"翠梓樓",e:"Tsui Tsz House",sz:"翠屏道",se:"Tsui Ping Road",dz:"南行",de:"Southbound",ar:"▼",hue:"tsp",walk:7,al:["翠梓樓","翠屏北邨翠梓樓","翠屏邨翠梓樓"],pf:[
+ {k:"CTH-S-1050",kt:"KT562",id:"3673A01280621EC2",nz:"往九龍城・竹園・油塘・恆安",ne:"Kowloon City / Chuk Yuen / Yau Tong / Heng On",rs:[
+  R("11B","九龍城碼頭","KOWLOON CITY FERRY"),R("11C","竹園邨","CHUK YUEN EST"),
+  R("14H","油塘","YAU TONG",{circ:1,nz:"經聯合醫院",ne:"via UCH",win:WIN.day}),R("89C","恆安","HENG ON")]}]},
+{k:"KTP-S",z:"觀塘游泳池",e:"Kwun Tong Swimming Pool",sz:"翠屏道",se:"Tsui Ping Road",dz:"南行",de:"Southbound",ar:"▼",hue:"tsp",walk:9,al:["觀塘游泳池"],pf:[
+ {k:"KTP-S-1100",kt:"KT563",id:"3558FA1D8DCF1F12",nz:"往鯉魚門道／觀塘道・青龍頭",ne:"Lei Yue Mun Rd / Kwun Tong Rd / Tsing Lung Tau",rs:[
+  R("11B","九龍城碼頭","KOWLOON CITY FERRY"),R("11C","竹園邨","CHUK YUEN EST"),R("89C","恆安","HENG ON"),
+  R("234C","青龍頭","TSING LUNG TAU",{pz:"週一至五下午繁忙時間回程",pe:"Peak Mon–Fri PM return",win:WIN.pm}),
+  R("234D","青龍頭","TSING LUNG TAU",{pz:"週一至五下午繁忙時間回程",pe:"Peak Mon–Fri PM return",win:WIN.pm})]}]},
+{k:"KTP-N",z:"觀塘游泳池",e:"Kwun Tong Swimming Pool",sz:"翠屏道",se:"Tsui Ping Road",dz:"北行",de:"Northbound",ar:"▲",hue:"tsp",walk:9,al:["觀塘游泳池"],pf:[
+ {k:"KTP-N-1000",kt:"KT270",id:"49229D04FCA51B61",nz:"往秀茂坪・寶達・沙田・翠屏",ne:"Sau Mau Ping / Po Tat / Sha Tin / Tsui Ping",rs:[
+  R("11B","觀塘（翠屏道）","KWUN TONG (TSUI PING RD)"),R("11C","上秀茂坪","SAU MAU PING (UPPER)"),
+  R("13M","寶達（循環）","PO TAT (CIRCULAR)",{circ:1}),
+  R("89","觀塘（翠屏北邨）","KWUN TONG (TSUI PING N EST)"),
+  R("89C","觀塘（翠屏道）","KWUN TONG (TSUI PING RD)"),
+  R("89X","觀塘（翠屏道）","KWUN TONG (TSUI PING RD)"),
+  R("234C","觀塘（翠屏北邨）","KWUN TONG (TSUI PING N EST)",{pz:"週一至六上午繁忙時間去程",pe:"Peak Mon–Sat AM outbound",win:WIN.sam}),
+  R("234D","觀塘（翠屏北邨）","KWUN TONG (TSUI PING N EST)",{pz:"週一至五上午繁忙時間去程",pe:"Peak Mon–Fri AM outbound",win:WIN.am})]}]}
 ];
-var PLATS=[],PLATBY={},STOPBY={},SIDX={};
-STOPS.forEach(function(g,i){STOPBY[g.key]=g;SIDX[g.key]=i;
-  g.platforms.forEach(function(p){p.stop=g;PLATS.push(p);PLATBY[p.key]=p;});});
-function platLabel(p){
-  var o=KT_OVERRIDE[p.key];if(o)return o;
-  if(/^KT/i.test(p.label||''))return p.label;
-  return '—';
-}
+
+/* ============ helpers ============ */
 function $(i){return document.getElementById(i);}
-function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined&&x!==null)e.textContent=x;return e;}
-function clear(n){while(n.firstChild)n.removeChild(n.firstChild);}
-function pad(n){return (n<10?'0':'')+n;}
-function cap(s,n){s=String(s||'');return s.length>n?s.slice(0,n)+'…':s;}
-function hkDate(ms){var d=new Date(ms);return new Date(ms+(d.getTimezoneOffset()+480)*60000);}
-function hhmm(ms){var d=hkDate(ms);return pad(d.getHours())+':'+pad(d.getMinutes());}
-function inWin(w,hk){if(w.d.indexOf(hk.getDay())<0)return false;var m=hk.getHours()*60+hk.getMinutes();
-  return w.from<=w.to?(m>=w.from&&m<=w.to):(m>=w.from||m<=w.to);}
-function rnum(r){var n=parseInt(r,10);if(isNaN(n))n=9999;if(r.charAt(0)==='N')n+=10000;return n;}
-function nname(s){return String(s||'').replace(/\s+/g,'').replace(/（/g,'(').replace(/）/g,')').toLowerCase();}
-function T(zh,en){return S.langCur==='en'?(en!==undefined?en:zh):zh;}
-function inDoc(e){return !!(e&&document.documentElement&&document.documentElement.contains(e));}
-function parseHkLocal(s){
-  var m=/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(s||''));
-  if(!m)return 0;
-  return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0))-480*60000;
-}
-function xtxt(node,tag){
-  var n=node.getElementsByTagName(tag)[0];
-  return (n&&n.textContent)?n.textContent.replace(/\s+/g,' ').trim():'';
-}
-function fText(u,ms){
-  return new Promise(function(res,rej){
-    var done=false,to=setTimeout(function(){if(!done){done=true;rej(new Error('timeout'));}},ms||12000);
-    fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-      .then(function(t){if(!done){done=true;clearTimeout(to);res(t);}})
-      .catch(function(e){if(!done){done=true;clearTimeout(to);rej(e);}});
+function mk(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+function clr(n){while(n.firstChild)n.removeChild(n.firstChild);}
+function p2(n){return(n<10?"0":"")+n;}
+function cut(s,n){s=String(s==null?"":s);return s.length>n?s.slice(0,n)+"…":s;}
+function hk(ms){var d=new Date(ms);return new Date(ms+(d.getTimezoneOffset()+480)*60000);}
+function hm(ms){var d=hk(ms);return p2(d.getHours())+":"+p2(d.getMinutes());}
+function inWin(w,d){if(w.d.indexOf(d.getDay())<0)return false;var m=d.getHours()*60+d.getMinutes();
+  return w.a<=w.b?(m>=w.a&&m<=w.b):(m>=w.a||m<=w.b);}
+function rnum(s){var n=parseInt(s,10);if(isNaN(n))n=9999;if(s.charAt(0)==="N")n+=10000;return n;}
+function norm(s){return String(s||"").replace(/\s+/g,"").replace(/（/g,"(").replace(/）/g,")").toLowerCase();}
+function L(z,e){return S.lang==="en"?(e!=null?e:z):z;}
+function band(ms){if(ms<=C.b4)return" b3";if(ms<=C.b6)return" b6";if(ms<=C.b10)return" b10";return"";}
+function get(u,ms){
+  return new Promise(function(ok,no){
+    var done=false,t=setTimeout(function(){if(!done){done=true;no(new Error("timeout"));}},ms||12000);
+    fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
+      .then(function(x){if(!done){done=true;clearTimeout(t);ok(x);}})
+      .catch(function(e){if(!done){done=true;clearTimeout(t);no(e);}});
   });
 }
-function fJSON(u,ms){return fText(u,ms).then(function(t){return JSON.parse(t);});}
-function retry(f){return f().catch(function(){return f();});}
-function qs(){var o={},s=location.search.replace(/^\?/,'');if(!s)return o;
-  s.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i<0)return;
-    o[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g,' '));});return o;}
-/* bounded-concurrency task pool: keeps the TV network stack from stalling */
-function pool(tasks,limit){
-  return new Promise(function(resolve){
-    var i=0,active=0,out=[];
-    if(!tasks.length){resolve(out);return;}
+function jget(u,ms){return get(u,ms).then(function(t){return JSON.parse(t);});}
+function again(f){return f().catch(function(){return f();});}
+function qstr(){var o={},s=location.search.replace(/^\?/,"");if(!s)return o;
+  s.split("&").forEach(function(kv){var i=kv.indexOf("=");if(i<0)return;
+    o[decodeURIComponent(kv.slice(0,i))]=decodeURIComponent(kv.slice(i+1).replace(/\+/g," "));});return o;}
+function save(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
+function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:v;}catch(e){return d;}}
+
+/* ============ text: bilingual + flip + one-way marquee ============ */
+var FLIPT=[];
+function clearFlips(){for(var i=0;i<FLIPT.length;i++)clearTimeout(FLIPT[i]);FLIPT=[];}
+function fit(el){
+  if(!el||!el.classList.contains("mq"))return;
+  var inner=el.firstChild;if(!inner)return;
+  var txt=el.getAttribute("data-txt")||"";
+  el.classList.remove("run");inner.style.animation="none";
+  inner.textContent=txt;
+  if(!document.documentElement.contains(el))return;
+  var w=el.clientWidth;if(w<=0)return;
+  if(inner.offsetWidth>w+1){
+    inner.textContent=txt+"　　　"+txt+"　　　";
+    if(C.anim){inner.style.animation="";inner.style.animationDuration=Math.max(7,(inner.offsetWidth/2)/62)+"s";el.classList.add("run");}
+    else{inner.textContent=txt;el.style.textOverflow="ellipsis";el.style.overflow="hidden";}
+  }
+}
+function put(el,z,e,delay){
+  if(!el)return;
+  var txt=L(z,e);
+  el.setAttribute("data-zh",z==null?"":z);
+  el.setAttribute("data-en",e==null?"":e);
+  el.setAttribute("data-txt",txt);
+  if(!el.classList.contains("mq")){el.textContent=txt;return;}
+  if(!C.anim||!delay){var inner=el.firstChild||el.appendChild(mk("i"));inner.textContent=txt;fit(el);return;}
+  FLIPT.push(setTimeout(function(){
+    el.classList.add("flip");
+    FLIPT.push(setTimeout(function(){el.firstChild.textContent=txt;fit(el);},130));
+    FLIPT.push(setTimeout(function(){el.classList.remove("flip");},290));
+  },delay));
+}
+function reflow(){
+  var n=document.querySelectorAll(".mq"),i;
+  for(i=0;i<n.length;i++)fit(n[i]);
+}
+
+/* ============ state ============ */
+var S={lang:"zh",langAt:Date.now(),theme:"dark",panel:"",scale:1,boot:Date.now(),
+  loaded:false,lastEta:0,okN:0,failN:0,ms:0,busy:false,pi:0,phases:[],pAt:0,fT:0,
+  wx:{t:null,h:null,i:null},wz:[],we:[],tz:[],te:[],warns:[],td:[],fs:false,wake:null,guard:"init",audio:"off"};
+var PF=[],PFBY={},SBY={},SIDX={},DATA={},ROWS={},CARD={},RIB={},PH={per:7,starts:[0],page:0};
+STOPS.forEach(function(g,i){SBY[g.k]=g;SIDX[g.k]=i;g.pf.forEach(function(p){p.g=g;PF.push(p);PFBY[p.k]=p;});});
+var SHIFT=[[0,0],[2,1],[3,3],[1,2]],shI=0;
+var WZ=["日","一","二","三","四","五","六"],WE=["SUN","MON","TUE","WED","THU","FRI","SAT"];
+var MO=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+var lastTick="",lastWarn="";
+
+/* ============ settings ============ */
+function theme(t){
+  if(t!=="light")t="dark";
+  S.theme=t;C.theme=t;
+  document.documentElement.setAttribute("data-theme",t);
+  S.gb=t==="light"?"#eef1f5":"#0d1015";
+  S.gw=t==="light"?"rgba(0,0,0,.02)":"rgba(255,255,255,.015)";
+  $("bDark").className="bt"+(t==="dark"?" on":"");
+  $("bLight").className="bt"+(t==="light"?" on":"");
+  $("bDark").textContent=(t==="dark"?"✓ ":"")+"深色 Dark";
+  $("bLight").textContent=(t==="light"?"✓ ":"")+"淺色 Light";
+  save("k2theme",t);
+}
+function anim(v){
+  C.anim=!!v;
+  document.body.className=(C.anim?"":"noanim")+(document.body.classList.contains("cur")?" cur":"");
+  $("bAnim").textContent=C.anim?"動畫：開 On":"動畫：關 Off";
+  $("bAnim").className="bt"+(C.anim?" on":"");
+  save("k2anim",C.anim?"1":"0");
+  if(!C.anim)clearFlips();
+  lastTick="";ticker();reflow();
+}
+function sync(){
+  $("sLang").value=C.lang;$("sMode").value=C.mode;$("sLock").value=C.lock;$("sSort").value=C.sort;
+  $("lgV").textContent=Math.round(C.langMs/1000)+"s";
+  $("dwV").textContent=Math.round(C.dwell/1000)+"s";
+  $("rlV").textContent=C.reload?C.reload+"h":"關";
+  $("iTick").value=C.tick;
+}
+function settings(){
+  var q=qstr();
+  C.theme=q.theme||load("k2theme","dark");
+  C.anim=(q.anim!==undefined?q.anim==="1":load("k2anim","1")==="1");
+  C.lang=q.lang||load("k2lang","auto");if(["auto","zh","en"].indexOf(C.lang)<0)C.lang="auto";
+  C.langMs=Math.min(30000,Math.max(3000,(parseInt(q.langms||load("k2langms","8"),10)||8)*1000));
+  C.mode=q.mode||load("k2mode","cycle");if(["cycle","overview","detail"].indexOf(C.mode)<0)C.mode="cycle";
+  C.sort=q.sort||load("k2sort","eta");if(["eta","route","platform"].indexOf(C.sort)<0)C.sort="eta";
+  C.dwell=Math.min(60000,Math.max(4000,(parseInt(q.dwell||load("k2dwell","10"),10)||10)*1000));
+  C.reload=Math.min(24,Math.max(0,parseInt(q.reload||load("k2reload","0"),10)||0));
+  C.lock=q.lock||load("k2lock","");if(C.lock&&!SBY[C.lock])C.lock="";
+  C.tick=q.tick!==undefined?q.tick:load("k2tick","");
+  S.lang=C.lang==="auto"?"zh":C.lang;S.langAt=Date.now();
+  try{var m=JSON.parse(load("k2ids","{}"));Object.keys(m).forEach(function(k){if(PFBY[k]&&m[k])PFBY[k].id=m[k];});}catch(e){}
+  PF.forEach(function(p){var v=q["sid_"+p.k];if(v)p.id=v.trim();});
+  var lk=$("sLock");clr(lk);
+  var o0=document.createElement("option");o0.value="";o0.textContent="不固定（全部輪播）";lk.appendChild(o0);
+  STOPS.forEach(function(g){var o=document.createElement("option");o.value=g.k;o.textContent=g.ar+" "+g.z+"（"+g.dz+"）";lk.appendChild(o);});
+  theme(C.theme);anim(C.anim);sync();
+}
+function saveIds(){var m={};PF.forEach(function(p){if(p.id)m[p.k]=p.id;});save("k2ids",JSON.stringify(m));}
+function panel(n){
+  S.panel=S.panel===n?"":n;
+  $("setP").className="pnl"+(S.panel==="set"?" on":"");
+  $("diag").className="pnl"+(S.panel==="diag"?" on":"");
+  if(S.panel==="diag")diag();
+  if(!S.panel){try{$("setB").focus();}catch(e){}}
+}
+
+/* ============ data ============ */
+function terms(p){
+  if(p._t)return p._t;
+  var s={};(p.g.al||[]).forEach(function(a){s[norm(a)]=1;});s[norm(p.g.z)]=1;p._t=s;return s;
+}
+function rowsFor(p){
+  var out=(DATA[p.k]||[]).slice();
+  if(p.ctb)["601","601P"].forEach(function(r){
+    var a=DATA["C:"+p.k+":"+r]||[];for(var i=0;i<a.length;i++)out.push(a[i]);});
+  var t=terms(p);
+  return out.filter(function(x){return !t[norm(x.z)];});
+}
+function view(p,r,now,d){
+  var all=rowsFor(p).filter(function(x){return x.r===r.r;}),timed=[],nul=[],i,x;
+  for(i=0;i<all.length;i++){x=all[i];
+    if(x.t&&x.t>now-C.grace)timed.push(x);else if(!x.t)nul.push(x);}
+  timed.sort(function(a,b){return a.t-b.t||a.sq-b.sq;});
+  var seen={},etas=[];
+  for(i=0;i<timed.length&&etas.length<3;i++){
+    x=timed[i];var k=x.co+"|"+Math.round(x.t/60000);
+    if(seen[k])continue;seen[k]=1;
+    etas.push({t:x.t,co:x.co,sc:/原定|預計班次|scheduled/i.test(x.rz+" "+x.re),
+      lb:/尾班車|last\s*bus/i.test(x.rz+" "+x.re)&&!/已過|已開|depart|pass/i.test(x.rz+" "+x.re)});
+  }
+  var ended=false,rmz="",rme="";
+  for(i=0;i<nul.length;i++){x=nul[i];
+    if(/尾班車/.test(x.rz)&&/已過|已開/.test(x.rz))ended=true;
+    if(/last bus.*(depart|pass)/i.test(x.re))ended=true;
+    if(x.rz&&!rmz&&!/提供|provided by/i.test(x.rz+" "+x.re)){rmz=x.rz;rme=x.re;}}
+  var last=false;etas.forEach(function(e){if(e.lb)last=true;});
+  var f=etas[0]||null,st;
+  if(f)st=(f.t-now<=C.arrive)?"a":(f.sc?"s":"l");
+  else if(ended)st="e";else if(rmz)st="r";
+  else if(r.win&&!inWin(r.win,d))st="o";else st="n";
+  var src=timed[0]||nul[0]||all[0];
+  var z=(src&&src.z)||r.z,e=(src&&src.e)||r.e;
+  if(r.circ&&!/循環/.test(z))z+="（循環）";
+  if(r.circ&&!/CIRCULAR/i.test(e))e+=" (Circular)";
+  return {p:p,r:r,etas:etas,st:st,last:last,rmz:rmz,rme:rme,z:z,e:e};
+}
+function views(g,now,d){var o=[];g.pf.forEach(function(p){p.rs.forEach(function(r){o.push(view(p,r,now,d));});});return o;}
+function sortV(v){
+  v.sort(function(a,b){
+    if(C.sort==="route")return rnum(a.r.r)-rnum(b.r.r)||a.r.r.localeCompare(b.r.r);
+    if(C.sort==="platform"){var i=a.p.g.pf.indexOf(a.p),j=b.p.g.pf.indexOf(b.p);
+      return i-j||rnum(a.r.r)-rnum(b.r.r);}
+    var x=a.etas.length?a.etas[0].t:Infinity,y=b.etas.length?b.etas[0].t:Infinity;
+    if(x!==y)return x-y;return rnum(a.r.r)-rnum(b.r.r);
+  });
+  return v;
+}
+function svc(r){
+  var z=r.pz?r.pz:(r.nt?"每天通宵服務":"每天服務");
+  if(r.nz)z+="｜"+r.nz;
+  if(r.sec)z+="｜本站分段收費";
+  var e=r.pe?r.pe:(r.nt?"Overnight daily":"Daily service");
+  if(r.circ)e+=" · Circular";
+  if(r.sec)e+=" · Section fare here";
+  if(r.ne)e+=" · "+r.ne;
+  return L(z,e);
+}
+function pool(tasks,lim){
+  return new Promise(function(done){
+    var i=0,act=0;
+    if(!tasks.length){done();return;}
     function pump(){
-      if(i>=tasks.length&&active===0){resolve(out);return;}
-      while(active<limit&&i<tasks.length){
-        (function(k){
-          active++;
-          tasks[k]().then(function(v){out[k]=v;},function(){out[k]=null;})
-            .then(function(){active--;pump();});
-        })(i++);
+      if(i>=tasks.length&&act===0){done();return;}
+      while(act<lim&&i<tasks.length){
+        (function(k){act++;tasks[k]().then(function(){},function(){}).then(function(){act--;pump();});})(i++);
       }
     }
     pump();
   });
 }
-
-/* ---------- state ---------- */
-var S={scale:1,fs:false,wake:null,guard:'init',audio:'off',loaded:false,lastEta:0,theme:'dark',anim:true,
-  open:'',errs:[],frameT:0,phases:[],pi:0,pT:0,resolving:false,boot:Date.now(),
-  langCur:'zh',langT:Date.now(),detailSig:'',tickCustom:'',
-  fetchOk:0,fetchFail:0,lastFetchMs:0,
-  wx:{temp:null,hum:null,icon:null},wxMsgs:[],wxMsgsEn:[],tcZh:[],tcEn:[],warns:[],stn:[]};
-var H={kmb:{ok:false,t:0,err:''},ctb:{ok:false,t:0,err:''},hko:{ok:false,t:0,err:''}};
-var MAP={},CTBM={},AGG={},CAND=[],ROWS={},OVC={},CHIP={};
-var DP={per:7,starts:[0],page:0};
-var SHIFT=[[0,0],[2,1],[3,3],[1,2]],sIdx=0;
-var WZH=['日','一','二','三','四','五','六'],WEN=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-var MEN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-var lastTick='',lastStrip='',etaBusy=false;
-
-/* ---------- overflow marquee ---------- */
-function flowEnsure(e){
-  if(!e||!e.classList||!e.classList.contains('flow'))return null;
-  var tr=e.firstChild;
-  if(!tr||!tr.classList||!tr.classList.contains('mqTrack')){
-    while(e.firstChild)e.removeChild(e.firstChild);
-    tr=document.createElement('span');tr.className='mqTrack';
-    var a=document.createElement('span');a.className='flowT';
-    var b=document.createElement('span');b.className='flowT2';
-    tr.appendChild(a);tr.appendChild(b);e.appendChild(tr);
-  }
-  return tr;
-}
-function flowText(e){
-  if(e&&e.classList&&e.classList.contains('flow')){
-    var tr=e.firstChild;
-    if(tr&&tr.classList&&tr.classList.contains('mqTrack')&&tr.firstChild)return tr.firstChild.textContent;
-    return '';
-  }
-  return e?e.textContent:'';
-}
-function flowSetText(e,t){
-  if(!e)return;
-  if(e.classList&&e.classList.contains('flow')){
-    var tr=flowEnsure(e);if(tr){tr.firstChild.textContent=t;tr.lastChild.textContent=t;}
-    e._ft=t;return;
-  }
-  e.textContent=t;
-}
-function flowSet(e,text){
-  if(!e)return;
-  e._ft=text;
-  if(!e.classList||!e.classList.contains('flow')){e.textContent=text;return;}
-  try{
-    var tr=flowEnsure(e);if(!tr)return;
-    tr.firstChild.textContent=text;tr.lastChild.textContent=text;
-    e.classList.remove('mq');e.classList.remove('clip');
-    tr.style.animation='none';
-    if(!inDoc(e))return;
-    var cw=e.clientWidth;if(cw<=0)return;
-    var aw=tr.firstChild.offsetWidth;
-    if(aw>cw+1){
-      if(S.anim){e.classList.add('mq');tr.style.animation='';tr.style.animationDuration=Math.max(6,(aw+60)/60)+'s';}
-      else e.classList.add('clip');
-    }
-  }catch(err){}
-}
-function reflowVisible(){
-  try{
-    var sel='#ribbon .flow, #header .flow';
-    if($('over').className.indexOf('show')>=0)sel+=', #over .flow';
-    if($('detail').className.indexOf('show')>=0)sel+=', #detail .flow';
-    var n=document.querySelectorAll(sel),i;
-    for(i=0;i<n.length;i++){if(n[i]._ft!==undefined)flowSet(n[i],n[i]._ft);}
-  }catch(e){}
-}
-function setIfNotFlapping(e,t){if(!e)return;if(e.classList&&e.classList.contains('flapping'))return;flowSetText(e,t);}
-
-/* ---------- split-flap ---------- */
-var FLAP_LAT='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/·';
-var FLAP_CJK='アィウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ・ー';
-var FLAPPEND=[];
-function scramble(final,set,prog){
-  var reveal=Math.floor(final.length*prog),out='',i,ch;
-  for(i=0;i<final.length;i++){ch=final.charAt(i);
-    if(ch===' '){out+=' ';continue;}
-    out+=(i<reveal)?ch:set.charAt(Math.floor(Math.random()*set.length));}
-  return out;
-}
-function dropEntry(e){var i=FLAPPEND.indexOf(e);if(i>=0)FLAPPEND.splice(i,1);}
-function cancelFlaps(fin){
-  FLAPPEND.forEach(function(e){clearTimeout(e.to);if(e.iv)clearInterval(e.iv);
-    if(e.el&&e.el.classList)e.el.classList.remove('flapping');
-    if(fin&&e.el)flowSetText(e.el,e.neu);});
-  FLAPPEND.length=0;
-}
-function flapTo(entry,old,delay){
-  entry.to=setTimeout(function(){
-    if(!S.anim){flowSetText(entry.el,entry.neu);dropEntry(entry);return;}
-    try{
-      entry.el.classList.add('flapping');
-      var set=/[一-鿿]/.test(entry.neu)?FLAP_CJK:FLAP_LAT;
-      var steps=7+Math.floor(Math.random()*5),i=0;
-      flowSetText(entry.el,old);
-      entry.iv=setInterval(function(){
-        i++;
-        if(i>=steps){clearInterval(entry.iv);entry.iv=null;
-          entry.el.classList.remove('flapping');flowSetText(entry.el,entry.neu);dropEntry(entry);return;}
-        flowSetText(entry.el,scramble(entry.neu,set,i/steps));
-      },45);
-    }catch(e){flowSetText(entry.el,entry.neu);dropEntry(entry);}
-  },delay);
-  FLAPPEND.push(entry);
-}
-function scheduleFlaps(oldMap){
-  try{
-    var nodes=document.querySelectorAll('[data-flap]'),counters={},i;
-    for(i=0;i<nodes.length;i++){
-      var e=nodes[i],key=e.getAttribute('data-flap'),old=oldMap[key],neu=flowText(e);
-      if(old===undefined||old===neu)continue;
-      flowSetText(e,old);
-      var base=0;
-      if(key.indexOf('rib')===0)base=0;
-      else if(key.indexOf('h')===0)base=120;
-      else if(key.indexOf('ov')===0)base=320;
-      else if(key.indexOf('d')===0)base=620;
-      else if(key.indexOf('r')===0)base=820;
-      counters[base]=(counters[base]||0);
-      flapTo({el:e,neu:neu},old,base+counters[base]*30+Math.floor(Math.random()*50));
-      counters[base]++;
-    }
-  }catch(e){}
-}
-function snapshotFlap(){
-  var m={},n=document.querySelectorAll('[data-flap]'),i;
-  for(i=0;i<n.length;i++)m[n[i].getAttribute('data-flap')]=flowText(n[i]);
-  return m;
-}
-
-/* ---------- settings ---------- */
-function persist(k,v){try{localStorage.setItem(k,String(v));}catch(e){}}
-function setTheme(t){if(t!=='light')t='dark';S.theme=t;
-  document.documentElement.setAttribute('data-theme',t);
-  S.gBg=t==='light'?'#eef1f5':'#0e1116';
-  S.gWash=t==='light'?'rgba(0,0,0,0.02)':'rgba(255,255,255,0.015)';
-  $('thDark').className='opt'+(t==='dark'?' on':'');
-  $('thLight').className='opt'+(t==='light'?' on':'');
-  $('thDark').textContent=(t==='dark'?'✓ ':'')+'深色 Dark';
-  $('thLight').textContent=(t==='light'?'✓ ':'')+'淺色 Light';
-  persist('ktmc2Theme',t);}
-function setAnim(v){
-  S.anim=!!v;
-  if(!S.anim)cancelFlaps(true);
-  if(S.anim)document.body.classList.remove('no-anim');else document.body.classList.add('no-anim');
-  $('animBtn').textContent=S.anim?'動畫：開 Animations: On':'動畫：關 Animations: Off';
-  $('animBtn').className='opt'+(S.anim?' on':'');
-  persist('ktmc2Anim',S.anim?'1':'0');
-  try{
-    Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
-    Object.keys(OVC).forEach(function(k){OVC[k].sig='';});
-    S.detailSig='';
-    buildRibbon();buildOver();applyPhase();reflowVisible();
-    lastTick='';ticker();
-  }catch(e){showBootErr('setAnim: '+e.message);}
-}
-function syncCtrls(){
-  $('modeSel').value=CFG.mode;$('lockSel').value=CFG.lock;$('sortSel').value=CFG.sort;$('langSel').value=CFG.lang;
-  $('dwV').textContent=Math.round(CFG.dwell/1000)+'s';
-  $('rlV').textContent=CFG.reloadH?CFG.reloadH+'h':'關';
-  $('lgV').textContent=Math.round(CFG.langMs/1000)+'s';
-  $('tickIn').value=S.tickCustom;
-}
-function loadSettings(){
-  var q=qs(),g=function(k,d){try{var v=localStorage.getItem(k);return v===null?d:v;}catch(e){return d;}};
-  CFG.mode=q.mode||g('ktmc2Mode','cycle');
-  if(['cycle','overview','detail'].indexOf(CFG.mode)<0)CFG.mode='cycle';
-  CFG.lang=q.lang||g('ktmc2Lang','auto');
-  if(['auto','zh','en'].indexOf(CFG.lang)<0)CFG.lang='auto';
-  CFG.langMs=Math.min(30000,Math.max(3000,(parseInt(q.langms||g('ktmc2LangMs','8'),10)||8)*1000));
-  CFG.dwell=Math.min(60000,Math.max(4000,(parseInt(q.dwell||g('ktmc2Dwell','10'),10)||10)*1000));
-  CFG.sort=q.sort||g('ktmc2Sort','eta');
-  if(['eta','route','platform'].indexOf(CFG.sort)<0)CFG.sort='eta';
-  CFG.lock=q.lock||g('ktmc2Lock','');if(CFG.lock&&!STOPBY[CFG.lock])CFG.lock='';
-  CFG.reloadH=Math.min(24,Math.max(0,parseInt(q.reload||g('ktmc2Reload','0'),10)||0));
-  S.tickCustom=(q.tick!==undefined)?q.tick:g('ktmc2Tick','');
-  Object.keys(DEFAULT_MAP).forEach(function(k){MAP[k]=DEFAULT_MAP[k];});
-  Object.keys(CTB_DEF).forEach(function(k){CTBM[k]=CTB_DEF[k];});
-  try{
-    var m=JSON.parse(localStorage.getItem('ktmc2Map')||'{}');
-    Object.keys(m).forEach(function(k){if(PLATBY[k]&&m[k])MAP[k]=m[k];});
-    var c=JSON.parse(localStorage.getItem('ktmc2Ctb')||'{}');
-    Object.keys(c).forEach(function(k){if(CTB_DEF[k]&&c[k])CTBM[k]=c[k];});
-  }catch(e){}
-  PLATS.forEach(function(p){var v=q['sid_'+p.key];if(v)MAP[p.key]=v.trim();});
-  Object.keys(CTB_DEF).forEach(function(k){var v=q['ctb_'+k];if(v)CTBM[k]=v.trim();});
-  var lk=$('lockSel');clear(lk);
-  var o0=document.createElement('option');o0.value='';o0.textContent='不固定（全部輪播）';lk.appendChild(o0);
-  STOPS.forEach(function(g){var o=document.createElement('option');o.value=g.key;
-    o.textContent=g.arrow+' '+g.name+'（'+g.dir+'）';lk.appendChild(o);});
-  setTheme(q.theme||g('ktmc2Theme','dark'));
-  S.anim=(q.anim!==undefined?q.anim==='1':g('ktmc2Anim','1')==='1');
-  if(S.anim)document.body.classList.remove('no-anim');else document.body.classList.add('no-anim');
-  $('animBtn').textContent=S.anim?'動畫：開 Animations: On':'動畫：關 Animations: Off';
-  $('animBtn').className='opt'+(S.anim?' on':'');
-  S.langCur=(CFG.lang==='auto')?'zh':CFG.lang;
-  S.langT=Date.now();
-  syncCtrls();
-}
-function saveMap(){try{localStorage.setItem('ktmc2Map',JSON.stringify(MAP));
-  localStorage.setItem('ktmc2Ctb',JSON.stringify(CTBM));}catch(e){}}
-function openPanel(n){
-  S.open=(S.open===n)?'':n;
-  $('setPanel').className='panel'+(S.open==='set'?' show':'');
-  $('resPanel').className='panel'+(S.open==='res'?' show':'');
-  $('dbgPanel').className='panel'+(S.open==='dbg'?' show':'');
-  if(S.open==='res')buildResList();
-  if(S.open==='dbg')dbg(Date.now());
-  if(!S.open){try{$('setBtn').focus();}catch(e){}}
-}
-function applyHeaderLang(){
-  setIfNotFlapping($('tZh'),T('翠屏・協和・和樂 多站巴士到站顯示屏','TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY'));
-  setIfNotFlapping($('tEn'),T('TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY','翠屏・協和・和樂 多站巴士到站顯示屏'));
-  flowSet($('tSub'),T('和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站',
-    'Wo Lok Estate · Cheung Wo Court · Po Pui Court · Tsui On House · Tsui Tsz House · Kwun Tong Swimming Pool · Tsui Ping Rd & Tsui Ping North Est. Terminuses'));
-  setIfNotFlapping($('phaseLab'),T('現正顯示 NOW SHOWING','NOW SHOWING 現正顯示'));
-  setIfNotFlapping($('wxHum'),T('濕度 ','Humidity ')+(S.wx.hum===null?'--':S.wx.hum)+'%');
-  var hk=hkDate(Date.now());
-  setIfNotFlapping($('dateZh'),T(hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()],
-    WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear()));
-  setIfNotFlapping($('dateEn'),T(WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear(),
-    hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()]));
-}
-function langChanged(){
-  cancelFlaps(true);
-  var oldMap=snapshotFlap();
-  S.langT=Date.now();
-  Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
-  S.detailSig='';
-  applyHeaderLang();
-  buildRibbon();buildOver();
-  applyPhase();
-  lastTick='';ticker();
-  scheduleFlaps(oldMap);
-}
-
-/* ---------- remarks / bands ---------- */
-function rall(e){return (e.rmk||'')+' '+(e.rmkEn||'');}
-function isSched(e){return /原定|預計班次|scheduled/i.test(rall(e));}
-function isEnded(e){return (/尾班車/.test(e.rmk||'')&&/已過|已開/.test(e.rmk||''))||/last bus.*(depart|pass)/i.test(e.rmkEn||'');}
-function isLast(e){return !isEnded(e)&&/尾班車|last\s*bus/i.test(rall(e));}
-function isSrc(e){return /提供|provided by/i.test(rall(e));}
-function band(d){if(d<=CFG.band4)return ' b3';if(d<=CFG.band6)return ' b6';if(d<=CFG.band10)return ' b10';return '';}
-function olog(s){try{var n=$('resLog');n.textContent+=s+'\n';n.scrollTop=n.scrollHeight;}catch(e){}}
-function resCount(){var n=0;PLATS.forEach(function(p){if(MAP[p.key])n++;});return n;}
-function svcText(c){
-  var zh=c.peak?c.peak:(c.night?'每天通宵服務 Overnight daily':'每天服務 Daily service');
-  if(c.note)zh+='｜'+c.note;
-  if(c.section)zh+='｜本站分段收費';
-  var en=c.night?'Overnight daily':(c.peak?'Peak-hours service':'Daily service');
-  if(c.circ)en+=' · Circular';
-  if(c.section)en+=' · Section fare here';
-  if(c.note)en+=' · Special trips';
-  return T(zh,en);
-}
-function liveDice(p){
-  var ag=AGG[p.key];
-  if(!ag||!ag.length)return -1;
-  var set={};ag.forEach(function(e){set[e.route]=1;});
-  var inter=0;p.routes.forEach(function(r){if(set[r.route])inter++;});
-  return (2*inter)/(p.routes.length+Object.keys(set).length);
-}
-
-/* ---------- ETA loading (boot-critical, never blocked by resolver) ---------- */
-function norm(it,co){return {co:co,route:it.route,destZh:it.dest_tc||'',destEn:it.dest_en||'',
-  t:it.eta?Date.parse(it.eta):null,rmk:it.rmk_tc||'',rmkEn:it.rmk_en||'',st:it.service_type||1,seq:it.eta_seq||1};}
-function refreshEtas(){
-  if(etaBusy)return;
-  etaBusy=true;
-  var t0=Date.now(),tasks=[],okK=0,okC=0,eK='',eC='';
-  PLATS.forEach(function(p){
-    var id=MAP[p.key];
-    if(!id)return;
+function fetchEtas(){
+  if(S.busy)return;S.busy=true;
+  var t0=Date.now(),tasks=[],ok=0,bad=0,ek="",ec="";
+  PF.forEach(function(p){
+    if(!p.id)return;
     tasks.push(function(){
-      return retry(function(){return fJSON(CFG.kmbEta+id,12000);}).then(function(j){
-        okK++;AGG[p.key]=((j&&j.data)||[]).map(function(it){return norm(it,'KMB');});
-      }).catch(function(e){eK=String(e&&e.message||e);});
+      return again(function(){return jget(URLS.eta+p.id,12000);}).then(function(j){
+        ok++;
+        DATA[p.k]=((j&&j.data)||[]).map(function(it){
+          return {co:"KMB",r:it.route,z:it.dest_tc||"",e:it.dest_en||"",
+            t:it.eta?Date.parse(it.eta):null,rz:it.rmk_tc||"",re:it.rmk_en||"",
+            st:it.service_type||1,sq:it.eta_seq||1};
+        });
+      }).catch(function(err){bad++;ek=String(err&&err.message||err);});
     });
   });
-  Object.keys(CTBM).forEach(function(pk){
-    var cs=CTBM[pk];if(!cs)return;
-    ['601','601P'].forEach(function(r){
+  PF.forEach(function(p){
+    if(!p.ctb)return;
+    ["601","601P"].forEach(function(r){
       tasks.push(function(){
-        return retry(function(){return fJSON(CFG.ctbEta+cs+'/'+r,12000);}).then(function(j){
-          okC++;AGG['CTB|'+pk+'|'+r]=((j&&j.data)||[]).map(function(it){return norm(it,'CTB');});
-        }).catch(function(e){eC=String(e&&e.message||e);});
+        return again(function(){return jget(URLS.ctb+p.ctb+"/"+r,12000);}).then(function(j){
+          ok++;
+          DATA["C:"+p.k+":"+r]=((j&&j.data)||[]).map(function(it){
+            return {co:"CTB",r:it.route,z:it.dest_tc||"",e:it.dest_en||"",
+              t:it.eta?Date.parse(it.eta):null,rz:it.rmk_tc||"",re:it.rmk_en||"",
+              st:it.service_type||1,sq:it.eta_seq||1};
+          });
+        }).catch(function(err){bad++;ec=String(err&&err.message||err);});
       });
     });
   });
-  if(!tasks.length){etaBusy=false;return;}
-  pool(tasks,CFG.concurrency).then(function(){
-    S.fetchOk=okK+okC;S.fetchFail=tasks.length-(okK+okC);S.lastFetchMs=Date.now()-t0;
-    H.kmb.ok=okK>0;if(okK)H.kmb.t=Date.now();H.kmb.err=okK?'':eK;
-    H.ctb.ok=okC>0;if(okC)H.ctb.t=Date.now();H.ctb.err=okC?'':eC;
-    if(okK+okC>0){S.lastEta=Date.now();S.loaded=true;}
-    etaBusy=false;
-    try{buildPhases();renderAll();}catch(e){S.errs.push('render: '+e.message);}
+  pool(tasks,6).then(function(){
+    S.okN=ok;S.failN=bad;S.ms=Date.now()-t0;S.busy=false;
+    HK.ok=ok>0;if(ok)HK.at=Date.now();HK.err=ok?"":(ek||ec);
+    if(ok>0){S.lastEta=Date.now();S.loaded=true;}
+    try{buildPhases();paint();}catch(e){fail("paint",e);}
   });
 }
-
-/* ---------- lightweight missing-stop resolution (no full index download) ---------- */
-function usedStopIds(){var s={};Object.keys(MAP).forEach(function(k){if(MAP[k])s[MAP[k]]=1;});return s;}
-function resolveOne(p,budget){
-  var routes=p.routes.slice(0,5),ri=0,bounds=['outbound','inbound'];
-  function tryRoute(){
-    if(ri>=routes.length||budget.n<=0)return Promise.resolve(null);
-    var route=routes[ri++].route,bi=0;
-    function tryBound(){
-      if(bi>=bounds.length||budget.n<=0)return Promise.resolve(null);
-      var b=bounds[bi++];
-      budget.n--;
-      return fJSON(CFG.kmbRouteStop+route+'/'+b+'/1',12000).then(function(j){
-        var ids=((j&&j.data)||[]).map(function(x){return x.stop;});
-        var taken=usedStopIds(),i=0;
-        function scan(){
-          if(i>=ids.length||budget.n<=0)return Promise.resolve(null);
-          var sid=ids[i++];
-          if(!sid||taken[sid])return scan();
-          budget.n--;
-          return fJSON(CFG.kmbStop+sid,8000).then(function(s){
-            var nm=(s&&s.data&&s.data.name_tc)||'';
-            var ok=p.stop.aliases.some(function(a){return nname(a)===nname(nm);});
-            if(!ok)return scan();
-            budget.n--;
-            return fJSON(CFG.kmbEta+sid,8000).then(function(e){
-              var set={};((e&&e.data)||[]).forEach(function(it){set[it.route]=1;});
-              var inter=0;p.routes.forEach(function(r){if(set[r.route])inter++;});
-              if(inter>=Math.max(1,Math.ceil(p.routes.length*0.3)))return sid;
-              return scan();
+/* light fill for any platform still without an id — never downloads the whole stop index */
+function fillMissing(){
+  var miss=PF.filter(function(p){return !p.id;});
+  if(!miss.length)return Promise.resolve();
+  var budget=140,mi=0;
+  function one(p){
+    var rs=p.rs.slice(0,4),ri=0,bs=["outbound","inbound"];
+    function tryR(){
+      if(ri>=rs.length||budget<=0)return Promise.resolve(null);
+      var route=rs[ri++].r,bi=0;
+      function tryB(){
+        if(bi>=bs.length||budget<=0)return Promise.resolve(null);
+        var b=bs[bi++];budget--;
+        return jget(URLS.rs+route+"/"+b+"/1",12000).then(function(j){
+          var ids=((j&&j.data)||[]).map(function(x){return x.stop;}),i=0,taken={};
+          PF.forEach(function(q){if(q.id)taken[q.id]=1;});
+          function scan(){
+            if(i>=ids.length||budget<=0)return Promise.resolve(null);
+            var sid=ids[i++];if(!sid||taken[sid])return scan();
+            budget--;
+            return jget(URLS.stop+sid,8000).then(function(s){
+              var nm=(s&&s.data&&s.data.name_tc)||"";
+              if(!p.g.al.some(function(a){return norm(a)===norm(nm);}))return scan();
+              budget--;
+              return jget(URLS.eta+sid,8000).then(function(ev){
+                var set={};((ev&&ev.data)||[]).forEach(function(it){set[it.route]=1;});
+                var hit=0;p.rs.forEach(function(r){if(set[r.r])hit++;});
+                return hit>=Math.max(1,Math.ceil(p.rs.length*0.3))?sid:scan();
+              }).catch(function(){return scan();});
             }).catch(function(){return scan();});
-          }).catch(function(){return scan();});
-        }
-        return scan();
-      }).catch(function(){return null;}).then(function(sid){
-        if(sid)return sid;
-        return tryBound();
-      });
+          }
+          return scan();
+        }).catch(function(){return null;}).then(function(sid){return sid||tryB();});
+      }
+      return tryB().then(function(sid){return sid||tryR();});
     }
-    return tryBound().then(function(sid){return sid?sid:tryRoute();});
+    return tryR();
   }
-  return tryRoute();
-}
-function resolveMissing(){
-  if(S.resolving)return Promise.resolve();
-  var missing=PLATS.filter(function(p){return !MAP[p.key];});
-  if(!missing.length){olog('全部月台已連結 All platforms linked.');return Promise.resolve();}
-  S.resolving=true;
-  olog('輕量補配 '+missing.length+' 個月台（不下載全站清單）…');
-  var budget={n:160},i=0,fixed=0;
   function next(){
-    if(i>=missing.length||budget.n<=0)return Promise.resolve();
-    var p=missing[i++];
-    return resolveOne(p,budget).then(function(sid){
-      if(sid){MAP[p.key]=sid;fixed++;saveMap();
-        olog('✓ 補配 '+p.stop.name+' '+p.stop.dir+' '+platLabel(p)+' → '+sid);}
-      else olog('✗ '+p.stop.name+' '+p.stop.dir+' '+platLabel(p)+' 仍未配對 — 可手動貼上 stop ID');
+    if(mi>=miss.length||budget<=0)return Promise.resolve();
+    var p=miss[mi++];
+    return one(p).then(function(sid){
+      if(sid){p.id=sid;saveIds();}
       return next();
     },function(){return next();});
   }
-  return next().then(function(){
-    S.resolving=false;buildResList();
-    if(fixed)refreshEtas();
-  },function(){S.resolving=false;});
-}
-/* full-index re-resolve: admin only, heavy */
-function resolveFull(){
-  if(S.resolving)return Promise.resolve();
-  S.resolving=true;
-  olog('全站重新解析（下載全站清單，較重）…');
-  var al={};STOPS.forEach(function(g){g.aliases.forEach(function(a){al[nname(a)]=1;});});
-  return fJSON(CFG.kmbStop,25000).then(function(j){
-    var list=(j&&j.data)||[];
-    CAND=list.filter(function(s){return al[nname(s.name_tc)];});
-    olog('候選 '+CAND.length+' 個');
-    var tasks=CAND.map(function(c){
-      return function(){
-        return fJSON(CFG.kmbEta+c.stop,10000).then(function(j2){
-          var set={},n=0;((j2&&j2.data)||[]).forEach(function(it){if(it.route&&!set[it.route]){set[it.route]=1;n++;}});
-          c.routes=set;c.n=n;
-        }).catch(function(){c.routes={};c.n=0;});
-      };
-    });
-    return pool(tasks,6);
-  }).then(function(){
-    var used={};
-    PLATS.forEach(function(p){
-      var want={},wn=p.routes.length;p.routes.forEach(function(r){want[r.route]=1;});
-      function diceOf(c){var inter=0;Object.keys(want).forEach(function(r){if(c.routes[r])inter++;});
-        return (2*inter)/(wn+(c.n||0));}
-      function nameOk(c){return p.stop.aliases.some(function(a){return nname(a)===nname(c.name_tc);});}
-      var best=null,bs=0,i;
-      for(i=0;i<CAND.length;i++){
-        var c=CAND[i];
-        if(used[c.stop]||!nameOk(c))continue;
-        var d=diceOf(c);if(d>bs){bs=d;best=c;}
-      }
-      var cur=null;
-      if(MAP[p.key])for(i=0;i<CAND.length;i++){if(CAND[i].stop===MAP[p.key]){cur=CAND[i];break;}}
-      var keep=cur&&nameOk(cur)&&diceOf(cur)>=0.5&&(!best||diceOf(cur)>=bs-0.05);
-      if(keep){used[cur.stop]=1;}
-      else if(best&&bs>=0.30){MAP[p.key]=best.stop;used[best.stop]=1;
-        olog('✓ '+p.stop.name+' '+p.stop.dir+' '+platLabel(p)+' → '+best.stop+' ('+Math.round(bs*100)+'%)');}
-      else if(MAP[p.key])used[MAP[p.key]]=1;
-    });
-    saveMap();buildResList();
-    Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
-  }).catch(function(e){olog('全站清單下載失敗：'+(e&&e.message||e));})
-   .then(function(){S.resolving=false;refreshEtas();});
-}
-function buildResList(){
-  var box=$('resList');clear(box);
-  PLATS.forEach(function(p){
-    var r=el('div','resRow'),nm=el('div','resName');
-    nm.appendChild(el('b','',p.stop.name+' '+p.stop.dir));
-    nm.appendChild(el('i','','月台 '+platLabel(p)+' · '+p.routes.length+' 條路線'));
-    r.appendChild(nm);
-    var id=MAP[p.key]||'';
-    var d=liveDice(p);
-    r.appendChild(el('div','resId'+(id?' ok':' bad'),(id||'未配對 Unresolved')+(d>=0?('　吻合 '+Math.round(d*100)+'%'):'')));
-    var inp=document.createElement('input');inp.className='resIn';inp.value=id;
-    inp.placeholder='九巴 stop ID';inp.setAttribute('data-p',p.key);r.appendChild(inp);
-    box.appendChild(r);});
-  Object.keys(CTB_DEF).forEach(function(pk){
-    var p=PLATBY[pk];if(!p)return;
-    var cr=el('div','resRow'),cn=el('div','resName');
-    cn.appendChild(el('b','','城巴 '+p.stop.name+'（'+p.stop.dir+'）'));
-    cn.appendChild(el('i','','601 / 601P'));
-    cr.appendChild(cn);
-    var id=CTBM[pk]||'';
-    cr.appendChild(el('div','resId'+(id?' ok':' bad'),id||'未配對 Unresolved'));
-    var ci=document.createElement('input');ci.className='resIn';ci.value=id;
-    ci.placeholder='城巴 stop ID';ci.setAttribute('data-c',pk);cr.appendChild(ci);
-    box.appendChild(cr);});
+  return next().then(function(){fetchEtas();});
 }
 
-/* ---------- view model ---------- */
-function termSetOf(p){
-  if(p._ts)return p._ts;
-  var s={};
-  (p.stop.aliases||[]).forEach(function(a){s[nname(a)]=1;});
-  s[nname(p.stop.name)]=1;
-  p._ts=s;return s;
+/* ============ weather / traffic ============ */
+var HK={ok:false,at:0,err:""};
+var WM={TC1:["t1.png","一號戒備信號 T1","#8f4a4c"],TC3:["t3.png","三號強風信號 T3","#8f4a4c"],
+ TC9:["t9.png","九號信號 T9","#7d5a86"],TC10:["t10.png","十號颶風信號 T10","#7d5a86"],
+ WRAINA:["yellow-rain.png","黃色暴雨警告","#9a7d3f"],WRAINR:["red-rain.png","紅色暴雨警告","#96473f"],
+ WRAINB:["black-rain.png","黑色暴雨警告","#1c1f26"],WL:["landslip.png","山泥傾瀉警告","#8a6a3f"],
+ WTS:["thunder.png","雷暴警告","#96703f"],WFNTSA:["nt-flood.png","新界北部水浸報告","#4a6a8a"],
+ WCOLD:["cold.png","寒冷天氣警告","#4a6a8a"],WHOT:["hot.png","酷熱天氣警告","#96703f"],
+ WMSGNL:["monsoon.png","強烈季候風信號","#4f7a5f"],WFIREY:[null,"黃色火災危險警告","#9a7d3f"],
+ WFIRER:[null,"紅色火災危險警告","#96473f"],WTMW:[null,"海嘯警告","#7d5a86"],WFRNT:[null,"霜凍警告","#4a6a8a"]};
+var D8={NE:"東北",SE:"東南",SW:"西南",NW:"西北"};
+function msgs(j){
+  if(!j)return[];
+  if(Object.prototype.toString.call(j)==="[object Array]")return j.filter(function(x){return typeof x==="string";});
+  if(j.warningMessage&&Object.prototype.toString.call(j.warningMessage)==="[object Array]")return j.warningMessage;
+  if(j.tcmessage&&Object.prototype.toString.call(j.tcmessage)==="[object Array]")return j.tcmessage;
+  return[];
 }
-function entries(p){
-  var out=(AGG[p.key]||[]).slice();
-  var cs=CTBM[p.key];
-  if(cs)['601','601P'].forEach(function(r){(AGG['CTB|'+p.key+'|'+r]||[]).forEach(function(e){out.push(e);});});
-  var ts=termSetOf(p);
-  return out.filter(function(e){return !ts[nname(e.destZh)];});
-}
-function viewFor(p,c,now,hk){
-  var es=entries(p).filter(function(e){return e.route===c.route;}),timed=[],nulls=[],i,e;
-  for(i=0;i<es.length;i++){e=es[i];if(e.t&&e.t>now-CFG.graceMs)timed.push(e);else if(!e.t)nulls.push(e);}
-  timed.sort(function(a,b){return a.t-b.t||a.st-b.st||a.seq-b.seq;});
-  var seen={},etas=[];
-  for(i=0;i<timed.length&&etas.length<3;i++){e=timed[i];var k=e.co+'|'+Math.round(e.t/60000);
-    if(seen[k])continue;seen[k]=1;etas.push({t:e.t,co:e.co,sched:isSched(e),last:isLast(e)});}
-  var ended=false,nr='',nre='';
-  for(i=0;i<nulls.length;i++){e=nulls[i];if(isEnded(e))ended=true;
-    if(e.rmk&&!nr&&!isSrc(e)){nr=e.rmk;nre=e.rmkEn;}}
-  var last=false;etas.forEach(function(x){if(x.last)last=true;});
-  var f=etas[0]||null,st;
-  if(f)st=(f.t-now<=CFG.arriveMs)?'arriving':(f.sched?'sched':'live');
-  else if(ended)st='ended';else if(nr)st='rmk';
-  else if(c.win&&!inWin(c.win,hk))st='off';else st='none';
-  var src=timed[0]||nulls[0]||es[0];
-  var dz=(src&&src.destZh)||c.dest,de=(src&&src.destEn)||c.destEn;
-  if(c.circ&&!/循環/.test(dz))dz=dz+'（循環）';
-  if(c.circ&&!/CIRCULAR/i.test(de))de=de+' (Circular)';
-  return {p:p,c:c,etas:etas,status:st,last:last,noRmk:nr,noRmkEn:nre,destZh:dz,destEn:de};
-}
-function stopViews(g,now,hk){var o=[];g.platforms.forEach(function(p){p.routes.forEach(function(c){o.push(viewFor(p,c,now,hk));});});return o;}
-function sortViews(v){v.sort(function(a,b){
-  if(CFG.sort==='route')return rnum(a.c.route)-rnum(b.c.route)||a.c.route.localeCompare(b.c.route);
-  if(CFG.sort==='platform'){var ia=a.p.stop.platforms.indexOf(a.p),ib=b.p.stop.platforms.indexOf(b.p);
-    return ia-ib||rnum(a.c.route)-rnum(b.c.route);}
-  var ta=a.etas.length?a.etas[0].t:Infinity,tb=b.etas.length?b.etas[0].t:Infinity;
-  if(ta!==tb)return ta-tb;return rnum(a.c.route)-rnum(b.c.route);});return v;}
-
-/* ---------- ribbon / overview ---------- */
-function buildRibbon(){
-  var box=$('ribbon'),i;
-  for(i=box.children.length-1;i>=0;i--){var ch=box.children[i];if(ch.id!=='ribBar')box.removeChild(ch);}
-  STOPS.forEach(function(g){
-    var c=el('div','chip');c.style.borderLeftColor='var(--'+g.hue+')';
-    var top=el('div','chipTop');
-    var nm=el('div','chipName flow');nm.setAttribute('data-flap','ribN'+g.key);
-    var dr=el('div','chipDir',g.arrow+T(g.dir,g.dirEn));dr.setAttribute('data-flap','ribD'+g.key);
-    top.appendChild(nm);top.appendChild(dr);
-    c.appendChild(top);
-    var wk=el('div','chipWalk',T('步行'+g.walk+'分',g.walk+' min'));wk.setAttribute('data-flap','ribW'+g.key);
-    c.appendChild(wk);
-    box.insertBefore(c,$('ribBar'));CHIP[g.key]=c;
-    flowSet(nm,T(g.name,g.en));});
-}
-function buildOver(){
-  var box=$('over');clear(box);
-  STOPS.forEach(function(g){
-    var c=el('div','oCard');c.style.borderTopColor='var(--'+g.hue+')';
-    var h=el('div','oHead');
-    var nm=el('div','oName flow');nm.setAttribute('data-flap','ovN'+g.key);
-    var wk=el('div','oWalk',T('步行'+g.walk+'分',g.walk+' min'));wk.setAttribute('data-flap','ovW'+g.key);
-    var dr=el('div','oDir',g.arrow+' '+T(g.dir,g.dirEn));dr.setAttribute('data-flap','ovD'+g.key);
-    h.appendChild(nm);h.appendChild(wk);h.appendChild(dr);
-    c.appendChild(h);
-    var kts=g.platforms.map(platLabel).filter(function(x){return x!=='—';});
-    var mt=el('div','oMeta flow');mt.setAttribute('data-flap','ovM'+g.key);
-    c.appendChild(mt);
-    var l=el('div','oList');c.appendChild(l);
-    c.appendChild(el('div','oFade'));
-    var f=el('div','oFoot','');f.setAttribute('data-flap','ovF'+g.key);c.appendChild(f);
-    box.appendChild(c);OVC[g.key]={el:c,list:l,foot:f,sig:''};
-    flowSet(nm,T(g.name,g.en));
-    flowSet(mt,T(g.street+' · 月台 '+kts.join(' / '),g.streetEn+' · Platforms '+kts.join(' / ')));});
-}
-function renderOver(now,hk){
-  STOPS.forEach(function(g){
-    var o=OVC[g.key];if(!o)return;
-    var all=stopViews(g,now,hk),live=all.filter(function(x){return x.etas.length;});
-    live.sort(function(a,b){return a.etas[0].t-b.etas[0].t;});
-    var show=live;
-    var imminent=show.filter(function(x){return (x.etas[0].t-now)<=CFG.band4;}).length;
-    var sig=S.langCur+'|'+show.length+'|'+(S.loaded?1:0)+'|'+
-      show.map(function(x){return x.c.route+':'+Math.max(1,Math.floor((x.etas[0].t-now)/60000))+':'+band(x.etas[0].t-now);}).join(',');
-    if(o.sig!==sig){
-      o.sig=sig;
-      clear(o.list);
-      if(!show.length){
-        var un=g.platforms.every(function(p){return !MAP[p.key];});
-        o.list.appendChild(el('div','oEmpty',
-          !S.loaded?T('載入中 Loading…','Loading…'):
-          (un?T('數據未連結 Not linked','Not linked'):T('暫無班次 No departures','No departures'))));
-      }else show.forEach(function(x){
-        var f=x.etas[0],m=Math.max(1,Math.floor((f.t-now)/60000)),r=el('div','oRow');
-        r.appendChild(el('div','oBadge',x.c.route));
-        var ds=el('div','oDest flow');ds.setAttribute('data-flap','ovR'+g.key+':'+x.c.route);
-        r.appendChild(ds);
-        r.appendChild(el('div','oMin'+band(f.t-now),String(m)));
-        var u=el('div','oUnit',T('分鐘','min'));u.setAttribute('data-flap','ovU'+g.key+':'+x.c.route);
-        r.appendChild(u);
-        o.list.appendChild(r);
-        flowSet(ds,T(x.destZh,x.destEn));});
-      if(o.list.scrollHeight>o.list.clientHeight+2)o.el.classList.add('ovf');
-      else o.el.classList.remove('ovf');
+function fetchWx(){
+  again(function(){return jget(URLS.wx+"tc",12000);}).then(function(j){
+    HK.ok=true;HK.at=Date.now();HK.err="";var i;
+    if(j.temperature&&j.temperature.data)for(i=0;i<j.temperature.data.length;i++)
+      if(j.temperature.data[i].place==="香港天文台"){S.wx.t=j.temperature.data[i].value;break;}
+    if(j.humidity&&j.humidity.data)for(i=0;i<j.humidity.data.length;i++)
+      if(j.humidity.data[i].place==="香港天文台"){S.wx.h=j.humidity.data[i].value;break;}
+    if(j.icon&&j.icon.length)S.wx.i=j.icon[0];
+    S.wz=msgs(j);
+    $("wxT").textContent=(S.wx.t===null?"--":S.wx.t)+"°C";
+    $("wxH").textContent=L("濕度 ","Humidity ")+(S.wx.h===null?"--":S.wx.h)+"%";
+    if(S.wx.i!==null){var m=$("wxI");m.onerror=function(){m.style.display="none";};
+      m.src=URLS.icon+S.wx.i+".png";m.style.display="block";}
+  }).catch(function(e){HK.ok=false;HK.err=String(e&&e.message||e);});
+  jget(URLS.wx+"en",12000).then(function(j){S.we=msgs(j);}).catch(function(){});
+  jget(URLS.tc+"tc",12000).then(function(j){S.tz=msgs(j);}).catch(function(){});
+  jget(URLS.tc+"en",12000).then(function(j){S.te=msgs(j);}).catch(function(){});
+  again(function(){return jget(URLS.ws,12000);}).then(function(j){
+    var l=[],now=Date.now(),k;
+    for(k in j)if(j.hasOwnProperty(k)){
+      var w=j[k];if(!w||!w.code||w.actionCode==="CANCEL")continue;
+      if(w.expireTime&&Date.parse(w.expireTime)&&Date.parse(w.expireTime)<now)continue;
+      var c=w.code,ic,lb,bg;
+      if(c.indexOf("TC8")===0){ic="t8.png";lb="八號"+(D8[c.slice(3)]||"")+"信號";bg="#7d5a86";}
+      else if(WM[c]){ic=WM[c][0];lb=WM[c][1];bg=WM[c][2];}
+      else{ic=null;lb=(w.name||"Warning")+(w.type?" "+w.type:"");bg="#8a6a3f";}
+      l.push({c:c,i:ic,l:lb,b:bg});
     }
-    o.foot.textContent=T('共 '+all.length+' 條路線 · '+live.length+' 班在途'+(imminent?(' · '+imminent+' 班即將到站'):'')+(live.length?(' · 最快 '+hhmm(live[0].etas[0].t)):''),
-      all.length+' routes · '+live.length+' en route'+(imminent?(' · '+imminent+' arriving'):'')+(live.length?(' · soonest '+hhmm(live[0].etas[0].t)):''));
+    S.warns=l;
+  }).catch(function(){});
+}
+function xt(n,t){var x=n.getElementsByTagName(t)[0];return x&&x.textContent?x.textContent.replace(/\s+/g," ").trim():"";}
+function hkLocal(s){var m=/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?/.exec(String(s||""));
+  if(!m)return 0;return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0))-288e5;}
+function fetchTd(){
+  get(URLS.td,12000).catch(function(){return get(URLS.proxy+encodeURIComponent(URLS.td),15000);})
+  .then(function(xml){
+    var doc=new DOMParser().parseFromString(xml,"text/xml");
+    if(doc.getElementsByTagName("parsererror").length)throw new Error("XML");
+    var ms=doc.getElementsByTagName("message"),out=[],now=Date.now(),i;
+    for(i=0;i<ms.length;i++){
+      var m=ms[i],sz=xt(m,"INCIDENT_STATUS_CN"),se=xt(m,"INCIDENT_STATUS_EN");
+      var t=hkLocal(xt(m,"ANNOUNCEMENT_DATE"));
+      if(t&&now-t>432e5)continue;
+      var loc=xt(m,"LOCATION_CN"),le=xt(m,"LOCATION_EN"),dr=xt(m,"DIRECTION_CN"),de=xt(m,"DIRECTION_EN");
+      var mk2=xt(m,"NEAR_LANDMARK_CN"),me=xt(m,"NEAR_LANDMARK_EN");
+      var di=xt(m,"DISTRICT_CN"),die=xt(m,"DISTRICT_EN");
+      var cz=xt(m,"CONTENT_CN"),ce=xt(m,"CONTENT_EN");
+      var wz=loc+(dr?"（往"+dr+"）":"")+(mk2?"近"+mk2:"");
+      var we=(le||loc)+(de?" ("+de+"bound)":"")+(me?" near "+me:"");
+      out.push({t:t,sz:sz,se:se,wz:wz||di,we:we||die||wz,z:cz||ce,e:ce||cz,di:di,de:die,
+        end:(se==="CLOSED"||sz==="完結"||sz==="恢復正常")});
+    }
+    out.sort(function(a,b){return(a.end?1:0)-(b.end?1:0)||((b.t||0)-(a.t||0));});
+    S.td=out.slice(0,8);
+  }).catch(function(e){ERR.push("td: "+(e&&e.message||e));});
+}
+
+/* ============ build DOM ============ */
+function buildRibbon(){
+  var box=$("rib"),i;
+  for(i=box.children.length-1;i>=0;i--)if(box.children[i].id!=="ribBar")box.removeChild(box.children[i]);
+  STOPS.forEach(function(g){
+    var c=mk("div","rc");c.style.borderLeftColor="var(--"+g.hue+")";
+    var n=mk("div","rcN mq");n.appendChild(mk("i"));
+    var d=mk("div","rcD"),w=mk("div","rcW");
+    c.appendChild(n);c.appendChild(d);c.appendChild(w);
+    box.insertBefore(c,$("ribBar"));
+    RIB[g.k]={el:c,n:n,d:d,w:w};
+    put(n,g.z,g.e,0);d.textContent=g.ar+L(g.dz,g.de);w.textContent=L("步行"+g.walk+"分",g.walk+" min");
+  });
+}
+function buildCards(){
+  var box=$("ov");clr(box);
+  STOPS.forEach(function(g){
+    var c=mk("div","card");c.style.borderTopColor="var(--"+g.hue+")";
+    var h=mk("div","cHd");
+    var n=mk("div","cN mq");n.appendChild(mk("i"));
+    var w=mk("div","cW"),d=mk("div","cD");
+    h.appendChild(n);h.appendChild(w);h.appendChild(d);c.appendChild(h);
+    var m=mk("div","cM mq");m.appendChild(mk("i"));c.appendChild(m);
+    var l=mk("div","cL");c.appendChild(l);
+    c.appendChild(mk("div","cFade"));
+    var f=mk("div","cF");c.appendChild(f);
+    box.appendChild(c);
+    CARD[g.k]={el:c,n:n,w:w,d:d,m:m,l:l,f:f,sig:""};
+    put(n,g.z,g.e,0);
+    w.textContent=L("步行"+g.walk+"分",g.walk+" min");
+    d.textContent=g.ar+" "+L(g.dz,g.de);
+    var kts=g.pf.map(function(p){return p.kt;}).join(" / ");
+    put(m,g.sz+" · 月台 "+kts,g.se+" · Platforms "+kts,0);
+  });
+}
+function buildRows(){
+  PF.forEach(function(p){
+    p.rs.forEach(function(r){
+      var key=p.k+"|"+r.r;
+      if(ROWS[key])return;
+      var row=mk("div","rw");row.setAttribute("data-g",p.kt);
+      var rr=mk("div","rR");rr.appendChild(mk("div","badge",r.r));
+      var ops=mk("div","ops"),omap={};
+      r.co.forEach(function(co){
+        var s=mk("span","op "+co.toLowerCase(),co==="KMB"?L("九巴 KMB","KMB"):L("城巴 CTB","CTB"));
+        omap[co]=s;ops.appendChild(s);
+      });
+      rr.appendChild(ops);row.appendChild(rr);
+      var rd=mk("div","rD");
+      var z=mk("div","dz mq");z.appendChild(mk("i"));
+      var e=mk("div","de mq");e.appendChild(mk("i"));
+      var s=mk("div","ds mq");s.appendChild(mk("i"));
+      rd.appendChild(z);rd.appendChild(e);rd.appendChild(s);row.appendChild(rd);
+      row.appendChild(mk("div","rP",p.kt));
+      var re=mk("div","rE"),em=mk("div","eM"),en=mk("span","eN","--");
+      var rt=mk("div","eRt"),et=mk("div","eT"),eb=mk("div","eB");
+      rt.appendChild(et);rt.appendChild(eb);em.appendChild(en);em.appendChild(rt);
+      var ex=mk("div","eX");re.appendChild(em);re.appendChild(ex);row.appendChild(re);
+      ROWS[key]={el:row,z:z,e:e,s:s,n:en,t:et,b:eb,x:ex,ops:omap,sig:"",key:key};
+    });
   });
 }
 
-/* ---------- detail rows ---------- */
-function makeRow(v){
-  var key=v.p.key+'|'+v.c.route;
-  var row=el('div','row'),rc=el('div','c-route');
-  rc.appendChild(el('div','badge',v.c.route));
-  var cos=el('div','cos'),map={};
-  v.c.cos.forEach(function(co){var sp=el('span','co '+co.toLowerCase(),co==='KMB'?T('九巴 KMB','KMB'):T('城巴 CTB','CTB'));map[co]=sp;cos.appendChild(sp);});
-  rc.appendChild(cos);row.appendChild(rc);
-  var dc=el('div','c-dest');
-  var dz=el('div','d-zh flow');dz.setAttribute('data-flap','rZ'+key);
-  var de=el('div','d-en flow');de.setAttribute('data-flap','rE'+key);
-  var ds=el('div','d-svc flow');ds.setAttribute('data-flap','rS'+key);
-  dc.appendChild(dz);dc.appendChild(de);dc.appendChild(ds);row.appendChild(dc);
-  var pc=el('div','c-plat');pc.appendChild(el('div','plat',platLabel(v.p)));row.appendChild(pc);
-  var ec=el('div','c-eta'),main=el('div','e-main'),min=el('span','e-min','--');
-  var right=el('div','e-right'),top=el('div','e-top'),bot=el('div','e-bot');
-  right.appendChild(top);right.appendChild(bot);main.appendChild(min);main.appendChild(right);
-  var next=el('div','e-next');ec.appendChild(main);ec.appendChild(next);row.appendChild(ec);
-  return {el:row,min:min,top:top,bot:bot,next:next,dz:dz,de:de,ds:ds,eta:ec,cos:map,sig:'',key:key};
+/* ============ paint ============ */
+function paintCards(now,d){
+  STOPS.forEach(function(g){
+    var c=CARD[g.k];if(!c)return;
+    var all=views(g,now,d),live=all.filter(function(v){return v.etas.length;});
+    live.sort(function(a,b){return a.etas[0].t-b.etas[0].t;});
+    var soon=live.filter(function(v){return v.etas[0].t-now<=C.b4;}).length;
+    var sig=S.lang+"|"+live.length+"|"+(S.loaded?1:0)+"|"+live.map(function(v){
+      return v.r.r+":"+Math.max(1,Math.floor((v.etas[0].t-now)/60000))+":"+band(v.etas[0].t-now);}).join(",");
+    if(c.sig!==sig){
+      c.sig=sig;clr(c.l);
+      if(!live.length){
+        var un=g.pf.every(function(p){return !p.id;});
+        c.l.appendChild(mk("div","cE",!S.loaded?L("載入中…","Loading…"):(un?L("數據未連結","Not linked"):L("暫無班次","No departures"))));
+      }else live.forEach(function(v){
+        var f=v.etas[0],m=Math.max(1,Math.floor((f.t-now)/60000)),r=mk("div","cR");
+        r.appendChild(mk("div","cB",v.r.r));
+        var dz=mk("div","cDest mq");dz.appendChild(mk("i"));r.appendChild(dz);
+        r.appendChild(mk("div","cMin"+band(f.t-now),String(m)));
+        r.appendChild(mk("div","cU",L("分鐘","min")));
+        c.l.appendChild(r);put(dz,v.z,v.e,0);
+      });
+      if(c.l.scrollHeight>c.l.clientHeight+2)c.el.classList.add("more");else c.el.classList.remove("more");
+    }
+    c.f.textContent=L("共 "+all.length+" 條路線 · "+live.length+" 班在途"+(soon?" · "+soon+" 班即將到站":"")+(live.length?" · 最快 "+hm(live[0].etas[0].t):""),
+      all.length+" routes · "+live.length+" en route"+(soon?" · "+soon+" arriving":"")+(live.length?" · soonest "+hm(live[0].etas[0].t):""));
+  });
 }
-function ensureRows(){PLATS.forEach(function(p){p.routes.forEach(function(c){
-  var k=p.key+'|'+c.route;if(!ROWS[k])ROWS[k]=makeRow({p:p,c:c});});});}
-function updRow(row,v,now){
-  var f=v.etas[0]||null,cur=f?f.co:null,bd=f?band(f.t-now):'';
-  var sig=S.langCur+'|'+v.status+'|'+v.destZh+'|'+v.destEn+'|'+v.noRmk+'|'+(v.last?1:0)+'|'+bd+'|'+(cur||'')+'|'+(S.loaded?1:0)+'|'+
-    v.etas.map(function(x){return x.t+':'+(x.sched?1:0)+':'+Math.max(1,Math.floor((x.t-now)/60000));}).join(',');
+function paintRow(row,v,now){
+  var f=v.etas[0]||null,cur=f?f.co:null,bd=f?band(f.t-now):"";
+  var sig=S.lang+"|"+v.st+"|"+v.z+"|"+v.e+"|"+v.rmz+"|"+(v.last?1:0)+"|"+bd+"|"+(cur||"")+"|"+(S.loaded?1:0)+"|"+
+    v.etas.map(function(x){return x.t+":"+(x.sc?1:0)+":"+Math.max(1,Math.floor((x.t-now)/60000));}).join(",");
   if(row.sig===sig)return;row.sig=sig;
-  var key=row.key;
-  row.eta.className='c-eta st-'+v.status;
-  row.el.className='row'+((v.status==='off'||v.status==='none'||v.status==='ended'||v.status==='rmk')?' dim':'');
-  clear(row.top);clear(row.bot);clear(row.next);
-  var joint=v.c.cos.length>1,tn=0;
-  Object.keys(row.cos).forEach(function(co){
-    row.cos[co].className='co '+co.toLowerCase()+((joint&&cur&&co!==cur)?' off':'');});
-  function addTop(node){node.setAttribute('data-flap','rT'+key+'_'+(tn++));row.top.appendChild(node);}
+  put(row.z,v.z,v.e,0);put(row.e,v.e,v.z,0);put(row.s,svc(v.r),svc(v.r),0);
+  row.el.className="rw"+((v.st==="o"||v.st==="n"||v.st==="e"||v.st==="r")?" dim":"");
+  clr(row.t);clr(row.b);clr(row.x);
+  var joint=v.r.co.length>1;
+  Object.keys(row.ops).forEach(function(co){
+    row.ops[co].className="op "+co.toLowerCase()+((joint&&cur&&co!==cur)?" off":"");
+    row.ops[co].textContent=co==="KMB"?L("九巴 KMB","KMB"):L("城巴 CTB","CTB");
+  });
   if(f){
-    row.min.textContent=Math.max(1,Math.floor((f.t-now)/60000));
-    row.min.className='e-min'+bd;
+    row.n.textContent=Math.max(1,Math.floor((f.t-now)/60000));
+    row.n.className="eN"+bd;
     var any=false;
-    if(v.status==='arriving'){addTop(el('span','chipT arrive',T('即將到站','Arriving')));any=true;}
-    if(f.sched){addTop(el('span','chipT sched',T('預定班次','Scheduled')));any=true;}
-    if(v.last){addTop(el('span','chipT last',T('尾班車','Last bus')));any=true;}
-    if(!any)addTop(el('span','liveTag',T('實時 Live','Live')));
-    var un=el('span','e-unit',T('分鐘 min','min'));un.setAttribute('data-flap','rU'+key);
-    row.bot.appendChild(un);
-    row.bot.appendChild(el('span','e-abs',hhmm(f.t)));
-    var nl=el('span','',T('下一班 Next ','Next '));nl.setAttribute('data-flap','rN'+key);
-    row.next.appendChild(nl);
+    if(v.st==="a"){row.t.appendChild(mk("span","cp a",L("即將到站","Arriving")));any=true;}
+    if(f.sc){row.t.appendChild(mk("span","cp s",L("預定班次","Scheduled")));any=true;}
+    if(v.last){row.t.appendChild(mk("span","cp l",L("尾班車","Last bus")));any=true;}
+    if(!any)row.t.appendChild(mk("span","lv",L("實時 Live","Live")));
+    row.b.appendChild(mk("span","eU",L("分鐘 min","min")));
+    row.b.appendChild(mk("span","eA",hm(f.t)));
+    row.x.appendChild(mk("span","",L("下一班 Next ","Next ")));
     if(v.etas.length>1)v.etas.slice(1).forEach(function(x,i){
-      if(i)row.next.appendChild(el('span','','・'));
-      row.next.appendChild(el('span',x.sched?'nx-sched':'',hhmm(x.t)));});
-    else row.next.appendChild(el('span','','—'));
+      if(i)row.x.appendChild(mk("span","","・"));
+      row.x.appendChild(mk("span","",hm(x.t)));
+    });else row.x.appendChild(mk("span","","—"));
   }else{
-    row.min.textContent='--';row.min.className='e-min';
-    var st,cls;
-    if(!S.loaded&&v.status==='none'){st=T('載入中 Loading…','Loading…');cls='load';}
-    else if(v.status==='ended'){st=T('尾班車已過此站 Last bus departed','Last bus departed');cls='ended';}
-    else if(v.status==='rmk'){st=T(v.noRmk,(v.noRmkEn||v.noRmk));cls='rmk';}
-    else if(v.status==='off'){st=T('非服務時段 Not in service','Not in service');cls='off';}
-    else{st=T('未有班次資料 No ETA','No ETA');cls='none';}
-    addTop(el('span','stat '+cls,st));
-    var tail=v.status==='rmk'?v.noRmkEn:(v.status==='off'?T((v.c.peak||(v.c.night?'通宵服務 Overnight':'')),((v.c.peak||v.c.night)?'Peak/overnight window':'')):'');
-    if(tail)row.bot.appendChild(el('span','e-unit',cap(tail,40)));
+    row.n.textContent="--";row.n.className="eN none";
+    var txt,cls;
+    if(!S.loaded&&v.st==="n"){txt=L("載入中…","Loading…");cls="ld";}
+    else if(v.st==="e"){txt=L("尾班車已過此站","Last bus departed");cls="e";}
+    else if(v.st==="r"){txt=L(v.rmz,v.rme||v.rmz);cls="r";}
+    else if(v.st==="o"){txt=L("非服務時段","Not in service");cls="o";}
+    else{txt=L("未有班次資料","No ETA");cls="n";}
+    row.t.appendChild(mk("span","st "+cls,txt));
   }
-  flowSet(row.dz,T(v.destZh,v.destEn));
-  flowSet(row.de,T(v.destEn,v.destZh));
-  flowSet(row.ds,svcText(v.c));
 }
-function detailPer(){return Math.max(1,Math.floor((($('main').clientHeight||778)-158)/ROW_H));}
-function renderDetail(now,hk){
-  var ph=S.phases[S.pi];if(!ph||ph.type!=='stop')return;
-  var g=STOPS[ph.si];
-  var sig=g.key+'|'+S.langCur;
-  if(sig!==S.detailSig){
-    S.detailSig=sig;
-    flowSet($('dName'),T(g.name,g.en));
-    flowSet($('dEn'),T(g.en+' · '+g.streetEn,g.name+' · '+g.street));
-    $('dHead').style.borderLeftColor='var(--'+g.hue+')';
-    var tg=$('dTags');clear(tg);
-    var t1=el('span','tag dir',g.arrow+' '+T(g.dir,g.dirEn));t1.setAttribute('data-flap','dT1');
-    var t2=el('span','tag',T(g.street,g.streetEn));t2.setAttribute('data-flap','dT2');
-    tg.appendChild(t1);tg.appendChild(t2);
-    if(g.terminus){var t3=el('span','tag term',T('總站','Terminus'));t3.setAttribute('data-flap','dT3');tg.appendChild(t3);}
-    var t4=el('span','tag walk',T('步行 ~'+g.walk+' 分鐘','Walk ~'+g.walk+' min'));t4.setAttribute('data-flap','dT4');
-    tg.appendChild(t4);
-    var leg=$('dLegend');clear(leg);
-    g.platforms.forEach(function(p,idx){var c=el('span','lg');
-      var b=el('b','',T('月台 ','Plat. ')+platLabel(p));b.setAttribute('data-flap','dLb'+idx);
-      var sp=el('span','',T(p.note+'（'+p.routes.length+' 路線）',p.routes.length+' routes'));sp.setAttribute('data-flap','dLn'+idx);
-      c.appendChild(b);c.appendChild(sp);leg.appendChild(c);});
+function perPage(){return Math.max(1,Math.floor((($("main").clientHeight||770)-152)/ROWH));}
+function paintDetail(now,d){
+  var ph=S.phases[S.pi];if(!ph||ph.t!=="s")return;
+  var g=STOPS[ph.i],sig=g.k+"|"+S.lang;
+  if($("dt").getAttribute("data-sig")!==sig){
+    $("dt").setAttribute("data-sig",sig);
+    put($("dN"),g.z,g.e,0);
+    put($("dS"),g.e+" · "+g.se,g.z+" · "+g.sz,0);
+    $("dH").style.borderLeftColor="var(--"+g.hue+")";
+    var tg=$("dTags");clr(tg);
+    tg.appendChild(mk("span","tg d",g.ar+" "+L(g.dz,g.de)));
+    tg.appendChild(mk("span","tg",L(g.sz,g.se)));
+    if(g.term)tg.appendChild(mk("span","tg t",L("總站","Terminus")));
+    tg.appendChild(mk("span","tg w",L("步行 ~"+g.walk+" 分鐘","Walk ~"+g.walk+" min")));
+    var lg=$("dLg");clr(lg);
+    g.pf.forEach(function(p){
+      var s=mk("span","lg");
+      s.appendChild(mk("b","",L("月台 ","Plat. ")+p.kt));
+      s.appendChild(mk("span","",L(p.nz+"（"+p.rs.length+" 路線）",p.ne+" ("+p.rs.length+" routes)")));
+      lg.appendChild(s);
+    });
   }
-  var views=sortViews(stopViews(g,now,hk)),box=$('dPages');
-  views.forEach(function(v){var r=ROWS[v.p.key+'|'+v.c.route];if(!r)return;updRow(r,v,now);box.appendChild(r.el);});
-  DP.per=detailPer();
-  var starts=[0],n=box.children.length,i;
-  for(i=DP.per;i<n;i+=DP.per)starts.push(i);
-  DP.starts=starts;DP.page=Math.min(ph.page,starts.length-1);
-  var dots=$('dDots');clear(dots);
-  starts.forEach(function(_,k){var d=el('i');if(k===DP.page)d.className='on';dots.appendChild(d);});
-  $('dPages').style.transform='translateY('+(-DP.starts[DP.page]*ROW_H)+'px)';
-  $('dLabel').textContent=(DP.page+1)+'/'+starts.length;
+  var vs=sortV(views(g,now,d)),box=$("dP");
+  vs.forEach(function(v){var r=ROWS[v.p.k+"|"+v.r.r];if(!r)return;paintRow(r,v,now);box.appendChild(r.el);});
+  PH.per=perPage();
+  var st=[0],n=box.children.length,i;
+  for(i=PH.per;i<n;i+=PH.per)st.push(i);
+  PH.starts=st;PH.page=Math.min(ph.pg,st.length-1);
+  var dots=$("dDots");clr(dots);
+  st.forEach(function(_,k){var e=mk("i");if(k===PH.page)e.className="on";dots.appendChild(e);});
+  $("dP").style.transform="translateY("+(-st[PH.page]*ROWH)+"px)";
+  $("dPl").textContent=(PH.page+1)+"/"+st.length;
+}
+function paint(){
+  var now=Date.now(),d=hk(now),ph=S.phases[S.pi];
+  if(!ph)return;
+  if(ph.t==="o")paintCards(now,d);else paintDetail(now,d);
 }
 
-/* ---------- phases ---------- */
+/* ============ phases ============ */
 function buildPhases(){
-  var old=S.phases[S.pi],list=[],per=detailPer();
-  if(CFG.lock){
-    var g=STOPBY[CFG.lock],n=g.platforms.reduce(function(a,p){return a+p.routes.length;},0);
+  var old=S.phases[S.pi],list=[],per=perPage(),i;
+  if(C.lock){
+    var g=SBY[C.lock],n=g.pf.reduce(function(a,p){return a+p.rs.length;},0);
     var pg=Math.max(1,Math.ceil(n/per));
-    for(var i=0;i<pg;i++)list.push({type:'stop',si:SIDX[CFG.lock],page:i,pages:pg});
+    for(i=0;i<pg;i++)list.push({t:"s",i:SIDX[C.lock],pg:i,pgs:pg});
   }else{
-    if(CFG.mode!=='detail')list.push({type:'over'});
-    if(CFG.mode!=='overview')STOPS.forEach(function(g,si){
-      var n=g.platforms.reduce(function(a,p){return a+p.routes.length;},0);
+    if(C.mode!=="detail")list.push({t:"o"});
+    if(C.mode!=="overview")STOPS.forEach(function(g,si){
+      var n=g.pf.reduce(function(a,p){return a+p.rs.length;},0);
       var pg=Math.max(1,Math.ceil(n/per));
-      for(var i=0;i<pg;i++)list.push({type:'stop',si:si,page:i,pages:pg});});
+      for(var j=0;j<pg;j++)list.push({t:"s",i:si,pg:j,pgs:pg});
+    });
   }
-  if(!list.length)list.push({type:'over'});
+  if(!list.length)list.push({t:"o"});
   S.phases=list;
   var keep=0;
-  if(old)for(var k=0;k<list.length;k++)
-    if(list[k].type===old.type&&list[k].si===old.si&&list[k].page===old.page){keep=k;break;}
+  if(old)for(i=0;i<list.length;i++)if(list[i].t===old.t&&list[i].i===old.i&&list[i].pg===old.pg){keep=i;break;}
   S.pi=keep;applyPhase();
-  var total=0;list.forEach(function(p){total+=p.type==='over'?CFG.dwell*1.6:CFG.dwell;});
-  $('rotInfo').textContent=CFG.lock?T('固定站點','Locked stop'):
-    (list.length>1?T('輪播 '+list.length+' 段','Rotating '+list.length+' phases'):T('單一畫面','Single view'));
+  $("rot").textContent=C.lock?L("固定站點","Locked"):(list.length>1?L("輪播 "+list.length+" 段","Rotate "+list.length):L("單一畫面","Single"));
 }
 function applyPhase(){
   var ph=S.phases[S.pi];if(!ph)return;
-  var over=ph.type==='over';
-  $('over').className=over?'show':'';
-  $('detail').className=over?'':'show';
-  if(over){setIfNotFlapping($('phaseVal'),T('全站總覽','All-stops overview'));
-    setIfNotFlapping($('phaseSub'),T(STOPS.length+' 個站 · 最快班次',STOPS.length+' stops · soonest buses'));}
-  else{var g=STOPS[ph.si];setIfNotFlapping($('phaseVal'),T(g.name,g.en));
-    setIfNotFlapping($('phaseSub'),T(g.arrow+' '+g.dir+' · 步行'+g.walk+'分 · '+(ph.page+1)+'/'+ph.pages+' 頁',
-      g.arrow+' '+g.dirEn+' · walk '+g.walk+'min · '+(ph.page+1)+'/'+ph.pages));}
-  STOPS.forEach(function(g,i){if(CHIP[g.key])CHIP[g.key].className='chip'+((!over&&i===ph.si)?' on':'');});
-  Object.keys(OVC).forEach(function(k){OVC[k].sig='';});
-  renderAll();
-  reflowVisible();
+  var ov=ph.t==="o";
+  $("ov").className=ov?"on":"";
+  $("dt").className=ov?"":"on";
+  if(ov){put($("nowV"),"全站總覽","All-stops overview",0);put($("nowS"),STOPS.length+" 個站 · 最快班次",STOPS.length+" stops · soonest",0);}
+  else{var g=STOPS[ph.i];put($("nowV"),g.z,g.e,0);
+    put($("nowS"),g.ar+" "+g.dz+" · 步行"+g.walk+"分 · "+(ph.pg+1)+"/"+ph.pgs+" 頁",
+      g.ar+" "+g.de+" · walk "+g.walk+"min · "+(ph.pg+1)+"/"+ph.pgs,0);}
+  STOPS.forEach(function(g,i){if(RIB[g.k])RIB[g.k].el.className="rc"+((!ov&&i===ph.i)?" on":"");});
+  Object.keys(CARD).forEach(function(k){CARD[k].sig="";});
+  $("dt").setAttribute("data-sig","");
+  paint();reflow();
 }
-function advance(){S.pi=(S.pi+1)%S.phases.length;applyPhase();}
-function frame(ts){
-  if(!S.frameT)S.frameT=ts;
+function nextPhase(){S.pi=(S.pi+1)%S.phases.length;applyPhase();}
+function loop(ts){
+  if(!S.fT)S.fT=ts;
   var ph=S.phases[S.pi];
   if(ph){
-    if(!S.pT)S.pT=ts;
-    var dur=ph.type==='over'?CFG.dwell*1.6:CFG.dwell,e=ts-S.pT;
-    if(S.anim){
-      $('ribBar').style.width=Math.min(100,e/dur*100)+'%';
-      $('dBar').style.width=(ph.type==='stop'?Math.min(100,e/dur*100):0)+'%';
+    if(!S.pAt)S.pAt=ts;
+    var dur=ph.t==="o"?C.dwell*1.6:C.dwell,e=ts-S.pAt;
+    if(C.anim){
+      $("ribBar").style.width=Math.min(100,e/dur*100)+"%";
+      $("dBar").style.width=(ph.t==="s"?Math.min(100,e/dur*100):0)+"%";
     }
-    if(S.phases.length>1&&e>=dur&&!S.open){S.pT=ts;advance();}
-    else if(S.open)S.pT=ts;
+    if(S.phases.length>1&&e>=dur&&!S.panel){S.pAt=ts;nextPhase();}
+    else if(S.panel)S.pAt=ts;
   }
-  S.frameT=ts;requestAnimationFrame(frame);
+  S.fT=ts;requestAnimationFrame(loop);
 }
-function renderAll(){var now=Date.now(),hk=hkDate(now),ph=S.phases[S.pi];if(!ph)return;
-  if(ph.type==='over')renderOver(now,hk);else renderDetail(now,hk);}
 
-/* ---------- weather / traffic ---------- */
-var WMAP={TC1:{i:'t1.png',l:'一號戒備信號 T1',b:'#8f4a4c'},TC3:{i:'t3.png',l:'三號強風信號 T3',b:'#8f4a4c'},
- TC9:{i:'t9.png',l:'九號信號 T9',b:'#7d5a86'},TC10:{i:'t10.png',l:'十號颶風信號 T10',b:'#7d5a86'},
- WRAINA:{i:'yellow-rain.png',l:'黃色暴雨警告',b:'#9a7d3f'},
- WRAINR:{i:'red-rain.png',l:'紅色暴雨警告',b:'#96473f'},
- WRAINB:{i:'black-rain.png',l:'黑色暴雨警告',b:'#1c1f26'},
- WL:{i:'landslip.png',l:'山泥傾瀉警告',b:'#8a6a3f'},
- WTS:{i:'thunder.png',l:'雷暴警告',b:'#96703f'},
- WFNTSA:{i:'nt-flood.png',l:'新界北部水浸報告',b:'#4a6a8a'},
- WCOLD:{i:'cold.png',l:'寒冷天氣警告',b:'#4a6a8a'},
- WHOT:{i:'hot.png',l:'酷熱天氣警告',b:'#96703f'},
- WMSGNL:{i:'monsoon.png',l:'強烈季候風信號',b:'#4f7a5f'},
- WFIREY:{i:null,l:'黃色火災危險警告',b:'#9a7d3f'},
- WFIRER:{i:null,l:'紅色火災危險警告',b:'#96473f'},
- WTMW:{i:null,l:'海嘯警告',b:'#7d5a86'},WFRNT:{i:null,l:'霜凍警告',b:'#4a6a8a'}};
-var TC8={NE:'東北',SE:'東南',SW:'西南',NW:'西北'};
-function winfo(w){var c=w.code||'';
-  if(c.indexOf('TC8')===0)return {i:'t8.png',l:'八號'+(TC8[c.slice(3)]||'')+'信號',b:'#7d5a86'};
-  return WMAP[c]||{i:null,l:(w.name||'Warning')+(w.type?' '+w.type:''),b:'#8a6a3f'};}
-function msgArr(j){
-  if(!j)return [];
-  if(Object.prototype.toString.call(j)==='[object Array]')return j.filter(function(x){return typeof x==='string';});
-  if(j.warningMessage&&Object.prototype.toString.call(j.warningMessage)==='[object Array]')return j.warningMessage;
-  if(j.tcmessage&&Object.prototype.toString.call(j.tcmessage)==='[object Array]')return j.tcmessage;
-  return [];
-}
-function refreshWx(){
-  retry(function(){return fJSON(CFG.wx+'tc',12000);}).then(function(j){
-    H.hko.ok=true;H.hko.t=Date.now();H.hko.err='';var i;
-    if(j.temperature&&j.temperature.data)for(i=0;i<j.temperature.data.length;i++)
-      if(j.temperature.data[i].place==='香港天文台'){S.wx.temp=j.temperature.data[i].value;break;}
-    if(j.humidity&&j.humidity.data)for(i=0;i<j.humidity.data.length;i++)
-      if(j.humidity.data[i].place==='香港天文台'){S.wx.hum=j.humidity.data[i].value;break;}
-    if(j.icon&&j.icon.length)S.wx.icon=j.icon[0];
-    S.wxMsgs=msgArr(j);
-    $('wxTemp').textContent=(S.wx.temp===null?'--':S.wx.temp)+'°C';
-    setIfNotFlapping($('wxHum'),T('濕度 ','Humidity ')+(S.wx.hum===null?'--':S.wx.hum)+'%');
-    if(S.wx.icon!==null){var m=$('wxIcon');m.onerror=function(){m.style.display='none';};
-      m.src=CFG.wxIcon+S.wx.icon+'.png';m.style.display='block';}
-  }).catch(function(e){H.hko.ok=false;H.hko.err=String(e&&e.message||e);});
-  fJSON(CFG.wx+'en',12000).then(function(j){S.wxMsgsEn=msgArr(j);}).catch(function(){});
-  fJSON(CFG.tc+'tc',12000).then(function(j){S.tcZh=msgArr(j);}).catch(function(){});
-  fJSON(CFG.tc+'en',12000).then(function(j){S.tcEn=msgArr(j);}).catch(function(){});
-  retry(function(){return fJSON(CFG.warn,12000);}).then(function(j){
-    var l=[],now=Date.now(),k;
-    for(k in j)if(j.hasOwnProperty(k)){var w=j[k];
-      if(!w||!w.code||w.actionCode==='CANCEL')continue;
-      if(w.expireTime&&Date.parse(w.expireTime)&&Date.parse(w.expireTime)<now)continue;
-      var f=winfo(w);l.push({code:w.code,icon:f.i,label:f.l,bg:f.b});}
-    S.warns=l;}).catch(function(){
-      S.warns=S.wxMsgs.map(function(m){return {code:'MSG',icon:null,label:cap(m,24),bg:'#96473f'};});});
-}
-function refreshStn(){
-  fText(CFG.stnUrl,12000).catch(function(){return fText(CFG.proxy+encodeURIComponent(CFG.stnUrl),15000);})
-  .then(function(xml){
-    var doc=new DOMParser().parseFromString(xml,'text/xml');
-    if(doc.getElementsByTagName('parsererror').length)throw new Error('XML parse');
-    var msgs=doc.getElementsByTagName('message'),items=[],now=Date.now(),i;
-    for(i=0;i<msgs.length;i++){
-      var m=msgs[i];
-      var stZh=xtxt(m,'INCIDENT_STATUS_CN'),stEn=xtxt(m,'INCIDENT_STATUS_EN');
-      var ended=(stEn==='CLOSED'||stZh==='完結'||stZh==='恢復正常');
-      var t=parseHkLocal(xtxt(m,'ANNOUNCEMENT_DATE'));
-      if(t&&now-t>12*3600000)continue;
-      var loc=xtxt(m,'LOCATION_CN'),locEn=xtxt(m,'LOCATION_EN');
-      var dirn=xtxt(m,'DIRECTION_CN'),dirEn=xtxt(m,'DIRECTION_EN');
-      var mark=xtxt(m,'NEAR_LANDMARK_CN'),markEn=xtxt(m,'NEAR_LANDMARK_EN');
-      var dist=xtxt(m,'DISTRICT_CN'),distEn=xtxt(m,'DISTRICT_EN');
-      var content=xtxt(m,'CONTENT_CN'),contentEn=xtxt(m,'CONTENT_EN');
-      var where=loc+(dirn?('（往'+dirn+'）'):'')+(mark?('近'+mark):'');
-      var whereEn=(locEn||loc)+(dirEn?(' ('+dirEn+'bound)'):'')+(markEn?(' near '+markEn):'');
-      if(!where)where=dist||loc;
-      if(!whereEn)whereEn=distEn||locEn||where;
-      items.push({ended:ended,t:t,statusZh:stZh,statusEn:stEn,
-        where:where,whereEn:whereEn,dist:dist,distEn:distEn,
-        content:content||contentEn,contentEn:contentEn||content});
-    }
-    items.sort(function(a,b){return (a.ended?1:0)-(b.ended?1:0)||((b.t||0)-(a.t||0));});
-    S.stn=items.slice(0,8);
-  }).catch(function(e){S.errs.push('stn: '+(e&&e.message||e));});
-}
-function strip(){
-  var sig=S.warns.map(function(w){return w.code;}).join(',');
-  if(sig===lastStrip)return;lastStrip=sig;
-  var b=$('warnBox');clear(b);
-  S.warns.forEach(function(w){var d=el('div','wb');d.style.backgroundColor=w.bg;
-    if(w.icon){var m=document.createElement('img');m.onerror=function(){m.style.display='none';};m.src=w.icon;m.alt='';d.appendChild(m);}
-    d.appendChild(el('span','',w.label));b.appendChild(d);});
+/* ============ chrome ============ */
+function warnStrip(){
+  var sig=S.warns.map(function(w){return w.c;}).join(",");
+  if(sig===lastWarn)return;lastWarn=sig;
+  var b=$("warn");clr(b);
+  S.warns.forEach(function(w){
+    var d=mk("div","wb");d.style.backgroundColor=w.b;
+    if(w.i){var m=document.createElement("img");m.onerror=function(){m.style.display="none";};m.src=w.i;m.alt="";d.appendChild(m);}
+    d.appendChild(mk("span","",w.l));b.appendChild(d);
+  });
 }
 function ticker(){
   var p=[];
-  if(S.tickCustom)p.push(S.tickCustom);
-  S.stn.forEach(function(x){
-    var cat=T(x.statusZh,x.statusEn);
-    p.push((cat?('【'+cat+'】':''))+(x.dist?T(x.dist,x.distEn)+'・':'')+T(x.where,x.whereEn)+'：'+cap(T(x.content,x.contentEn),170));
+  if(C.tick)p.push(C.tick);
+  S.td.forEach(function(x){
+    var cat=L(x.sz,x.se);
+    p.push((cat?"【"+cat+"】":"")+(x.di?L(x.di,x.de)+"・":"")+L(x.wz,x.we)+"："+cut(L(x.z,x.e),170));
   });
-  (S.langCur==='en'?S.wxMsgsEn:S.wxMsgs).forEach(function(m){p.push(cap(m,200));});
-  (S.langCur==='en'?S.tcEn:S.tcZh).forEach(function(m){p.push(cap(m,200));});
-  if(!p.length)p.push(T('目前沒有特別消息','No special announcements at present'));
-  var s=p.join(' | ');if(s===lastTick)return;lastTick=s;
-  $('tickA').textContent=s;$('tickB').textContent=s;
-  var t=$('tickTrack'),w=t.offsetWidth/2,d=Math.max(25,w/110);
-  t.style.animation='none';void t.offsetWidth;
-  t.style.animation=S.anim?('tickmove '+d+'s linear infinite'):'none';
+  (S.lang==="en"?S.we:S.wz).forEach(function(m){p.push(cut(m,200));});
+  (S.lang==="en"?S.te:S.tz).forEach(function(m){p.push(cut(m,200));});
+  if(!p.length)p.push(L("目前沒有特別消息","No special announcements at present"));
+  var s=p.join(" | ");
+  if(s===lastTick)return;lastTick=s;
+  $("tkA").textContent=s;$("tkB").textContent=s;
+  var t=$("ftT"),w=t.offsetWidth/2,dur=Math.max(25,w/110);
+  t.style.animation="none";void t.offsetWidth;
+  t.style.animation=C.anim?("tk "+dur+"s linear infinite"):"none";
 }
-
-/* ---------- tick ---------- */
+function header(){
+  put($("t1"),"翠屏・協和・和樂 多站巴士到站顯示屏","TSUI PING · HIP WO · WO LOK MULTI-STOP ETA",0);
+  put($("t2"),"TSUI PING · HIP WO · WO LOK MULTI-STOP BUS ETA DISPLAY","翠屏・協和・和樂 多站巴士到站顯示屏",0);
+  put($("t3"),"和樂邨・祥和苑・寶珮苑・翠桉樓・翠梓樓・觀塘游泳池・翠屏道總站・翠屏北邨總站",
+    "Wo Lok Est · Cheung Wo Court · Po Pui Court · Tsui On House · Tsui Tsz House · KT Swimming Pool · Tsui Ping Rd & North Est Terminuses",0);
+  $("nowL").textContent=L("現正顯示 NOW SHOWING","NOW SHOWING 現正顯示");
+  $("wxH").textContent=L("濕度 ","Humidity ")+(S.wx.h===null?"--":S.wx.h)+"%";
+}
+function langSwitch(){
+  clearFlips();
+  S.langAt=Date.now();
+  header();
+  var order=0;
+  function step(el,z,e){put(el,z,e,C.anim?(60+order++ *26):0);}
+  STOPS.forEach(function(g){
+    var r=RIB[g.k];if(r){step(r.n,g.z,g.e);r.d.textContent=g.ar+L(g.dz,g.de);r.w.textContent=L("步行"+g.walk+"分",g.walk+" min");}
+    var c=CARD[g.k];
+    if(c){step(c.n,g.z,g.e);c.w.textContent=L("步行"+g.walk+"分",g.walk+" min");c.d.textContent=g.ar+" "+L(g.dz,g.de);
+      var kts=g.pf.map(function(p){return p.kt;}).join(" / ");
+      step(c.m,g.sz+" · 月台 "+kts,g.se+" · Platforms "+kts);c.sig="";}
+  });
+  Object.keys(ROWS).forEach(function(k){ROWS[k].sig="";});
+  $("dt").setAttribute("data-sig","");
+  applyPhase();
+  lastTick="";ticker();
+}
 function tick(){
-  var now=Date.now(),hk=hkDate(now);
-  if(CFG.lang==='auto'){
-    if(now-S.langT>=CFG.langMs){S.langCur=(S.langCur==='zh')?'en':'zh';langChanged();}
-  }else if(S.langCur!==CFG.lang){S.langCur=CFG.lang;langChanged();}
-  $('ch').textContent=pad(hk.getHours());$('cm').textContent=pad(hk.getMinutes());
-  setIfNotFlapping($('dateZh'),T(hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()],
-    WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear()));
-  setIfNotFlapping($('dateEn'),T(WEN[hk.getDay()]+' '+pad(hk.getDate())+' '+MEN[hk.getMonth()]+' '+hk.getFullYear(),
-    hk.getFullYear()+'年'+(hk.getMonth()+1)+'月'+hk.getDate()+'日 星期'+WZH[hk.getDay()]));
-  try{renderAll();}catch(e){S.errs.push('render: '+e.message);}
-  strip();ticker();
-  [['kmb','dotKmb'],['ctb','dotCtb'],['hko','dotHko']].forEach(function(pr){
-    var h=H[pr[0]],c='';
-    if(!h.t)c='';else if(h.ok&&now-h.t<CFG.staleMs)c='ok';else if(h.ok)c='warn';else c='bad';
-    $(pr[1]).className=c;});
-  var u=$('upd');
-  if(navigator.onLine===false){u.textContent=T('離線 Offline','Offline');u.className='bad';}
-  else if(!S.lastEta){u.textContent=T('載入中…','Loading…');u.className='';}
-  else if(now-S.lastEta>CFG.staleMs){u.textContent=T('延遲 ','Delayed ')+hhmm(S.lastEta);u.className='warn';}
-  else{u.textContent=T('更新 ','Updated ')+hhmm(S.lastEta);u.className='';}
-  if(S.open==='dbg')dbg(now);
-  if(CFG.reloadH>0&&now-S.boot>CFG.reloadH*3600000)location.reload();
-}
-function dbg(now){
-  var ph=S.phases[S.pi]||{},L=[];
-  L.push('HK '+hhmm(now)+'　theme '+S.theme+'　anim '+(S.anim?'on':'off')+'　lang '+S.langCur+' ('+CFG.lang+')');
-  L.push('mode '+CFG.mode+(CFG.lock?(' lock='+CFG.lock):'')+'　sort '+CFG.sort+'　flaps '+FLAPPEND.length);
-  L.push('screen '+window.innerWidth+'x'+window.innerHeight+' scale '+S.scale.toFixed(3)+'　fs '+(isFS()?'Y':'N')+'　guard '+S.guard);
-  L.push('ETA fetch ok='+S.fetchOk+' fail='+S.fetchFail+' in '+S.lastFetchMs+'ms　etaBusy '+etaBusy);
-  L.push('linked '+resCount()+'/'+PLATS.length+'　lastEta '+(S.lastEta?hhmm(S.lastEta):'never'));
-  L.push('phase '+(S.pi+1)+'/'+S.phases.length+' '+(ph.type==='over'?'overview':(ph.type==='stop'?STOPS[ph.si].name+' p'+(ph.page+1)+'/'+ph.pages:'-'))+'　rows/page '+DP.per);
-  PLATS.forEach(function(p){
-    if(!MAP[p.key])L.push('  UNMAPPED '+p.stop.name+' '+p.stop.dir+' '+platLabel(p));
-    else{var d=liveDice(p);if(d>=0&&d<0.4)L.push('  LOW MATCH '+p.stop.name+' '+p.stop.dir+' '+platLabel(p)+' '+MAP[p.key]+' '+Math.round(d*100)+'%');}
+  var now=Date.now(),d=hk(now);
+  if(C.lang==="auto"){if(now-S.langAt>=C.langMs){S.lang=S.lang==="zh"?"en":"zh";langSwitch();}}
+  else if(S.lang!==C.lang){S.lang=C.lang;langSwitch();}
+  $("hh").textContent=p2(d.getHours());$("mm").textContent=p2(d.getMinutes());
+  $("clkD").textContent=L(d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 星期"+WZ[d.getDay()],
+    WE[d.getDay()]+" "+p2(d.getDate())+" "+MO[d.getMonth()]+" "+d.getFullYear());
+  $("clkE").textContent=L(WE[d.getDay()]+" "+p2(d.getDate())+" "+MO[d.getMonth()]+" "+d.getFullYear(),
+    d.getFullYear()+"年"+(d.getMonth()+1)+"月"+d.getDate()+"日 星期"+WZ[d.getDay()]);
+  try{paint();}catch(e){fail("paint",e);}
+  warnStrip();ticker();
+  [["dK",S.okN>0],["dC",S.okN>0],["dH2",HK.ok]].forEach(function(pr){
+    var e=$(pr[0]);
+    e.className=(!S.lastEta&&pr[0]!=="dH2")?"":(pr[1]?"ok":"bd");
   });
-  ['kmb','ctb','hko'].forEach(function(k){var h=H[k];
-    L.push(k.toUpperCase()+': '+(h.ok?'OK':'FAIL')+(h.t?' @'+hhmm(h.t):'')+(h.err?'  '+h.err:''));});
-  if(S.errs.length){L.push('errors:');S.errs.slice(-8).forEach(function(e){L.push('  '+e);});}
-  $('dbg').textContent=L.join('\n');
+  var u=$("upd");
+  if(navigator.onLine===false){u.textContent=L("離線","Offline");u.className="bd";}
+  else if(!S.lastEta){u.textContent=L("載入中…","Loading…");u.className="";}
+  else if(now-S.lastEta>C.stale){u.textContent=L("延遲 ","Delayed ")+hm(S.lastEta);u.className="wn";}
+  else{u.textContent=L("更新 ","Updated ")+hm(S.lastEta);u.className="";}
+  if(S.panel==="diag")diag();
+  if(C.reload>0&&now-S.boot>C.reload*36e5)location.reload();
+}
+function diag(){
+  var ph=S.phases[S.pi]||{},l=[];
+  l.push("HK "+hm(Date.now())+"  theme "+S.theme+"  anim "+(C.anim?"on":"off")+"  lang "+S.lang+" ("+C.lang+")");
+  l.push("mode "+C.mode+(C.lock?" lock="+C.lock:"")+"  sort "+C.sort+"  dwell "+Math.round(C.dwell/1000)+"s");
+  l.push("screen "+window.innerWidth+"x"+window.innerHeight+"  scale "+S.scale.toFixed(3)+"  fs "+(S.fs?"Y":"N")+"  guard "+S.guard);
+  l.push("ETA ok="+S.okN+" fail="+S.failN+" in "+S.ms+"ms  busy "+S.busy+"  lastEta "+(S.lastEta?hm(S.lastEta):"never"));
+  l.push("phase "+(S.pi+1)+"/"+S.phases.length+" "+(ph.t==="o"?"overview":(ph.t==="s"?STOPS[ph.i].z+" p"+(ph.pg+1)+"/"+ph.pgs:"-"))+"  rows/page "+PH.per);
+  PF.forEach(function(p){if(!p.id)l.push("  NO-ID "+p.g.z+" "+p.g.dz+" "+p.kt);});
+  l.push("HKO "+(HK.ok?"OK":"FAIL")+(HK.err?" "+HK.err:"")+"  traffic items "+S.td.length);
+  if(ERR.length){l.push("errors:");ERR.slice(-8).forEach(function(e){l.push("  "+e);});}
+  $("dg").textContent=l.join("\n");
 }
 
-/* ---------- fullscreen / wake / guard ---------- */
+/* ============ fullscreen / keep-awake ============ */
 function isFS(){return !!(document.fullscreenElement||document.webkitFullscreenElement||document.mozFullScreenElement||document.msFullscreenElement);}
-function reqFS(){var e=document.documentElement,
-  f=e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen||e.msRequestFullscreen;
-  if(!f)return Promise.reject(new Error('no fs'));
-  try{var p=f.call(e,{navigationUI:'hide'});return (p&&p.then)?p:Promise.resolve();}catch(x){return Promise.reject(x);}}
-function onFS(){S.fs=true;reqWake();startAudio();
-  try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){});}catch(e){}}
-function tryFS(){if(isFS()){onFS();return;}reqFS().then(onFS).catch(function(){});}
-function reqWake(){try{if(navigator.wakeLock&&navigator.wakeLock.request){
-  navigator.wakeLock.request('screen').then(function(s){S.wake=s;
-    if(s.addEventListener)s.addEventListener('release',function(){S.wake=null;});}).catch(function(){S.wake=null;});}}catch(e){}}
-function startAudio(){if(S.audio==='on')return;
-  try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-    var ac=new AC(),o=ac.createOscillator(),g=ac.createGain();
-    g.gain.value=0.0001;o.frequency.value=30;o.connect(g);g.connect(ac.destination);o.start();
-    if(ac.resume)ac.resume();S.audio='on';}catch(e){S.audio='err';}}
+function askFS(){
+  var e=document.documentElement,f=e.requestFullscreen||e.webkitRequestFullscreen||e.mozRequestFullScreen||e.msRequestFullscreen;
+  if(!f)return Promise.reject(new Error("no fs"));
+  try{var p=f.call(e,{navigationUI:"hide"});return(p&&p.then)?p:Promise.resolve();}catch(x){return Promise.reject(x);}
+}
+function onFS(){S.fs=true;wake();audio();
+  try{if(screen.orientation&&screen.orientation.lock)screen.orientation.lock("landscape").catch(function(){});}catch(e){}}
+function tryFS(){if(isFS()){onFS();return;}askFS().then(onFS).catch(function(){});}
+function wake(){try{if(navigator.wakeLock&&navigator.wakeLock.request){
+  navigator.wakeLock.request("screen").then(function(s){S.wake=s;
+    if(s.addEventListener)s.addEventListener("release",function(){S.wake=null;});}).catch(function(){});}}catch(e){}}
+function audio(){if(S.audio==="on")return;
+  try{var A=window.AudioContext||window.webkitAudioContext;if(!A)return;
+    var a=new A(),o=a.createOscillator(),g=a.createGain();
+    g.gain.value=.0001;o.frequency.value=30;o.connect(g);g.connect(a.destination);o.start();
+    if(a.resume)a.resume();S.audio="on";}catch(e){S.audio="err";}}
 var gv=null;
-function startGuard(){
+function guard(){
   try{
-    var cv=document.createElement('canvas');cv.width=480;cv.height=270;
-    var cx=cv.getContext('2d'),t=0;
-    function draw(){t+=0.008;cx.fillStyle=S.gBg||'#0e1116';cx.fillRect(0,0,480,270);
-      var x=240+Math.sin(t)*180,y=135+Math.cos(t*0.7)*90,g=cx.createRadialGradient(x,y,0,x,y,320);
-      g.addColorStop(0,S.gWash||'rgba(255,255,255,0.015)');g.addColorStop(1,'rgba(0,0,0,0)');
+    var cv=document.createElement("canvas");cv.width=480;cv.height=270;
+    var cx=cv.getContext("2d"),t=0;
+    function draw(){t+=.008;cx.fillStyle=S.gb||"#0d1015";cx.fillRect(0,0,480,270);
+      var x=240+Math.sin(t)*180,y=135+Math.cos(t*.7)*90,g=cx.createRadialGradient(x,y,0,x,y,320);
+      g.addColorStop(0,S.gw||"rgba(255,255,255,.015)");g.addColorStop(1,"rgba(0,0,0,0)");
       cx.fillStyle=g;cx.fillRect(0,0,480,270);}
     draw();setInterval(draw,150);
-    gv=$('bgvid');
-    if(cv.captureStream&&'srcObject' in gv){
-      gv.srcObject=cv.captureStream(8);gv.muted=true;playGuard();
-      gv.addEventListener('playing',function(){S.guard='playing';});
-      gv.addEventListener('pause',function(){S.guard='paused';});
-      S.guard='starting';setInterval(playGuard,15000);
-    }else S.guard='unsupported';
-  }catch(e){S.guard='error';}
+    gv=$("guard");
+    if(cv.captureStream&&"srcObject" in gv){
+      gv.srcObject=cv.captureStream(8);gv.muted=true;play();
+      gv.addEventListener("playing",function(){S.guard="playing";});
+      gv.addEventListener("pause",function(){S.guard="paused";});
+      S.guard="starting";setInterval(play,15000);
+    }else S.guard="unsupported";
+  }catch(e){S.guard="error";}
 }
-function playGuard(){if(!gv)return;if(gv.paused){try{var p=gv.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}}
+function play(){if(!gv)return;if(gv.paused){try{var p=gv.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}}
 function sizeCards(){
-  var h=Math.max(180,Math.floor((($('main').clientHeight||778)-28)/3));
-  STOPS.forEach(function(g){if(OVC[g.key])OVC[g.key].el.style.height=h+'px';});
+  var h=Math.max(176,Math.floor((($("main").clientHeight||770)-26)/3));
+  STOPS.forEach(function(g){if(CARD[g.k])CARD[g.k].el.style.height=h+"px";});
 }
 function layout(){
-  var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/SW,h/SH);S.scale=s;
-  var sh=SHIFT[sIdx];
-  $('stage').style.transform='translate('+((w-SW*s)/2+sh[0]*s)+'px,'+((h-SH*s)/2+sh[1]*s)+'px) scale('+s+')';
-  sizeCards();buildPhases();reflowVisible();
+  var w=window.innerWidth,h=window.innerHeight,s=Math.min(w/1920,h/1080);
+  S.scale=s;var sh=SHIFT[shI];
+  $("stage").style.transform="translate("+((w-1920*s)/2+sh[0]*s)+"px,"+((h-1080*s)/2+sh[1]*s)+"px) scale("+s+")";
+  sizeCards();buildPhases();reflow();
 }
 
-/* ---------- UI ---------- */
-function bindUI(){
-  $('setBtn').addEventListener('click',function(){openPanel('set');});
-  $('setClose').addEventListener('click',function(){openPanel('');});
-  $('resClose').addEventListener('click',function(){openPanel('');});
-  $('dbgClose').addEventListener('click',function(){openPanel('');});
-  $('thDark').addEventListener('click',function(){setTheme('dark');});
-  $('thLight').addEventListener('click',function(){setTheme('light');});
-  $('animBtn').addEventListener('click',function(){setAnim(!S.anim);});
-  $('tickIn').addEventListener('change',function(){
-    S.tickCustom=this.value.trim();persist('ktmc2Tick',S.tickCustom);lastTick='';ticker();});
-  $('langSel').addEventListener('change',function(){
-    CFG.lang=this.value;persist('ktmc2Lang',CFG.lang);
-    var nl=(CFG.lang==='auto')?S.langCur:CFG.lang;
-    if(nl!==S.langCur){S.langCur=nl;langChanged();}else S.langT=Date.now();});
-  $('lgM').addEventListener('click',function(){CFG.langMs=Math.max(3000,CFG.langMs-1000);persist('ktmc2LangMs',Math.round(CFG.langMs/1000));syncCtrls();S.langT=Date.now();});
-  $('lgP').addEventListener('click',function(){CFG.langMs=Math.min(30000,CFG.langMs+1000);persist('ktmc2LangMs',Math.round(CFG.langMs/1000));syncCtrls();S.langT=Date.now();});
-  $('modeSel').addEventListener('change',function(){CFG.mode=this.value;persist('ktmc2Mode',CFG.mode);S.pT=0;buildPhases();});
-  $('lockSel').addEventListener('change',function(){CFG.lock=this.value;persist('ktmc2Lock',CFG.lock);S.pT=0;buildPhases();});
-  $('sortSel').addEventListener('change',function(){CFG.sort=this.value;persist('ktmc2Sort',CFG.sort);
-    Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});buildPhases();});
-  $('dwM').addEventListener('click',function(){CFG.dwell=Math.max(4000,CFG.dwell-1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
-  $('dwP').addEventListener('click',function(){CFG.dwell=Math.min(60000,CFG.dwell+1000);persist('ktmc2Dwell',Math.round(CFG.dwell/1000));syncCtrls();S.pT=0;buildPhases();});
-  $('rlM').addEventListener('click',function(){CFG.reloadH=Math.max(0,CFG.reloadH-1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
-  $('rlP').addEventListener('click',function(){CFG.reloadH=Math.min(24,CFG.reloadH+1);persist('ktmc2Reload',CFG.reloadH);syncCtrls();});
-  $('resBtn').addEventListener('click',function(){openPanel('res');});
-  $('dbgBtn').addEventListener('click',function(){openPanel('dbg');});
-  $('refBtn').addEventListener('click',function(){refreshEtas();refreshWx();refreshStn();});
-  $('fsBtn2').addEventListener('click',tryFS);
-  $('resMissing').addEventListener('click',function(){resolveMissing();});
-  $('resRun').addEventListener('click',function(){resolveFull();});
-  $('resSave').addEventListener('click',function(){
-    var ins=$('resList').getElementsByTagName('input'),i;
-    for(i=0;i<ins.length;i++){var pk=ins[i].getAttribute('data-p'),ck=ins[i].getAttribute('data-c'),v=ins[i].value.trim();
-      if(pk){if(v)MAP[pk]=v;else delete MAP[pk];}
-      else if(ck){if(v)CTBM[ck]=v;else delete CTBM[ck];}}
-    saveMap();buildResList();Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
-    refreshEtas();olog('已儲存覆寫 Overrides saved.');});
-  $('resDefault').addEventListener('click',function(){
-    MAP={};Object.keys(DEFAULT_MAP).forEach(function(k){MAP[k]=DEFAULT_MAP[k];});
-    CTBM={};Object.keys(CTB_DEF).forEach(function(k){CTBM[k]=CTB_DEF[k];});
-    saveMap();buildResList();
-    Object.keys(ROWS).forEach(function(k){ROWS[k].sig='';});
-    olog('已還原內建預設 Defaults restored.');
-    refreshEtas();resolveMissing();});
-  window.addEventListener('pointerdown',function(e){
-    var t=e.target,inPanel=t&&t.closest&&(t.closest('.panel')||t.closest('#setBtn'));
-    if(S.open&&!inPanel)openPanel('');
-    startAudio();playGuard();tryFS();});
+/* ============ events ============ */
+function bind(){
+  $("setB").addEventListener("click",function(){panel("set");});
+  $("setX").addEventListener("click",function(){panel("");});
+  $("dgX").addEventListener("click",function(){panel("");});
+  $("bDark").addEventListener("click",function(){theme("dark");});
+  $("bLight").addEventListener("click",function(){theme("light");});
+  $("bAnim").addEventListener("click",function(){anim(!C.anim);});
+  $("bDiag").addEventListener("click",function(){panel("diag");});
+  $("bRef").addEventListener("click",function(){fetchEtas();fetchWx();fetchTd();fillMissing();});
+  $("bFs").addEventListener("click",tryFS);
+  $("iTick").addEventListener("change",function(){C.tick=this.value.trim();save("k2tick",C.tick);lastTick="";ticker();});
+  $("sLang").addEventListener("change",function(){
+    C.lang=this.value;save("k2lang",C.lang);
+    var n=C.lang==="auto"?S.lang:C.lang;
+    if(n!==S.lang){S.lang=n;langSwitch();}else S.langAt=Date.now();});
+  $("lgM").addEventListener("click",function(){C.langMs=Math.max(3000,C.langMs-1000);save("k2langms",Math.round(C.langMs/1000));sync();S.langAt=Date.now();});
+  $("lgP").addEventListener("click",function(){C.langMs=Math.min(30000,C.langMs+1000);save("k2langms",Math.round(C.langMs/1000));sync();S.langAt=Date.now();});
+  $("sMode").addEventListener("change",function(){C.mode=this.value;save("k2mode",C.mode);S.pAt=0;buildPhases();});
+  $("sLock").addEventListener("change",function(){C.lock=this.value;save("k2lock",C.lock);S.pAt=0;buildPhases();});
+  $("sSort").addEventListener("change",function(){C.sort=this.value;save("k2sort",C.sort);
+    Object.keys(ROWS).forEach(function(k){ROWS[k].sig="";});buildPhases();});
+  $("dwM").addEventListener("click",function(){C.dwell=Math.max(4000,C.dwell-1000);save("k2dwell",Math.round(C.dwell/1000));sync();S.pAt=0;buildPhases();});
+  $("dwP").addEventListener("click",function(){C.dwell=Math.min(60000,C.dwell+1000);save("k2dwell",Math.round(C.dwell/1000));sync();S.pAt=0;buildPhases();});
+  $("rlM").addEventListener("click",function(){C.reload=Math.max(0,C.reload-1);save("k2reload",C.reload);sync();});
+  $("rlP").addEventListener("click",function(){C.reload=Math.min(24,C.reload+1);save("k2reload",C.reload);sync();});
+  window.addEventListener("pointerdown",function(e){
+    var t=e.target,inside=t&&t.closest&&(t.closest(".pnl")||t.closest("#setB"));
+    if(S.panel&&!inside)panel("");
+    audio();play();tryFS();
+  });
   var ct=null;
-  window.addEventListener('mousemove',function(){
-    document.body.classList.add('cursor');
+  window.addEventListener("mousemove",function(){
+    document.body.classList.add("cur");
     if(ct)clearTimeout(ct);
-    ct=setTimeout(function(){document.body.classList.remove('cursor');},2500);});
+    ct=setTimeout(function(){document.body.classList.remove("cur");},2500);
+  });
+  window.addEventListener("resize",function(){try{layout();}catch(e){fail("layout",e);}});
+  window.addEventListener("online",function(){fetchEtas();fetchWx();fetchTd();});
+  document.addEventListener("visibilitychange",function(){
+    if(!document.hidden){fetchEtas();fetchWx();wake();play();S.pAt=0;S.langAt=Date.now();}});
+  document.addEventListener("fullscreenchange",function(){if(isFS())onFS();});
+  document.addEventListener("webkitfullscreenchange",function(){if(isFS())onFS();});
 }
-function init(){
-  try{loadSettings();}catch(e){showBootErr('loadSettings: '+e.message);}
-  try{applyHeaderLang();}catch(e){showBootErr('header: '+e.message);}
-  try{buildRibbon();buildOver();ensureRows();buildResList();}catch(e){showBootErr('build: '+e.message);}
-  try{startGuard();}catch(e){}
-  try{bindUI();}catch(e){showBootErr('bindUI: '+e.message);}
-  try{layout();}catch(e){showBootErr('layout: '+e.message);}
-  try{buildPhases();}catch(e){showBootErr('phases: '+e.message);}
-  try{tick();}catch(e){showBootErr('tick: '+e.message);}
-  /* data first — never gated behind any resolver */
-  refreshEtas();
-  refreshWx();
-  refreshStn();
-  setTimeout(function(){resolveMissing();},2500);
-  setInterval(function(){try{tick();}catch(e){}},1000);
-  setInterval(refreshEtas,CFG.etaMs);
-  setInterval(refreshWx,CFG.wxMs);
-  setInterval(refreshStn,CFG.stnMs);
-  setInterval(function(){sIdx=(sIdx+1)%SHIFT.length;try{layout();}catch(e){}},45000);
-  setInterval(function(){if(!etaBusy&&(!S.lastEta||Date.now()-S.lastEta>CFG.staleMs))refreshEtas();},15000);
-  document.addEventListener('visibilitychange',function(){
-    if(!document.hidden){refreshEtas();refreshWx();refreshStn();reqWake();playGuard();S.pT=0;S.langT=Date.now();}});
-  window.addEventListener('online',function(){refreshEtas();refreshWx();refreshStn();});
-  window.addEventListener('resize',function(){try{layout();}catch(e){}});
-  document.addEventListener('fullscreenchange',function(){if(isFS())onFS();});
-  document.addEventListener('webkitfullscreenchange',function(){if(isFS())onFS();});
-  window.addEventListener('error',function(e){S.errs.push(String(e.message||e));if(S.errs.length>12)S.errs.shift();});
-  requestAnimationFrame(frame);
+
+/* ============ boot ============ */
+function boot(){
+  settings();
+  header();
+  buildRibbon();
+  buildCards();
+  buildRows();
+  guard();
+  bind();
+  layout();
+  buildPhases();
+  tick();
+  fetchEtas();
+  fetchWx();
+  fetchTd();
+  setTimeout(fillMissing,2500);
+  setInterval(function(){try{tick();}catch(e){fail("tick",e);}},1000);
+  setInterval(fetchEtas,C.etaMs);
+  setInterval(fetchWx,C.wxMs);
+  setInterval(fetchTd,C.tdMs);
+  setInterval(function(){shI=(shI+1)%SHIFT.length;try{layout();}catch(e){}},45000);
+  setInterval(function(){if(!S.busy&&(!S.lastEta||Date.now()-S.lastEta>C.stale))fetchEtas();},15000);
+  requestAnimationFrame(loop);
   tryFS();
 }
-try{init();}catch(e){showBootErr('init: '+e.message);}
+try{boot();}catch(e){fail("boot",e);}
 </script>
 </body>
 </html>
